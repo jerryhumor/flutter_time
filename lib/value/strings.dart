@@ -1,0 +1,1 @@
+const String VIEW_DETAIL = '查看详情';
