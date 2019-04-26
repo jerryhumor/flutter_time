@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_time/constant/time_event_constant.dart';
+import 'package:flutter_time/ui/time_event_list_ui.dart';
 import 'package:flutter_time/value/colors.dart';
 
 class TimeEventListPage extends StatelessWidget {
@@ -19,16 +21,13 @@ class TimeEventListPage extends StatelessWidget {
           )
         ],
       ),
-//      body: ,
+      body: ListView.builder(
+        itemCount: 13,
+        itemBuilder: (context, index) {
+          return TimeEventItem(Colors.red, TimeEventType.countDownDay, '还是计算机', 0);
+        },
+      ),
     );
-  }
-}
-
-// 事件条目
-class TimeEventItem extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }
 

@@ -3,7 +3,7 @@ import 'package:flutter_time/value/colors.dart';
 
 // 查看详情文字样式
 const TextStyle viewDetailTextStyle = TextStyle(
-  fontSize: 10.0,
+  fontSize: 8.0,
   color: Colors.white
 );
 
@@ -15,17 +15,18 @@ const TextStyle timeEventItemTitleTextStyle = TextStyle(
 
 // 剩余天数 已过天数的文字样式
 const TextStyle timeEventItemDayTextStyle = TextStyle(
-  fontSize: 18.0,
+  fontSize: 28.0,
+  fontWeight: FontWeight.bold,
   color: Colors.white
 );
 
 const TextStyle timeEventItemDayLabelTextStyle = TextStyle(
-  fontSize: 14.0,
+  fontSize: 10.0,
   color: colorWhiteTransparent
 );
 
 const TextStyle timeEventTypeLabelSmallTextStyle = TextStyle(
-  fontSize: 10.0,
+  fontSize: 8.0,
   color: Colors.white
 );
 

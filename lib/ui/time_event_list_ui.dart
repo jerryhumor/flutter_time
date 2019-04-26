@@ -16,19 +16,24 @@ class TimeEventItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: _bgColor,
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Column(
-        children: <Widget>[
-          // 包含标题 类型信息的row
-          TitleRow(_title, _type),
-          // 包含日期信息的row
-          TimeRow(_type, null, null),
-        ],
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: _bgColor,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: Column(
+          children: <Widget>[
+            // 包含标题 类型信息的row
+            TitleRow(_title, _type),
+            // 间隔
+            SizedBox(height: 8.0,),
+            // 包含日期信息的row
+            TimeRow(_type, null, null),
+          ],
+        ),
       ),
     );
   }
@@ -38,6 +43,8 @@ class TitleRow extends StatelessWidget {
 
   final String _title;
   final TimeEventType _type;
+
+  TitleRow(this._title, this._type);
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +56,10 @@ class TitleRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            // 标题
             TimeEventTitle(_title),
+            // 间距
+            SizedBox(height: 6.0,),
             _type == TimeEventType.countDownDay ?
               TimeEventTypeLabel.countDownDaySmall()
               : TimeEventTypeLabel.cumulativeDaySmall(),
@@ -60,8 +70,6 @@ class TitleRow extends StatelessWidget {
       ],
     );
   }
-
-  TitleRow(this._title, this._type);
 }
 
 class TimeRow extends StatelessWidget {
@@ -80,15 +88,20 @@ class TimeRow extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
         // 左边的进度和目标日
         Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // 累计日的倒计时文字
-            _type == TimeEventType.countDownDay ? Text('已过1/9') : Container(),
+            _type == TimeEventType.countDownDay ? TimeEventPassText(9, 1) : Container(),
+            // 分割
+            SizedBox(height: 2.0,),
             // 累计日的倒计时进度条
-            _type == TimeEventType.countDownDay ? TimeEventProgress(9, 1) : Container(),
+            _type == TimeEventType.countDownDay ? TimeEventPassProgress(9, 1) : Container(),
+            // 分割
+            SizedBox(height: 2.0,),
             // 目标日
             TargetDay(null),
           ],
@@ -113,9 +126,9 @@ class ViewDetailLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(16.0),
         border: Border.all(color: Colors.white,)
       ),
       child: Text(
@@ -165,6 +178,7 @@ class TimeEventTypeLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 8.0),
       decoration: BoxDecoration(
         color: colorWhiteTransparent,
         borderRadius: BorderRadius.circular(4.0),
@@ -177,20 +191,55 @@ class TimeEventTypeLabel extends StatelessWidget {
   }
 }
 
-// 目标日已过进度条
-class TimeEventProgress extends StatelessWidget {
+// 已过天数label
+class TimeEventPassText extends StatelessWidget {
 
-  final int _totalDay;
-  final int _passDay;
+  final int _totalDay, _passDay;
 
-  TimeEventProgress(this._totalDay, this._passDay);
+  TimeEventPassText(this._totalDay, this._passDay);
 
   @override
   Widget build(BuildContext context) {
+    return Text(
+      '$PASS$_passDay/$_totalDay',
+      style: timeEventItemDayLabelTextStyle,
+    );
+  }
+}
+
+// 目标日已过进度条
+class TimeEventPassProgress extends StatelessWidget {
+
+  static final double PROGRESS_WIDTH = 100.0, PROGRESS_HEIGHT = 5.0;
+  final int _totalDay;
+  final int _passDay;
+
+  TimeEventPassProgress(this._totalDay, this._passDay);
+
+  @override
+  Widget build(BuildContext context) {
+
+    final double _progressWidth =
+      _passDay >= _totalDay ? 1.0 * PROGRESS_WIDTH : _passDay * PROGRESS_WIDTH / _totalDay;
+
     return Container(
-      height: 5.0,
-      width: 200.0,
-      color: Colors.red,
+      height: PROGRESS_HEIGHT,
+      width: PROGRESS_WIDTH,
+      decoration: BoxDecoration(
+        color: colorWhiteTransparent,
+        borderRadius: BorderRadius.circular(3.0)
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: _progressWidth,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(3.0),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
