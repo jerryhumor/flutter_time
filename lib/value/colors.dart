@@ -14,6 +14,7 @@ const Color colorGreen2 = Color(0xff58A55C);
 const Color colorPurple = Color(0xff6553A2);
 const Color colorBlack = Color(0xff07070B);
 const Color colorGrey = Color(0xff434756);
+const Color colorWhiteTransparent = Color(0x80ffffff);
 
 const Color colorBluePrimary = colorBlue2;
 const Color colorRedPrimary = colorRed2;
