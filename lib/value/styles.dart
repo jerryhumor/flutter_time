@@ -39,3 +39,15 @@ const TextStyle timeEventTargetDayTextStyle = TextStyle(
   fontSize: 14.0,
   color: colorWhiteTransparent
 );
+
+// 创建事件时 事件名称样式
+const TextStyle timeEventCreateEventNameTextStyle = TextStyle(
+  fontSize: 14.0,
+  color: colorGrey
+);
+
+// 创建事件时 事件名称提示样式
+const TextStyle timeEventCreateEventNameHintTextStyle = TextStyle(
+  fontSize: 14.0,
+  color: colorBlack
+);

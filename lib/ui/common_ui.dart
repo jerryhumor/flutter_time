@@ -308,3 +308,203 @@ class TimeEventTitle extends StatelessWidget {
     );
   }
 }
+
+// 分隔条
+class VerticalSeparator extends StatelessWidget {
+
+  final double _height;
+
+  VerticalSeparator(this._height);
+
+  @override
+  Widget build(BuildContext context) => SizedBox(height: _height,);
+}
+
+// 事件名称编辑条目
+class EventNameTile extends StatelessWidget {
+
+  final String _name;
+  final String _hint;
+
+  EventNameTile(this._name, this._hint);
+
+  EventNameTile.countDown(this._name): this._hint = COUNT_DOWN_EVENT_NAME;
+  EventNameTile.cumulative(this._name): this._hint = CUMULATIVE_EVENT_NAME;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: ListTile(
+        title: Text(
+          _name ?? _hint,
+          style: _name == null ? timeEventCreateEventNameHintTextStyle : timeEventCreateEventNameTextStyle
+        ),
+      )
+    );
+  }
+}
+
+
+// 起始日期编辑条目
+class StartDateTile extends StatelessWidget {
+
+  final String _startTime;
+  final VoidCallback _onTap;
+
+  StartDateTile(this._startTime, this._onTap);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: ListTile(
+        leading: Image.asset(
+          'images/time_event_start_time.png',
+          height: 24.0,
+          width: 24.0,
+        ),
+        title: Text(START_DATE),
+        trailing: Text(_startTime),
+        onTap: _onTap,
+      ),
+    );
+  }
+}
+
+// 目标日期编辑条目
+class TargetDateTile extends StatelessWidget {
+
+  final String _targetTime;
+  final VoidCallback _onTap;
+
+  TargetDateTile(this._targetTime, this._onTap);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: ListTile(
+        leading: Image.asset(
+          'images/time_event_target_time.png',
+          height: 24.0,
+          width: 24.0,
+        ),
+        title: Text(TARGET_DATE),
+        trailing: Text(_targetTime),
+        onTap: _onTap,
+      ),
+    );
+  }
+}
+
+// 备注编辑条目
+class RemarkTile extends StatelessWidget {
+
+  final String _remark;
+  final VoidCallback _onTap;
+
+  RemarkTile(this._remark, this._onTap);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: ListTile(
+        leading: Image.asset(
+          'images/time_event_remark.png',
+          height: 24.0,
+          width: 24.0,
+        ),
+        title: Text(REMARK),
+        trailing: Text(_remark),
+        onTap: _onTap,
+      ),
+    );
+  }
+}
+
+// 颜色选择条目
+class ColorSelectTile extends StatefulWidget {
+
+  final int _selectedIndex;
+
+  ColorSelectTile(this._selectedIndex);
+
+  @override
+  _ColorSelectTileState createState() => _ColorSelectTileState(_selectedIndex);
+}
+
+class _ColorSelectTileState extends State<ColorSelectTile> {
+
+  int _selectedIndex;
+
+  _ColorSelectTileState(int selectedIndex) {
+    if (selectedIndex == null || selectedIndex <= 0 || selectedIndex > bgColorList.length - 1) {
+      _selectedIndex = 0;
+    } else {
+      _selectedIndex = selectedIndex;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 70.0,
+      color: Colors.white,
+      padding: const EdgeInsets.all(10.0),
+      child: ListView.separated(
+        physics: BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        separatorBuilder: (context, index) => SizedBox(width: 10.0,),
+        itemCount: bgColorList.length,
+        itemBuilder: (context, index) {
+          return ColorSelectItem(
+            bgColorList[index],
+            _selectedIndex == index,
+            (color) {
+              _selectIndex(index);
+            }
+          );
+        },
+      ),
+    );
+  }
+
+  void _selectIndex(int index) {
+    setState(() {
+      // todo 检查下index合法
+      _selectedIndex = index;
+    });
+  }
+}
+
+// 颜色选择Item
+class ColorSelectItem extends StatelessWidget {
+
+  final Color _color;
+  final bool _selected;
+  final void Function(Color color) _colorCallback;
+
+  ColorSelectItem(this._color, this._selected, this._colorCallback);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _colorCallback(this._color);
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          width: 20.0,
+          height: 20.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _color
+          ),
+        ),
+      ),
+    );
+  }
+}

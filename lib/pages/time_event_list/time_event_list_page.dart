@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
-import 'package:flutter_time/ui/time_event_list_ui.dart';
+import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/value/colors.dart';
 
 class TimeEventListPage extends StatelessWidget {
