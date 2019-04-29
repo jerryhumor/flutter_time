@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/pages/create_count_down_event_page.dart';
-import 'package:flutter_time/pages/time_event_list/time_event_list_page.dart';
 import 'package:flutter_time/value/strings.dart';
 
 void main() => runApp(MyApp());

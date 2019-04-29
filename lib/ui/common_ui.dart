@@ -16,23 +16,28 @@ class TimeEventItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: _bgColor,
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Column(
-          children: <Widget>[
-            // 包含标题 类型信息的row
-            TitleRow(_title, _type),
-            // 间隔
-            SizedBox(height: 8.0,),
-            // 包含日期信息的row
-            TimeRow(_type, null, null),
-          ],
+    return GestureDetector(
+      onTap: () {
+        // todo 点击事件
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: _bgColor,
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Column(
+            children: <Widget>[
+              // 包含标题 类型信息的row
+              TitleRow(_title, _type),
+              // 间隔
+              SizedBox(height: 8.0,),
+              // 包含日期信息的row
+              TimeRow(_type, null, null),
+            ],
+          ),
         ),
       ),
     );
