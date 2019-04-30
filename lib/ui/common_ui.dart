@@ -350,7 +350,6 @@ class EventNameTile extends StatelessWidget {
   }
 }
 
-
 // 起始日期编辑条目
 class StartDateTile extends StatelessWidget {
 
@@ -513,3 +512,74 @@ class ColorSelectItem extends StatelessWidget {
     );
   }
 }
+
+// 创建事件类型选择Item
+class EventTypeItem extends StatelessWidget {
+
+  final String _title;
+  final String _subTitle;
+  final Color _bgColor;
+  final VoidCallback _onTap;
+
+  EventTypeItem(this._title, this._subTitle, this._bgColor, this._onTap);
+
+  EventTypeItem.countDownDay(this._onTap) :
+        this._title = COUNT_DOWN_TYPE_ITEM_TITLE,
+        this._subTitle = COUNT_DOWN_TYPE_ITEM_SUB_TITLE,
+        this._bgColor = colorRed1;
+  EventTypeItem.cumulativeDay(this._onTap) :
+        this._title = CUMULATIVE_TYPE_ITEM_TITLE,
+        this._subTitle = CUMULATIVE_TYPE_ITEM_SUB_TITLE,
+        this._bgColor = colorBlue1;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _bgColor,
+          borderRadius: BorderRadius.circular(16.0)
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            // 主标题和副标题
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // 主标题
+                Text(
+                  _title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+                // 分隔
+                SizedBox(height: 4.0,),
+                // 副标题
+                Text(
+                  _subTitle,
+                  style: TextStyle(
+                    color: colorWhiteTransparent,
+                    fontSize: 14.0,
+                  ),
+                )
+              ],
+            ),
+            // 向右的箭头
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
