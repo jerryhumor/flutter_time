@@ -4,6 +4,7 @@ import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 import 'package:flutter_time/value/styles.dart';
 
+// 时间事件的条目
 class TimeEventItem extends StatelessWidget {
   // 背景颜色
   final Color _bgColor;
@@ -582,4 +583,21 @@ class EventTypeItem extends StatelessWidget {
     );
   }
 }
+
+// appbar的标题
+class AppBarTitle extends StatelessWidget {
+
+  final String _title;
+
+  AppBarTitle(this._title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _title,
+      style: appBarTitleTextStyle,
+    );
+  }
+}
+
 

@@ -51,3 +51,10 @@ const TextStyle timeEventCreateEventNameHintTextStyle = TextStyle(
   fontSize: 14.0,
   color: colorBlack
 );
+
+// appbar 标题文字样式
+const TextStyle appBarTitleTextStyle = TextStyle(
+  fontSize: 20.0,
+  fontWeight: FontWeight.bold,
+  color: colorAppBarTitle
+);

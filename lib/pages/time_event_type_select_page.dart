@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/value/colors.dart';
+import 'package:flutter_time/value/strings.dart';
 
 class TimeEventTypeSelectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('创建'),
+        backgroundColor: colorAppBarBg,
+        title: AppBarTitle(CREATE),
         centerTitle: true,
         actions: <Widget>[
           IconButton(

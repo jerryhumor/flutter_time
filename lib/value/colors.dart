@@ -25,3 +25,6 @@ const List<Color> bgColorList = [
   colorBlack, colorGrey
 ];
 
+const Color colorAppBarBg = Colors.white;
+const Color colorAppBarTitle = colorGrey;
+

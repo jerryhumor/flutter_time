@@ -3,6 +3,7 @@ import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/util/navigator_utils.dart';
 import 'package:flutter_time/value/colors.dart';
+import 'package:flutter_time/value/strings.dart';
 
 class TimeEventListPage extends StatelessWidget {
 
@@ -10,8 +11,9 @@ class TimeEventListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Time'),
+        title: AppBarTitle(APP_NAME),
         centerTitle: true,
+        backgroundColor: colorAppBarBg,
         actions: <Widget>[
           IconButton(
             icon: Icon(
@@ -25,6 +27,7 @@ class TimeEventListPage extends StatelessWidget {
         ],
       ),
       body: ListView.builder(
+        physics: BouncingScrollPhysics(),
         itemCount: 13,
         itemBuilder: (context, index) {
           return TimeEventItem(Colors.red, TimeEventType.countDownDay, '还是计算机', 0);
