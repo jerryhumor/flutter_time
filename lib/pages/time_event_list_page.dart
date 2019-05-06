@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/ui/common_ui.dart';
+import 'package:flutter_time/util/navigator_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 
 class TimeEventListPage extends StatelessWidget {
@@ -17,7 +18,9 @@ class TimeEventListPage extends StatelessWidget {
               Icons.add,
               color: colorGrey,
             ),
-            onPressed: () {},
+            onPressed: () {
+              NavigatorUtils.startTimeEventTypeSelectWithAnimation(context);
+            },
           )
         ],
       ),

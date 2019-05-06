@@ -17,7 +17,7 @@ class TimeEventTypeSelectPage extends StatelessWidget {
               color: colorGrey,
             ),
             onPressed: () {
-
+              Navigator.pop(context);
             },
           ),
         ],
