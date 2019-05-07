@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/ui/common_ui.dart';
+import 'package:flutter_time/util/navigator_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
@@ -28,9 +29,16 @@ class TimeEventTypeSelectPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            EventTypeItem.countDownDay(() {}),
+            // 倒计日条目
+            EventTypeItem.countDownDay(() {
+              NavigatorUtils.startCreateCountDownTimeEvent(context);
+            }),
+            // 分隔
             SizedBox(height: 32.0,),
-            EventTypeItem.cumulativeDay(() {}),
+            // 累计日条目
+            EventTypeItem.cumulativeDay(() {
+              NavigatorUtils.startCreateCumulativeTimeEvent(context);
+            }),
           ],
         ),
       ),

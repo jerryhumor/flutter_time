@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_time/pages/create_count_down_event_page.dart';
 import 'package:flutter_time/pages/time_event_type_select_page.dart';
 
 class NavigatorUtils {
@@ -20,6 +21,22 @@ class NavigatorUtils {
         }
       )
     );
+  }
+
+  //
+  static void startCreateCountDownTimeEvent(BuildContext context) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, _, __) {
+          return CreateCountDownEventPage();
+        }
+      )
+    );
+  }
+
+  static void startCreateCumulativeTimeEvent(BuildContext context) {
+
   }
 
 }
