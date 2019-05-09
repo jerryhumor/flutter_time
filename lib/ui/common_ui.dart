@@ -600,4 +600,78 @@ class AppBarTitle extends StatelessWidget {
   }
 }
 
+// 首页底部 BottomBarItem 按钮
+class PageButton extends StatefulWidget {
+
+  final Duration duration;
+  final Size size;
+  final VoidCallback onTap;
+
+  const PageButton({
+    this.duration = const Duration(milliseconds: 500),
+    this.size = const Size(40.0, 40.0),
+    this.onTap
+  });
+
+  @override
+  _PageButtonState createState() => _PageButtonState();
+}
+
+class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
+
+  AnimationController _controller;
+  CurvedAnimation _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+    Animation<double> linearAnimation = Tween(begin: 0.0, end: 1.0).animate(_controller);
+    _animation = CurvedAnimation(parent: linearAnimation, curve: Curves.elasticOut);
+    // 设置一开始的按钮大小为原始大小
+    _controller.forward(from: 1.0);
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _playAnimation();
+        if (widget.onTap != null) {
+          widget.onTap();
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        width: widget.size.width,
+        height: widget.size.height,
+        color: Colors.red,
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              print('build, value ${_animation.value}');
+              return Icon(
+                Icons.add,
+                size: _animation.value * widget.size.height / 1.55,
+              );
+            }
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _playAnimation() {
+    _controller.forward(from: 0.0);
+  }
+}
+
+
 
