@@ -606,11 +606,22 @@ class PageButton extends StatefulWidget {
   final Duration duration;
   final Size size;
   final VoidCallback onTap;
+  final String unCheckedImgAsset;
+  final String checkedImgAsset;
+  final bool checked;
+  // 一定要添加这个背景颜色 不知道为什么 container不添加背景颜色 不能撑开
+  final Color backgroundColor;
+  final EdgeInsetsGeometry padding;
 
   const PageButton({
     this.duration = const Duration(milliseconds: 500),
     this.size = const Size(40.0, 40.0),
-    this.onTap
+    this.onTap,
+    @required this.unCheckedImgAsset,
+    @required this.checkedImgAsset,
+    this.checked = false,
+    this.backgroundColor = Colors.transparent,
+    this.padding = const EdgeInsets.all(8.0)
   });
 
   @override
@@ -628,7 +639,7 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
     _controller = AnimationController(vsync: this, duration: widget.duration);
     Animation<double> linearAnimation = Tween(begin: 0.0, end: 1.0).animate(_controller);
     _animation = CurvedAnimation(parent: linearAnimation, curve: Curves.elasticOut);
-    // 设置一开始的按钮大小为原始大小
+    // 一开始不播放动画 直接显示原始大小
     _controller.forward(from: 1.0);
   }
 
@@ -648,21 +659,21 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
         }
       },
       child: Container(
-        padding: const EdgeInsets.all(8.0),
-        width: widget.size.width,
-        height: widget.size.height,
-        color: Colors.red,
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _animation,
-            builder: (context, child) {
-              print('build, value ${_animation.value}');
-              return Icon(
-                Icons.add,
-                size: _animation.value * widget.size.height / 1.55,
-              );
-            }
-          ),
+        constraints: BoxConstraints(minWidth: widget.size.width, minHeight: widget.size.height),
+        color: widget.backgroundColor,
+        padding: widget.padding,
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, child) {
+            // size / 1.55 是为了防止溢出
+            return Center(
+              child: Image.asset(
+                widget.checked ? widget.checkedImgAsset : widget.unCheckedImgAsset,
+                width: _animation.value * (widget.size.width - widget.padding.horizontal) / 1.55,
+                height: _animation.value * (widget.size.height - widget.padding.vertical) / 1.55,
+              ),
+            );
+          }
         ),
       ),
     );

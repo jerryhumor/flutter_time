@@ -45,6 +45,10 @@ flutter:
     - images/time_event_start_time.png
     - images/time_event_target_time.png
     - images/time_event_remark.png
+    - images/time_event_list_page_selected.png
+    - images/time_event_list_page_normal.png
+    - images/time_event_setting_page_selected.png
+    - images/time_event_setting_page_normal.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.
