@@ -11,6 +11,14 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
 
   bool isListPage = true;
+  GlobalKey<PageContainerState> _pageContainerKey;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _pageContainerKey = GlobalKey<PageContainerState>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +26,8 @@ class _MainPageState extends State<MainPage> {
       children: <Widget>[
         // 事件列表和设置页面
         Expanded(
-          child: IndexedStack(
+          child: PageContainer(
+            key: _pageContainerKey,
             index: isListPage ? 0 : 1,
             children: <Widget>[
               TimeEventListPage(),
@@ -39,6 +48,7 @@ class _MainPageState extends State<MainPage> {
                   onTap: () {
                     setState(() {
                       isListPage = true;
+                      _pageContainerKey.currentState.changePage(0);
                     });
                   },
                 ),
@@ -50,6 +60,7 @@ class _MainPageState extends State<MainPage> {
                   onTap: () {
                     setState(() {
                       isListPage = false;
+                      _pageContainerKey.currentState.changePage(1);
                     });
                   },
                 ),
