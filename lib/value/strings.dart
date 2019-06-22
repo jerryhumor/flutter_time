@@ -28,3 +28,4 @@ const String CUMULATIVE_TYPE_ITEM_TITLE = '创建 | 累计日';
 const String CUMULATIVE_TYPE_ITEM_SUB_TITLE = '起始日期: 历史日或今日';
 
 const String CREATE = '创建';
+const String SETTING = '设置';

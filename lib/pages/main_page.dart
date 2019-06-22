@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/pages/setting_page.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
+import 'package:flutter_time/ui/animation_page_container.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 
 class MainPage extends StatefulWidget {
@@ -11,64 +12,74 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
 
   bool isListPage = true;
-  GlobalKey<PageContainerState> _pageContainerKey;
 
   @override
   void initState() {
     super.initState();
-
-    _pageContainerKey = GlobalKey<PageContainerState>();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        // 事件列表和设置页面
-        Expanded(
-          child: PageContainer(
-            key: _pageContainerKey,
-            index: isListPage ? 0 : 1,
-            children: <Widget>[
-              TimeEventListPage(),
-              SettingPage(),
-            ],
-          ),
-        ),
-        // 底部tab bar
-        Material(
-          elevation: 16.0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              // 事件列表页面按钮
-              Expanded(
-                child: ListPageButton(
-                  checked: isListPage,
-                  onTap: () {
-                    setState(() {
-                      isListPage = true;
-                      _pageContainerKey.currentState.changePage(0);
-                    });
-                  },
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: <Widget>[
+          // 事件列表和设置页面
+          Expanded(
+            child: PageContainer(
+              duration: const Duration(milliseconds: 200),
+              index: isListPage ? 0 : 1,
+              children: <PageAnimation>[
+                PageAnimation(
+                  fadeStart: 0.0,
+                  fadeEnd: 1.0,
+                  positionStart: Offset(-0.05, 0.0),
+                  positionEnd: Offset.zero,
+                  child: TimeEventListPage(),
                 ),
-              ),
-              // 设置页面按钮
-              Expanded(
-                child: SettingPageButton(
-                  checked: !isListPage,
-                  onTap: () {
-                    setState(() {
-                      isListPage = false;
-                      _pageContainerKey.currentState.changePage(1);
-                    });
-                  },
+                PageAnimation(
+                  fadeStart: 0.0,
+                  fadeEnd: 1.0,
+                  positionStart: Offset(0.05, 0.0),
+                  positionEnd: Offset.zero,
+                  child: SettingPage(),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        )
-      ],
+          // 底部tab bar
+          Material(
+            elevation: 16.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                // 事件列表页面按钮
+                Expanded(
+                  child: ListPageButton(
+                    checked: isListPage,
+                    onTap: () {
+                      setState(() {
+                        isListPage = true;
+                      });
+                    },
+                  ),
+                ),
+                // 设置页面按钮
+                Expanded(
+                  child: SettingPageButton(
+                    checked: !isListPage,
+                    onTap: () {
+                      setState(() {
+                        isListPage = false;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }
