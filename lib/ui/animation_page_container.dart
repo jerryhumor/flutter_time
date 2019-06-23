@@ -44,32 +44,61 @@ class PageContainerState extends State<PageContainer> with SingleTickerProviderS
   @override
   Widget build(BuildContext context) {
     _currentPageIndex = widget.index;
+    final PageAnimation oldPageAnimation = widget.children[_oldPageIndex];
+    final PageAnimation newPageAnimation = widget.children[_currentPageIndex];
     bool reverse = _oldPageIndex < _currentPageIndex;
     _oldPageIndex = _currentPageIndex;
-    final PageAnimation pageAnimation  = widget.children[_currentPageIndex];
-    Animation<double> fadeAnimation;
-    Animation<Offset> slideAnimation;
-    if (pageAnimation.fadeEnd != null && pageAnimation != null) {
-      fadeAnimation = Tween(begin: pageAnimation.fadeStart, end: pageAnimation.fadeEnd).animate(_controller);
+
+    Widget oldPage, newPage;
+    Animation<double> oldFadeAnimation, newFadeAnimation;
+    Animation<Offset> oldSlideAnimation, newSlideAnimation;
+    if (oldPageAnimation.fadeEnd != null && oldPageAnimation != null) {
+      oldFadeAnimation = Tween(begin: oldPageAnimation.fadeEnd, end: oldPageAnimation.fadeStart).animate(_controller);
     }
-    if (pageAnimation.positionStart != null && pageAnimation.positionEnd != null) {
-      slideAnimation = Tween(begin: pageAnimation.positionStart, end: pageAnimation.positionEnd).animate(_controller);
+    if (oldPageAnimation.positionStart != null && oldPageAnimation.positionEnd != null) {
+      oldSlideAnimation = Tween(begin: oldPageAnimation.positionEnd, end: oldPageAnimation.positionStart).animate(_controller);
     }
-    Widget result = pageAnimation.child;
-    if (slideAnimation != null) {
-      result = SlideTransition(
-        position: slideAnimation,
-        child: result,
+    if (newPageAnimation.fadeEnd != null && newPageAnimation != null) {
+      newFadeAnimation = Tween(begin: newPageAnimation.fadeStart, end: newPageAnimation.fadeEnd).animate(_controller);
+    }
+    if (newPageAnimation.positionStart != null && newPageAnimation.positionEnd != null) {
+      newSlideAnimation = Tween(begin: newPageAnimation.positionStart, end: newPageAnimation.positionEnd).animate(_controller);
+    }
+    oldPage = oldPageAnimation.child;
+    if (oldSlideAnimation != null) {
+      oldPage = SlideTransition(
+        position: oldSlideAnimation,
+        child: oldPage,
       );
     }
-    if (fadeAnimation != null) {
-      result = FadeTransition(
-        opacity: fadeAnimation,
-        child: result,
+    if (oldFadeAnimation != null) {
+      oldPage = FadeTransition(
+        opacity: oldFadeAnimation,
+        child: oldPage,
       );
+    }
+    newPage = newPageAnimation.child;
+    if (newSlideAnimation != null) {
+      newPage = SlideTransition(
+        position: newSlideAnimation,
+        child: newPage,
+      );
+    }
+    if (newFadeAnimation != null) {
+      newPage = FadeTransition(
+        opacity: newFadeAnimation,
+        child: newPage,
+      );
+    }
+
+    Widget content;
+    if (oldPage == null) {
+      content = newPage;
+    } else {
+      content = Stack(children: [oldPage, newPage],);
     }
     
-    return result;
+    return content;
   }
 
   @override
