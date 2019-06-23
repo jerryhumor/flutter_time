@@ -23,15 +23,12 @@ class NavigatorUtils {
     );
   }
 
-  //
+  // 一般是由当前事件类型选择页面调用的
+  // 所以会先pop掉当前页面 然后在启动创建倒计时事件页面
   static void startCreateCountDownTimeEvent(BuildContext context) {
-    Navigator.push(
+    Navigator.popAndPushNamed(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, _, __) {
-          return CreateCountDownEventPage();
-        }
-      )
+      'create_count_down_event_page',
     );
   }
 

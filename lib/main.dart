@@ -17,6 +17,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      routes: {
+        "create_count_down_event_page" : (context) => CreateCountDownEventPage(),
+      },
       home: MainPage(),
     );
   }

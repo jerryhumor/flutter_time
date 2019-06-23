@@ -542,6 +542,7 @@ class EventTypeItem extends StatelessWidget {
           color: _bgColor,
           borderRadius: BorderRadius.circular(16.0)
         ),
+        margin: const EdgeInsets.symmetric(horizontal: 28.0),
         padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

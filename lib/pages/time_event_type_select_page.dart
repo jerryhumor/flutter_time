@@ -1,10 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_time/ui/animation_column.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/util/navigator_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
-class TimeEventTypeSelectPage extends StatelessWidget {
+class TimeEventTypeSelectPage extends StatefulWidget {
+  @override
+  _TimeEventTypeSelectPageState createState() => _TimeEventTypeSelectPageState();
+}
+
+class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with SingleTickerProviderStateMixin {
+
+  AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = 
+      AnimationController(
+        vsync: this, 
+        duration: const Duration(milliseconds: 300)
+      );
+      controller.addStatusListener((listener) {
+        if (listener == AnimationStatus.completed) {
+          NavigatorUtils.startCreateCountDownTimeEvent(context);
+        }
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,23 +48,24 @@ class TimeEventTypeSelectPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 32.0, right: 32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // 倒计日条目
-            EventTypeItem.countDownDay(() {
-              NavigatorUtils.startCreateCountDownTimeEvent(context);
-            }),
-            // 分隔
-            SizedBox(height: 32.0,),
-            // 累计日条目
-            EventTypeItem.cumulativeDay(() {
-              NavigatorUtils.startCreateCumulativeTimeEvent(context);
-            }),
-          ],
-        ),
+      body: AnimationColumn(
+        fadeStart: 1.0,
+        fadeEnd: 0.0,
+        positionStart: Offset.zero,
+        positionEnd: Offset(-0.2, 0.0),
+        controller: controller,
+        children: <Widget>[
+          // 倒计日条目
+          EventTypeItem.countDownDay(() {
+            controller.forward();
+          }),
+          // 分隔
+          SizedBox(height: 32.0,),
+          // 累计日条目
+          EventTypeItem.cumulativeDay(() {
+            controller.forward();
+          }),
+        ],
       ),
     );
   }
