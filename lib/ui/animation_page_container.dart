@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-/**
- * 带页面切换效果的容器
- * 可以通过PageAnimation来决定切到该页面和切出该页面的效果
- */
+/// 带页面切换效果的容器
+/// 可以通过PageAnimation来决定切到该页面和切出该页面的效果
+
 class PageContainer extends StatefulWidget {
 
   final Key key;

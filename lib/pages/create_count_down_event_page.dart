@@ -4,6 +4,7 @@ import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
+/// 创建倒计日事件页面
 class CreateCountDownEventPage extends StatefulWidget {
   @override
   _CreateCountDownEventPageState createState() => _CreateCountDownEventPageState();

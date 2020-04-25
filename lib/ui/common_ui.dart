@@ -6,37 +6,41 @@ import 'package:flutter_time/value/styles.dart';
 
 // 时间事件的条目
 class TimeEventItem extends StatelessWidget {
-  // 背景颜色
-  final Color _bgColor;
-  final TimeEventType _type;
+  /// 背景颜色
+  final Color bgColor;
+  /// 事件类型
+  final TimeEventType type;
+  /// 事件标题
+  final String title;
+  /// 时间剩余
+  final int day;
+  /// 点击事件
+  final VoidCallback onTap;
 
-  final String _title;
-  final int _day;
-
-  TimeEventItem(this._bgColor, this._type, this._title, this._day);
+  TimeEventItem(this.bgColor, this.type, this.title, this.day, this.onTap);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // todo 点击事件
+
       },
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: _bgColor,
+            color: bgColor,
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
             children: <Widget>[
               // 包含标题 类型信息的row
-              TitleRow(_title, _type),
+              TitleRow(title: title, type: type.index),
               // 间隔
               SizedBox(height: 8.0,),
               // 包含日期信息的row
-              TimeRow(_type, null, null),
+              TimeRow(type.index, null, null),
             ],
           ),
         ),
@@ -47,10 +51,11 @@ class TimeEventItem extends StatelessWidget {
 
 class TitleRow extends StatelessWidget {
 
-  final String _title;
-  final TimeEventType _type;
+  final String title;
+  final int type;
+  final String titleHeroTag;
 
-  TitleRow(this._title, this._type);
+  TitleRow({this.title, this.type, this.titleHeroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -63,12 +68,12 @@ class TitleRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // 标题
-            TimeEventTitle(_title),
+            TimeEventTitle(title),
             // 间距
             SizedBox(height: 6.0,),
-            _type == TimeEventType.countDownDay ?
-              TimeEventTypeLabel.countDownDaySmall()
-              : TimeEventTypeLabel.cumulativeDaySmall(),
+            type == TimeEventType.countDownDay.index ?
+              TimeEventTypeLabel.countDownDaySmall(heroTag: titleHeroTag,)
+              : TimeEventTypeLabel.cumulativeDaySmall(heroTag: titleHeroTag,),
           ],
         ),
         // 查看详情
@@ -80,12 +85,12 @@ class TitleRow extends StatelessWidget {
 
 class TimeRow extends StatelessWidget {
   // 类型 倒计日 累计日
-  final TimeEventType _type;
+  final int type;
   // 开始时间和结束时间
   // 如果是累计日 则_endTime 为空
-  final int _startTime, _endTime;
+  final int startTime, endTime;
 
-  TimeRow(this._type, this._startTime, this._endTime);
+  TimeRow(this.type, this.startTime, this.endTime);
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +106,11 @@ class TimeRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // 累计日的倒计时文字
-            _type == TimeEventType.countDownDay ? TimeEventPassText(9, 1) : Container(),
+            type == TimeEventType.countDownDay.index ? TimeEventPassText(9, 1) : Container(),
             // 分割
             SizedBox(height: 2.0,),
             // 累计日的倒计时进度条
-            _type == TimeEventType.countDownDay ? TimeEventPassProgress(9, 1) : Container(),
+            type == TimeEventType.countDownDay.index ? TimeEventPassProgress(9, 1) : Container(),
             // 分割
             SizedBox(height: 2.0,),
             // 目标日
@@ -117,7 +122,7 @@ class TimeRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             // 标志 剩余天数 已过天数
-            _type == TimeEventType.countDownDay ? RemainingDayLabel() : PassDayLabel(),
+            type == TimeEventType.countDownDay.index ? RemainingDayLabel() : PassDayLabel(),
             // 日期文字
             DayText(1),
           ],
@@ -172,17 +177,29 @@ class TimeEventTypeLabel extends StatelessWidget {
 
   final String label;
   final TextStyle labelTextStyle;
+  final String heroTag;
   
-  TimeEventTypeLabel(this.label, this.labelTextStyle);
+  TimeEventTypeLabel(this.label, this.labelTextStyle, this.heroTag);
   
-  TimeEventTypeLabel.countDownDaySmall() : this.label = COUNT_DOWN_DAY, this.labelTextStyle = timeEventTypeLabelSmallTextStyle;
-  TimeEventTypeLabel.countDownDayLarge() : this.label = COUNT_DOWN_DAY, this.labelTextStyle = timeEventTypeLabelLargeTextStyle;
+  TimeEventTypeLabel.countDownDaySmall({String heroTag}) : this.label = COUNT_DOWN_DAY, this.labelTextStyle = timeEventTypeLabelSmallTextStyle, this.heroTag = heroTag;
+  TimeEventTypeLabel.countDownDayLarge({String heroTag}) : this.label = COUNT_DOWN_DAY, this.labelTextStyle = timeEventTypeLabelLargeTextStyle, this.heroTag = heroTag;
 
-  TimeEventTypeLabel.cumulativeDaySmall() : this.label = CUMULATIVE_DAY, this.labelTextStyle = timeEventTypeLabelSmallTextStyle;
-  TimeEventTypeLabel.cumulativeDayLarge() : this.label = CUMULATIVE_DAY, this.labelTextStyle = timeEventTypeLabelLargeTextStyle;
+  TimeEventTypeLabel.cumulativeDaySmall({String heroTag}) : this.label = CUMULATIVE_DAY, this.labelTextStyle = timeEventTypeLabelSmallTextStyle, this.heroTag = heroTag;
+  TimeEventTypeLabel.cumulativeDayLarge({String heroTag}) : this.label = CUMULATIVE_DAY, this.labelTextStyle = timeEventTypeLabelLargeTextStyle, this.heroTag = heroTag;
 
   @override
   Widget build(BuildContext context) {
+    Widget labelWidget = _buildLabel();
+    if (heroTag != null && heroTag.isNotEmpty) {
+      labelWidget = Hero(
+        tag: heroTag,
+        child: labelWidget,
+      );
+    }
+    return labelWidget;
+  }
+
+  Widget _buildLabel() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 8.0),
       decoration: BoxDecoration(
@@ -585,7 +602,23 @@ class EventTypeItem extends StatelessWidget {
   }
 }
 
-// appbar的标题
+class FlutterTimeAppBar extends AppBar {
+
+  FlutterTimeAppBar({
+    String title,
+    bool centerTitle = true,
+    Color backgroundColor,
+    List<Widget> actions,
+  }) : super(
+    title: AppBarTitle(title),
+    centerTitle: centerTitle,
+    backgroundColor: colorAppBarBg,
+    actions: actions,
+  );
+
+}
+
+/// appbar的标题
 class AppBarTitle extends StatelessWidget {
 
   final String _title;
@@ -595,7 +628,7 @@ class AppBarTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      _title,
+      _title ?? '',
       style: appBarTitleTextStyle,
     );
   }

@@ -27,4 +27,6 @@ const List<Color> bgColorList = [
 
 const Color colorAppBarBg = Colors.white;
 const Color colorAppBarTitle = colorGrey;
+const Color colorTitleRemark = colorWhiteTransparent;
+const Color colorTextRemark = Colors.white;
 
