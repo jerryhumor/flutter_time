@@ -21,7 +21,7 @@ class CountDownItem extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       /// todo 提取常量
-      height: 120,
+      height: 122,
       child: GestureDetector(
         onTap: () {
           Navigator.of(context).pushNamed('count_down_detail', arguments: {

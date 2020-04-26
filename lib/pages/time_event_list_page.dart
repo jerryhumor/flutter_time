@@ -60,6 +60,8 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
     random = Random();
     listKey = GlobalKey();
     modelList = [];
+
+    _fetchEvents();
   }
 
   @override
@@ -90,16 +92,9 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
     );
   }
 
-  @override
-  void didUpdateWidget(TimeEventListPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (modelList.isEmpty) _fetchEvents();
-  }
-
   /// 创建初始化数据的item 也就是第一次要展示的数据
   /// 添加从下往上渐变动画的item
   Widget _buildInitItem(BuildContext context, int index, TimeEventModel model, Animation<double> animation) {
-    logi('build init item');
     final Animation<Offset> offsetAnimation = animation.drive(Tween<Offset>(
         begin: Offset(0, 0.3),
         end: Offset.zero
