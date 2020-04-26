@@ -11,7 +11,7 @@ import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
 /// 时间事件列表界面
-// TODO(kengou): 添加item时，需要展示列表向下的动画
+// TODO(kengou): 完善添加item时的动画
 class TimeEventListPage extends StatefulWidget {
 
   @override
@@ -120,21 +120,28 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
   /// 创建添加的item
   /// 从左往右平滑出现的item
   Widget _buildAddItem(BuildContext context, int index, TimeEventModel model, Animation<double> animation) {
-    final Animation<Offset> offsetAnimation = animation.drive(Tween<Offset>(
+    final Animation<Offset> offsetAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutSine,
+    ).drive(Tween<Offset>(
         begin: Offset(-1, 0),
-        end: Offset.zero
+        end: Offset.zero,
     ));
-    return SlideTransition(
-      position: offsetAnimation,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          CountDownItem(
-            index: index,
-            model: model,
-          ),
-          SizedBox(height: 12,),
-        ],
+
+    return SizeTransition(
+      sizeFactor: animation,
+      child: SlideTransition(
+        position: offsetAnimation,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            CountDownItem(
+              index: index,
+              model: model,
+            ),
+            SizedBox(height: 12,),
+          ],
+        ),
       ),
     );
   }
