@@ -15,11 +15,20 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
 
   bool isListPage = true;
+  PageController pageController;
+
 
   @override
   void initState() {
     super.initState();
+    pageController = PageController();
     log('Main page init state', tag: 'MAIN');
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -33,6 +42,8 @@ class _MainPageState extends State<MainPage> {
             // 事件列表和设置页面
             Expanded(
               child: PageView(
+                controller: pageController,
+                physics: NeverScrollableScrollPhysics(),
                 children: <Widget>[
                   TimeEventListPage(),
                   SettingPage(),
@@ -50,9 +61,7 @@ class _MainPageState extends State<MainPage> {
                     child: ListPageButton(
                       checked: isListPage,
                       onTap: () {
-                        setState(() {
-                          isListPage = true;
-                        });
+                        pageController.jumpToPage(0);
                       },
                     ),
                   ),
@@ -61,9 +70,7 @@ class _MainPageState extends State<MainPage> {
                     child: SettingPageButton(
                       checked: !isListPage,
                       onTap: () {
-                        setState(() {
-                          isListPage = false;
-                        });
+                        pageController.jumpToPage(1);
                       },
                     ),
                   ),

@@ -18,7 +18,7 @@ class TimeEventListPage extends StatefulWidget {
   _TimeEventListPageState createState() => _TimeEventListPageState();
 }
 
-class _TimeEventListPageState extends State<TimeEventListPage> {
+class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKeepAliveClientMixin {
 
   GlobalKey<AnimatedListState> listKey;
   int itemCount = 0;
@@ -48,11 +48,22 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
       );
       modelList.add(EventWrap(TimeEventOrigin.init, model));
     }
+    /// debug模式下 不延迟会导致崩溃 原因如下
+    /// i = 0 时，listKey.currentState 为空 所以第一个元素并没有插入列表
+    /// i = 1 时，listKey.currentState 不为空 插入第二个元素
+    /// 这时列表元素个数为0 但是我们却要插入index为1的元素 所以导致报错
+    await Future.delayed(const Duration(milliseconds: 500));
     for (int i = 0; i < modelList.length; i++) {
       listKey.currentState?.insertItem(i, duration: const Duration(milliseconds: 200));
       await Future.delayed(const Duration(milliseconds: 64));
     }
   }
+
+  @override
+  void updateKeepAlive() {}
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
