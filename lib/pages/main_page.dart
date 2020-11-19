@@ -1,9 +1,9 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_saber/log/log_utils.dart';
 import 'package:flutter_time/pages/setting_page.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
-import 'package:flutter_time/ui/animation_page_container.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 
 /// 主页面
@@ -15,13 +15,14 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
 
   bool isListPage = true;
-  PageController pageController;
+
+  TimeEventListPage listPage = TimeEventListPage(key: UniqueKey(),);
+  SettingPage settingPage = SettingPage(key: UniqueKey(),);
 
   void _navToListPage() {
     if (isListPage) return;
     setState(() {
       isListPage = !isListPage;
-      pageController.jumpToPage(0);
     });
   }
 
@@ -29,20 +30,17 @@ class _MainPageState extends State<MainPage> {
     if (!isListPage) return;
     setState(() {
       isListPage = !isListPage;
-      pageController.jumpToPage(1);
     });
   }
 
   @override
   void initState() {
     super.initState();
-    pageController = PageController();
     log('Main page init state', tag: 'MAIN');
   }
 
   @override
   void dispose() {
-    pageController.dispose();
     super.dispose();
   }
 
@@ -56,13 +54,18 @@ class _MainPageState extends State<MainPage> {
           children: <Widget>[
             // 事件列表和设置页面
             Expanded(
-              child: PageView(
-                controller: pageController,
-                physics: NeverScrollableScrollPhysics(),
-                children: <Widget>[
-                  TimeEventListPage(),
-                  SettingPage(),
-                ],
+              child: PageTransitionSwitcher(
+                duration: const Duration(milliseconds: 300),
+                reverse: isListPage,
+                child: isListPage ? listPage : settingPage,
+                transitionBuilder: (child, animation, secondaryAnimation) {
+                  return SharedAxisTransition(
+                    child: child,
+                    animation: animation,
+                    secondaryAnimation: secondaryAnimation,
+                    transitionType: SharedAxisTransitionType.horizontal,
+                  );
+                },
               ),
             ),
             // 底部tab bar

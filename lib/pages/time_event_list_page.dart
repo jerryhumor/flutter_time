@@ -16,6 +16,8 @@ import 'package:flutter_time/value/strings.dart';
 /// TODO(kengou): 没有数据时的兜底页面
 class TimeEventListPage extends StatefulWidget {
 
+  TimeEventListPage({Key key,}): super(key: key);
+
   @override
   _TimeEventListPageState createState() => _TimeEventListPageState();
 }
