@@ -91,6 +91,8 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
   @override
   Widget build(BuildContext context) {
 
+    print('state: ${state.hashCode}, init: ${state.initialized}, list: ${state.modelList}');
+
     /// 下一帧绘制完毕后 执行获取数据的操作
     if (!state.initialized) {
       SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
@@ -111,9 +113,10 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
               color: colorGrey,
             ),
             onPressed: () async {
-              final EventWrap eventWarp = await _navToAddEventPage();
-              if (eventWarp == null) return;
-              _addEvent(eventWarp);
+              print('state: ${state.hashCode}, init: ${state.initialized}, list: ${state.modelList}');
+//              final EventWrap eventWarp = await _navToAddEventPage();
+//              if (eventWarp == null) return;
+//              _addEvent(eventWarp);
             },
           ),
         ],

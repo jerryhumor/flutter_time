@@ -23,15 +23,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: APP_NAME,
-      theme: ThemeData(
-        primaryColor: Colors.white,
-      ),
-      onGenerateRoute: routerFactory,
-      home: BlocProvider(
-        child: MainPage(),
-        bloc: GlobalBloc(),
+    return BlocProvider(
+      bloc: GlobalBloc(),
+      child: MaterialApp(
+        title: APP_NAME,
+        theme: ThemeData(
+          primaryColor: Colors.white,
+        ),
+        onGenerateRoute: routerFactory,
+        home: MainPage(),
       ),
     );
   }
