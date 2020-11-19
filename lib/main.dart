@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_time/bloc/bloc_provider.dart';
+import 'package:flutter_time/bloc/global_bloc.dart';
 import 'package:flutter_time/pages/count_down/count_down_detail_page.dart';
 import 'package:flutter_time/pages/create_count_down_event_page.dart';
 import 'package:flutter_time/pages/main_page.dart';
@@ -27,7 +29,10 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
       ),
       onGenerateRoute: routerFactory,
-      home: MainPage(),
+      home: BlocProvider(
+        child: MainPage(),
+        bloc: GlobalBloc(),
+      ),
     );
   }
 }

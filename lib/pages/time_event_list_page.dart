@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_saber/log/log_utils.dart';
+import 'package:flutter_time/bloc/bloc_provider.dart';
+import 'package:flutter_time/bloc/global_bloc.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
+import 'package:flutter_time/model/list/event_list_page_state.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/util/navigator_utils.dart';
@@ -22,19 +25,16 @@ class TimeEventListPage extends StatefulWidget {
   _TimeEventListPageState createState() => _TimeEventListPageState();
 }
 
-class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKeepAliveClientMixin {
+class _TimeEventListPageState extends State<TimeEventListPage> {
 
   GlobalKey<AnimatedListState> listKey;
-  int itemCount = 0;
-  List<EventWrap> modelList;
+  EventListPageState state;
   Random random;
-  /// 数据是否初始化过的标志量
-  bool dataInitialized = false;
 
   /// 添加事件
   /// [eventWrap] 时间事件包装对象
   void _addEvent(EventWrap eventWrap) {
-    modelList.insert(0, eventWrap);
+    state.insertEvent(0, eventWrap);
     listKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 200));
   }
   
@@ -42,13 +42,13 @@ class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKee
   void _initData() async {
     final List<EventWrap> eventWrapList = await _fetchEvents();
     if (eventWrapList == null || eventWrapList.isEmpty) return;
-    modelList.addAll(eventWrapList);
+    state.addInitEvents(eventWrapList);
 //    /// debug模式下 不延迟会导致崩溃 原因如下
 //    /// i = 0 时，listKey.currentState 为空 所以第一个元素并没有插入列表
 //    /// i = 1 时，listKey.currentState 不为空 插入第二个元素
 //    /// 这时列表元素个数为0 但是我们却要插入index为1的元素 所以导致报错
 //    await Future.delayed(const Duration(milliseconds: 500));
-    for (int i = 0; i < modelList.length; i++) {
+    for (int i = 0; i < state.eventLength; i++) {
       listKey.currentState?.insertItem(i, duration: const Duration(milliseconds: 200));
       await Future.delayed(const Duration(milliseconds: 64));
     }
@@ -81,30 +81,25 @@ class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKee
   }
 
   @override
-  void updateKeepAlive() {}
-
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
   void initState() {
     super.initState();
     random = Random();
     listKey = GlobalKey();
-    modelList = [];
+    state = BlocProvider.of<GlobalBloc>(context).eventListPageState;
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
 
     /// 下一帧绘制完毕后 执行获取数据的操作
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      if (!dataInitialized) {
-        dataInitialized = true;
-        _initData();
-      }
-    });
+    if (!state.initialized) {
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        if (!state.initialized) {
+          state.initialized = true;
+          _initData();
+        }
+      });
+    }
 
     return Scaffold(
       appBar: FlutterTimeAppBar(
@@ -187,9 +182,9 @@ class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKee
       key: listKey,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       physics: BouncingScrollPhysics(),
-      initialItemCount: 0,
+      initialItemCount: state.eventLength,
       itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-        final model = modelList[index];
+        final model = state.modelList[index];
         Widget item;
         switch (model.origin) {
           case TimeEventOrigin.init:
