@@ -22,9 +22,11 @@ class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with 
         vsync: this, 
         duration: const Duration(milliseconds: 300)
       );
-      controller.addStatusListener((listener) {
-        if (listener == AnimationStatus.completed) {
-          NavigatorUtils.startCreateCountDownTimeEvent(context);
+      controller.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          NavigatorUtils.startCreateCountDownTimeEvent(context).then((value) {
+            Navigator.pop(context, value);
+          });
         }
       });
   }

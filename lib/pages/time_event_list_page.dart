@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_saber/log/log_utils.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
@@ -11,7 +12,8 @@ import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
 /// 时间事件列表界面
-// TODO(kengou): 完善添加item时的动画
+/// TODO(kengou): 完善添加item时的动画
+/// TODO(kengou): 没有数据时的兜底页面
 class TimeEventListPage extends StatefulWidget {
 
   @override
@@ -24,21 +26,38 @@ class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKee
   int itemCount = 0;
   List<EventWrap> modelList;
   Random random;
+  /// 数据是否初始化过的标志量
+  bool dataInitialized = false;
 
   /// 添加事件
-  void _addEvent(TimeEventModel model) {
-    final TimeEventModel model = TimeEventModel(
-      color: bgColorList[random.nextInt(13)].value,
-      title: '测试标题',
-      remark: '这是备注',
-      type: TimeEventType.countDownDay.index,
-    );
-    modelList.insert(0, EventWrap(TimeEventOrigin.add, model));
+  /// [eventWrap] 时间事件包装对象
+  void _addEvent(EventWrap eventWrap) {
+    modelList.insert(0, eventWrap);
     listKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 200));
   }
   
   /// 获取事件
-  void _fetchEvents() async {
+  void _initData() async {
+    final List<EventWrap> eventWrapList = await _fetchEvents();
+    if (eventWrapList == null || eventWrapList.isEmpty) return;
+    modelList.addAll(eventWrapList);
+//    /// debug模式下 不延迟会导致崩溃 原因如下
+//    /// i = 0 时，listKey.currentState 为空 所以第一个元素并没有插入列表
+//    /// i = 1 时，listKey.currentState 不为空 插入第二个元素
+//    /// 这时列表元素个数为0 但是我们却要插入index为1的元素 所以导致报错
+//    await Future.delayed(const Duration(milliseconds: 500));
+    for (int i = 0; i < modelList.length; i++) {
+      listKey.currentState?.insertItem(i, duration: const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 64));
+    }
+  }
+
+  /// 获取本地存储的时间事件数据
+  /// 返回时间事件的包装类 声明这些时间事件是初始数据
+  Future<List<EventWrap>> _fetchEvents() async {
+    /// 模拟数据耗时操作
+//    await Future.delayed(const Duration(milliseconds: 200));
+    List<EventWrap> events = [];
     for (int i = 0; i < 6; i++) {
       final TimeEventModel model = TimeEventModel(
         color: bgColorList[random.nextInt(13)].value,
@@ -46,17 +65,17 @@ class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKee
         remark: '这是备注',
         type: TimeEventType.countDownDay.index,
       );
-      modelList.add(EventWrap(TimeEventOrigin.init, model));
+      events.add(EventWrap(TimeEventOrigin.init, model));
     }
-    /// debug模式下 不延迟会导致崩溃 原因如下
-    /// i = 0 时，listKey.currentState 为空 所以第一个元素并没有插入列表
-    /// i = 1 时，listKey.currentState 不为空 插入第二个元素
-    /// 这时列表元素个数为0 但是我们却要插入index为1的元素 所以导致报错
-    await Future.delayed(const Duration(milliseconds: 500));
-    for (int i = 0; i < modelList.length; i++) {
-      listKey.currentState?.insertItem(i, duration: const Duration(milliseconds: 200));
-      await Future.delayed(const Duration(milliseconds: 64));
-    }
+    return events;
+  }
+
+  /// 跳转到添加时间事件的页面
+  /// 返回时间事件的包装类
+  Future<EventWrap> _navToAddEventPage() async {
+    final dynamic res = await NavigatorUtils.startTimeEventTypeSelectWithAnimation(context);
+    if (res == null || res is! EventWrap) return null;
+    return res;
   }
 
   @override
@@ -71,12 +90,20 @@ class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKee
     random = Random();
     listKey = GlobalKey();
     modelList = [];
-
-    _fetchEvents();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
+    /// 下一帧绘制完毕后 执行获取数据的操作
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      if (!dataInitialized) {
+        dataInitialized = true;
+        _initData();
+      }
+    });
+
     return Scaffold(
       appBar: FlutterTimeAppBar(
         title: APP_NAME,
@@ -87,14 +114,9 @@ class _TimeEventListPageState extends State<TimeEventListPage> with AutomaticKee
               color: colorGrey,
             ),
             onPressed: () async {
-              // NavigatorUtils.startTimeEventTypeSelectWithAnimation(context);
-              final TimeEventModel model = TimeEventModel(
-                color: bgColorList[random.nextInt(13)].value,
-                title: '测试标题',
-                remark: '这是备注',
-                type: TimeEventType.countDownDay.index,
-              );
-              _addEvent(model);
+              final EventWrap eventWarp = await _navToAddEventPage();
+              if (eventWarp == null) return;
+              _addEvent(eventWarp);
             },
           ),
         ],

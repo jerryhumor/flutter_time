@@ -15,6 +15,7 @@ class AnimationColumn extends StatelessWidget {
   final AnimationController controller;
   final List<Widget> children;
   final AnimationColumnDirection direction;
+  final CrossAxisAlignment crossAxisAlignment;
 
   AnimationColumn({
     this.fadeStart,
@@ -22,6 +23,7 @@ class AnimationColumn extends StatelessWidget {
     this.positionStart,
     this.positionEnd,
     this.direction = AnimationColumnDirection.startToEnd,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
     @required this.controller,
     @required this.children
   });
@@ -65,7 +67,7 @@ class AnimationColumn extends StatelessWidget {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: crossAxisAlignment,
       mainAxisAlignment: MainAxisAlignment.center,
       children: animationChildren,
     );

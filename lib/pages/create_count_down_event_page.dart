@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_time/constant/time_event_constant.dart';
+import 'package:flutter_time/model/base/models.dart';
+import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/ui/animation_column.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/value/colors.dart';
@@ -50,30 +53,51 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
           positionStart: Offset(0.2, 0.0),
           positionEnd: Offset.zero,
           controller: controller,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            // 分隔
+            /// 分隔
             VerticalSeparator(18.0),
-            // 倒计日名称
+            /// 倒计日名称
             EventNameTile.countDown(null),
-            // 分隔
+            /// 分隔
             VerticalSeparator(18.0),
-            // 起始日期
+            /// 起始日期
             StartDateTile('2019-03-19', () {}),
-            // 分隔
+            /// 分隔
             VerticalSeparator(18.0),
-            // 目标日期
+            /// 目标日期
             TargetDateTile('2019-03-20', (){}),
-            // 分隔
+            /// 分隔
             VerticalSeparator(18.0),
-            // 备注
+            /// 备注
             RemarkTile('无', (){}),
-            // 分隔
+            /// 分隔
             VerticalSeparator(18.0),
-            // 颜色选择条
+            /// 颜色选择条
             ColorSelectTile(0),
-            // 分隔
+            /// 分隔
             VerticalSeparator(18.0),
             // 预览效果
+
+            /// 分割
+
+            /// 保存按钮
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: SaveButton(
+                onPressed: () {
+                  final EventWrap eventWrap =  EventWrap(
+                    TimeEventOrigin.add,
+                    TimeEventModel(
+                      color: bgColorList[0].value,
+                      title: '添加标题', remark: '添加备注',
+                      type: TimeEventType.countDownDay.index,
+                    ),
+                  );
+                  Navigator.pop(context, eventWrap);
+                },
+              ),
+            ),
           ],
         ),
       ),

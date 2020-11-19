@@ -17,6 +17,21 @@ class _MainPageState extends State<MainPage> {
   bool isListPage = true;
   PageController pageController;
 
+  void _navToListPage() {
+    if (isListPage) return;
+    setState(() {
+      isListPage = !isListPage;
+      pageController.jumpToPage(0);
+    });
+  }
+
+  void _navToSettingPage() {
+    if (!isListPage) return;
+    setState(() {
+      isListPage = !isListPage;
+      pageController.jumpToPage(1);
+    });
+  }
 
   @override
   void initState() {
@@ -60,18 +75,14 @@ class _MainPageState extends State<MainPage> {
                   Expanded(
                     child: ListPageButton(
                       checked: isListPage,
-                      onTap: () {
-                        pageController.jumpToPage(0);
-                      },
+                      onTap: _navToListPage,
                     ),
                   ),
                   // 设置页面按钮
                   Expanded(
                     child: SettingPageButton(
                       checked: !isListPage,
-                      onTap: () {
-                        pageController.jumpToPage(1);
-                      },
+                      onTap: _navToSettingPage,
                     ),
                   ),
                 ],

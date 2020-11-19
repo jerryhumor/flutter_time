@@ -24,7 +24,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   flutter_saber:
-    path: /Users/hanjianhao/Desktop/Flutter/flutter_saber
+    git:
+      url: git@gitlab.indata.cc:flutter-plugins/flutter_saber.git
+      ref: v0.0.5
 
 dev_dependencies:
   flutter_test:

@@ -717,3 +717,32 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
     _controller.forward(from: 0.0);
   }
 }
+
+/// 倒计日或者累计日页面的保存按钮
+class SaveButton extends StatelessWidget {
+
+  final VoidCallback onPressed;
+
+
+  SaveButton({this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      onPressed: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.0),
+          color: colorBluePrimary,
+        ),
+        child: Text(
+          '保存',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+}
