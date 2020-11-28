@@ -80,7 +80,7 @@ class TimeThemeData {
   static final TextTheme _textTheme = TextTheme(
     headline4: TextStyle(fontWeight: _bold, fontSize: 20.0),
     caption: TextStyle(fontWeight: _semiBold, fontSize: 16.0),
-    headline5: TextStyle(fontWeight: _medium, fontSize: 16.0),
+    headline5: TextStyle(fontWeight: _medium, fontSize: 14.0),
     subtitle1: TextStyle(fontWeight: _medium, fontSize: 16.0),
     overline: TextStyle(fontWeight: _medium, fontSize: 12.0),
     bodyText1: TextStyle(fontWeight: _regular, fontSize: 14.0),
