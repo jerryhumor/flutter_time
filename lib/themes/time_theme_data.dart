@@ -19,10 +19,10 @@ class TimeThemeData {
       primaryColor: const Color(0xFF030303),
       appBarTheme: AppBarTheme(
         color: colorScheme.background,
-        iconTheme: IconThemeData(color: colorScheme.onPrimary),
+        iconTheme: IconThemeData(color: colorScheme.primary),
         brightness: colorScheme.brightness,
         centerTitle: true,
-        textTheme: _textTheme.apply(bodyColor: colorScheme.onPrimary,),
+        textTheme: _textTheme.apply(bodyColor: colorScheme.primary,),
       ),
       iconTheme: IconThemeData(color: colorScheme.onPrimary),
       canvasColor: colorScheme.background,
@@ -41,17 +41,17 @@ class TimeThemeData {
   }
 
   static const ColorScheme lightColorScheme = ColorScheme(
-    primary: Color(0xFFB93C5D),
-    primaryVariant: Color(0xFF117378),
-    secondary: Color(0xFFEFF3F3),
-    secondaryVariant: Color(0xFFFAFBFB),
+    primary: Color(0xFF636585),
+    primaryVariant: Color(0xFF2E3641),
+    secondary: Color(0xFFDEDEDE),
+    secondaryVariant: Color(0xFFDEDEDE),
     background: Colors.white,
     surface: Color(0xFFFAFBFB),
     onBackground: Colors.white,
     error: _lightFillColor,
     onError: _lightFillColor,
     onPrimary: _lightFillColor,
-    onSecondary: Color(0xFF322942),
+    onSecondary: Color(0xFF434756),
     onSurface: Color(0xFF241E30),
     brightness: Brightness.light,
   );

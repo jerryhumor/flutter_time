@@ -685,8 +685,8 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
 
     /// TODO 重新定义 uncheckedColor
     final ThemeData theme = Theme.of(context);
-    final checkedColor = theme.colorScheme.onPrimary;
-    final uncheckedColor = theme.colorScheme.onSecondary;
+    final checkedColor = theme.colorScheme.primaryVariant;
+    final uncheckedColor = theme.colorScheme.secondaryVariant;
 
     return GestureDetector(
       onTap: () {
@@ -727,18 +727,10 @@ class PageButtonTween extends Animatable<double> {
   @override
   double transform(double t) {
 
-    if (t <= 0) {
-      print('transform: $t, 1.0');
-      return 1.0;
-    }
-    if (t >= 1) {
-      print('transform: $t, 1.0');
-      return 1.0;
-    }
-    if (t == 0.5) {
-      print('transform: $t, 0.5');
-      return turningPoint;
-    }
+    if (t <= 0) return 1.0;
+    if (t >= 1) return 1.0;
+    if (t == 0.5) return turningPoint;
+
     final double difference = 1 - turningPoint;
     double value;
     if (t < 0.5) {
@@ -746,9 +738,7 @@ class PageButtonTween extends Animatable<double> {
     } else {
       value = turningPoint + (t - 0.5) * 2 * difference;
     }
-    print('transform: $t, $value');
     return value;
-
   }
 
 }
