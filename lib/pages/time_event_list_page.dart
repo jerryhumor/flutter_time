@@ -110,10 +110,10 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
           IconButton(
             icon: Icon(Icons.add,),
             onPressed: () async {
-              print('state: ${state.hashCode}, init: ${state.initialized}, list: ${state.modelList}');
-//              final EventWrap eventWarp = await _navToAddEventPage();
-//              if (eventWarp == null) return;
-//              _addEvent(eventWarp);
+//              print('state: ${state.hashCode}, init: ${state.initialized}, list: ${state.modelList}');
+              final EventWrap eventWarp = await _navToAddEventPage();
+              if (eventWarp == null) return;
+              _addEvent(eventWarp);
             },
           ),
         ],
