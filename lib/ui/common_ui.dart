@@ -640,22 +640,20 @@ class PageButton extends StatefulWidget {
   final Duration duration;
   final Size size;
   final VoidCallback onTap;
-  final String unCheckedImgAsset;
-  final String checkedImgAsset;
   final bool checked;
   // 一定要添加这个背景颜色 不知道为什么 container不添加背景颜色 不能撑开
   final Color backgroundColor;
   final EdgeInsetsGeometry padding;
+  final IconData icon;
 
   const PageButton({
-    this.duration = const Duration(milliseconds: 500),
+    this.duration = const Duration(milliseconds: 200),
     this.size = const Size(40.0, 40.0),
     this.onTap,
-    @required this.unCheckedImgAsset,
-    @required this.checkedImgAsset,
+    @required this.icon,
     this.checked = false,
     this.backgroundColor = Colors.transparent,
-    this.padding = const EdgeInsets.all(8.0)
+    this.padding = const EdgeInsets.all(8.0),
   });
 
   @override
@@ -665,14 +663,13 @@ class PageButton extends StatefulWidget {
 class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
 
   AnimationController _controller;
-  CurvedAnimation _animation;
+  Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: widget.duration);
-    Animation<double> linearAnimation = Tween(begin: 0.0, end: 1.0).animate(_controller);
-    _animation = CurvedAnimation(parent: linearAnimation, curve: Curves.elasticOut);
+    _animation = PageButtonTween(turningPoint: 0.8).animate(_controller);
     // 一开始不播放动画 直接显示原始大小
     _controller.forward(from: 1.0);
   }
@@ -685,6 +682,12 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+
+    /// TODO 重新定义 uncheckedColor
+    final ThemeData theme = Theme.of(context);
+    final checkedColor = theme.colorScheme.onPrimary;
+    final uncheckedColor = theme.colorScheme.onSecondary;
+
     return GestureDetector(
       onTap: () {
         _playAnimation();
@@ -696,18 +699,14 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
         constraints: BoxConstraints(minWidth: widget.size.width, minHeight: widget.size.height),
         color: widget.backgroundColor,
         padding: widget.padding,
-        child: AnimatedBuilder(
-          animation: _animation,
-          builder: (context, child) {
-            // size / 1.55 是为了防止溢出
-            return Center(
-              child: Image.asset(
-                widget.checked ? widget.checkedImgAsset : widget.unCheckedImgAsset,
-                width: _animation.value * (widget.size.width - widget.padding.horizontal) / 1.55,
-                height: _animation.value * (widget.size.height - widget.padding.vertical) / 1.55,
-              ),
-            );
-          }
+        child: Center(
+          child: ScaleTransition(
+            scale: _animation,
+            child: Icon(
+              widget.icon,
+              color: widget.checked ? checkedColor : uncheckedColor,
+            ),
+          ),
         ),
       ),
     );
@@ -716,6 +715,42 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
   void _playAnimation() {
     _controller.forward(from: 0.0);
   }
+}
+
+class PageButtonTween extends Animatable<double> {
+
+  /// 转折点 也就是最低点
+  final double turningPoint;
+
+  PageButtonTween({this.turningPoint = 0.5,});
+
+  @override
+  double transform(double t) {
+
+    if (t <= 0) {
+      print('transform: $t, 1.0');
+      return 1.0;
+    }
+    if (t >= 1) {
+      print('transform: $t, 1.0');
+      return 1.0;
+    }
+    if (t == 0.5) {
+      print('transform: $t, 0.5');
+      return turningPoint;
+    }
+    final double difference = 1 - turningPoint;
+    double value;
+    if (t < 0.5) {
+      value = 1 - difference * 2 * t;
+    } else {
+      value = turningPoint + (t - 0.5) * 2 * difference;
+    }
+    print('transform: $t, $value');
+    return value;
+
+  }
+
 }
 
 /// 倒计日或者累计日页面的保存按钮

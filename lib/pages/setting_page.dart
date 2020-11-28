@@ -10,11 +10,7 @@ class SettingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: colorAppBarBg,
-        title: AppBarTitle(SETTING),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(SETTING),),
       body: Container(),
     );
   }

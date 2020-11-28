@@ -106,8 +106,7 @@ class ListPageButton extends PageButton {
     VoidCallback onTap,
     bool checked = false
   }) : super(
-    unCheckedImgAsset: 'images/time_event_list_page_normal.png',
-    checkedImgAsset: 'images/time_event_list_page_selected.png',
+    icon: Icons.web,
     size: const Size(48.0, 48.0),
     onTap: onTap,
     checked: checked,
@@ -120,8 +119,7 @@ class SettingPageButton extends PageButton {
     VoidCallback onTap,
     bool checked = false
   }): super(
-      unCheckedImgAsset: 'images/time_event_setting_page_normal.png',
-      checkedImgAsset: 'images/time_event_setting_page_selected.png',
+      icon: Icons.library_books,
       size: const Size(48.0, 48.0),
       onTap: onTap,
       checked: checked

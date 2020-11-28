@@ -104,14 +104,11 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
     }
 
     return Scaffold(
-      appBar: FlutterTimeAppBar(
-        title: APP_NAME,
+      appBar: AppBar(
+        title: Text(APP_NAME),
         actions: <Widget>[
           IconButton(
-            icon: Icon(
-              Icons.add,
-              color: colorGrey,
-            ),
+            icon: Icon(Icons.add,),
             onPressed: () async {
               print('state: ${state.hashCode}, init: ${state.initialized}, list: ${state.modelList}');
 //              final EventWrap eventWarp = await _navToAddEventPage();

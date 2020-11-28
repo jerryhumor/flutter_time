@@ -9,6 +9,7 @@ import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/pages/time_event_type_select_page.dart';
 import 'package:flutter_time/router/router.dart';
 import 'package:flutter_time/test/test_page.dart';
+import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/value/strings.dart';
 
 void main() {
@@ -27,9 +28,8 @@ class MyApp extends StatelessWidget {
       bloc: GlobalBloc(),
       child: MaterialApp(
         title: APP_NAME,
-        theme: ThemeData(
-          primaryColor: Colors.white,
-        ),
+        theme: TimeThemeData.lightThemeData,
+        darkTheme: TimeThemeData.darkThemeData,
         onGenerateRoute: routerFactory,
         home: MainPage(),
       ),
