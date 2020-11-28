@@ -19,11 +19,16 @@ class SettingGroup extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final ThemeData theme = Theme.of(context);
-//    final groupTitleTextStyle = theme.textTheme.
+    final groupTitleTextStyle = theme.textTheme.overline.apply(
+      color: theme.colorScheme.secondaryVariant,);
     final itemTitleTextStyle = theme.textTheme.headline5.apply(
-      color: theme.colorScheme.onPrimary,);
+      color: theme.colorScheme.primary,);
 
     return null;
+  }
+
+  Widget _buildGroupTitle(String title) {
+
   }
 }
 

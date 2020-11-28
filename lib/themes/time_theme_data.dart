@@ -18,7 +18,7 @@ class TimeThemeData {
       // Matches manifest.json colors and background color.
       primaryColor: const Color(0xFF030303),
       appBarTheme: AppBarTheme(
-        color: colorScheme.background,
+        color: colorScheme.onBackground,
         iconTheme: IconThemeData(color: colorScheme.primary),
         brightness: colorScheme.brightness,
         centerTitle: true,
@@ -45,7 +45,7 @@ class TimeThemeData {
     primaryVariant: Color(0xFF2E3641),
     secondary: Color(0xFFDEDEDE),
     secondaryVariant: Color(0xFFDEDEDE),
-    background: Colors.white,
+    background: Color(0xFFF8F8F8),
     surface: Color(0xFFFAFBFB),
     onBackground: Colors.white,
     error: _lightFillColor,

@@ -48,56 +48,78 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
-      child: Container(
-        color: Colors.white,
-        child: Column(
-          children: <Widget>[
-            // 事件列表和设置页面
-            Expanded(
-              child: PageTransitionSwitcher(
-                duration: const Duration(milliseconds: 300),
-                reverse: isListPage,
-                child: isListPage ? listPage : settingPage,
-                transitionBuilder: (child, animation, secondaryAnimation) {
-                  return SharedAxisTransition(
-                    child: child,
-                    animation: animation,
-                    secondaryAnimation: secondaryAnimation,
-                    transitionType: SharedAxisTransitionType.horizontal,
-                  );
-                },
-              ),
+      child: Column(
+        children: <Widget>[
+          // 事件列表和设置页面
+          Expanded(
+            child: PageTransitionSwitcher(
+              duration: const Duration(milliseconds: 300),
+              reverse: isListPage,
+              child: isListPage ? listPage : settingPage,
+              transitionBuilder: (child, animation, secondaryAnimation) {
+                return SharedAxisTransition(
+                  child: child,
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  transitionType: SharedAxisTransitionType.horizontal,
+                );
+              },
             ),
-            // 底部tab bar
-            Material(
-              elevation: 16.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  // 事件列表页面按钮
-                  Expanded(
-                    child: ListPageButton(
-                      checked: isListPage,
-                      onTap: _navToListPage,
-                    ),
-                  ),
-                  // 设置页面按钮
-                  Expanded(
-                    child: SettingPageButton(
-                      checked: !isListPage,
-                      onTap: _navToSettingPage,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
+          ),
+          // 底部tab bar
+          MainPageBottomBar(
+            isListPage: isListPage,
+            onTapListPage: _navToListPage,
+            onTapSettingPage: _navToSettingPage,
+          ),
+        ],
       ),
     );
   }
 }
 
+class MainPageBottomBar extends StatelessWidget {
+
+  final bool isListPage;
+  final VoidCallback onTapListPage;
+  final VoidCallback onTapSettingPage;
+
+  MainPageBottomBar({
+    this.isListPage,
+    this.onTapListPage,
+    this.onTapSettingPage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+
+    final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
+
+    return Material(
+      elevation: 16.0,
+      color: backgroundColor,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          // 事件列表页面按钮
+          Expanded(
+            child: ListPageButton(
+              checked: isListPage,
+              onTap: onTapListPage,
+            ),
+          ),
+          // 设置页面按钮
+          Expanded(
+            child: SettingPageButton(
+              checked: !isListPage,
+              onTap: onTapSettingPage,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 
 // 事件列表页面按钮
