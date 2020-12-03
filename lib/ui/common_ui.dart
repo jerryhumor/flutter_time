@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/value/colors.dart';
@@ -346,24 +348,32 @@ class VerticalSeparator extends StatelessWidget {
 // 事件名称编辑条目
 class EventNameTile extends StatelessWidget {
 
-  final String _name;
-  final String _hint;
+  final String name;
+  final String hint;
+  final VoidCallback onTap;
 
-  EventNameTile(this._name, this._hint);
-
-  EventNameTile.countDown(this._name): this._hint = COUNT_DOWN_EVENT_NAME;
-  EventNameTile.cumulative(this._name): this._hint = CUMULATIVE_EVENT_NAME;
+  EventNameTile({this.name, this.hint, this.onTap,});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: ListTile(
-        title: Text(
-          _name ?? _hint,
-          style: _name == null ? timeEventCreateEventNameHintTextStyle : timeEventCreateEventNameTextStyle
-        ),
-      )
+    final ThemeData theme = Theme.of(context);
+    final bool isEmpty = name == null || name.isEmpty;
+    final String text = isEmpty ? hint : name;
+    final textColor = isEmpty
+        ? theme.colorScheme.secondary
+        : theme.colorScheme.primary;
+    final TextStyle textStyle = TextStyle(color: textColor, fontSize: 18.0,);
+    return Material(
+      color: theme.colorScheme.onBackground,
+      child: InkWell(
+        onTap: onTap,
+        child: ListTile(
+          title: Text(
+            text,
+            style: textStyle,
+          ),
+        )
+      ),
     );
   }
 }
@@ -447,83 +457,75 @@ class RemarkTile extends StatelessWidget {
 }
 
 // 颜色选择条目
-class ColorSelectTile extends StatefulWidget {
+class ColorSelectTile extends StatelessWidget {
 
-  final int _selectedIndex;
+  final List<Color> colorList;
+  final Color selectedColor;
+  final void Function(Color color) colorChangedCallback;
 
-  ColorSelectTile(this._selectedIndex);
-
-  @override
-  _ColorSelectTileState createState() => _ColorSelectTileState(_selectedIndex);
-}
-
-class _ColorSelectTileState extends State<ColorSelectTile> {
-
-  int _selectedIndex;
-
-  _ColorSelectTileState(int selectedIndex) {
-    if (selectedIndex == null || selectedIndex <= 0 || selectedIndex > bgColorList.length - 1) {
-      _selectedIndex = 0;
-    } else {
-      _selectedIndex = selectedIndex;
-    }
-  }
+  ColorSelectTile({
+    @required this.colorList,
+    this.selectedColor,
+    this.colorChangedCallback,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 70.0,
       color: Colors.white,
-      padding: const EdgeInsets.all(10.0),
       child: ListView.separated(
+        padding: const EdgeInsets.all(10.0),
         physics: BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         separatorBuilder: (context, index) => SizedBox(width: 10.0,),
-        itemCount: bgColorList.length,
+        itemCount: colorList.length,
         itemBuilder: (context, index) {
+          final Color itemColor = colorList[index];
           return ColorSelectItem(
-            bgColorList[index],
-            _selectedIndex == index,
-            (color) {
-              _selectIndex(index);
-            }
+              color: itemColor,
+              selected: selectedColor == itemColor,
+              colorCallback: colorChangedCallback,
           );
         },
       ),
     );
   }
 
-  void _selectIndex(int index) {
-    setState(() {
-      // todo 检查下index合法
-      _selectedIndex = index;
-    });
-  }
+
 }
 
 // 颜色选择Item
 class ColorSelectItem extends StatelessWidget {
 
-  final Color _color;
-  final bool _selected;
-  final void Function(Color color) _colorCallback;
+  final Color color;
+  final bool selected;
+  final void Function(Color color) colorCallback;
 
-  ColorSelectItem(this._color, this._selected, this._colorCallback);
+  ColorSelectItem({this.color, this.selected, this.colorCallback,});
 
   @override
   Widget build(BuildContext context) {
+    final BoxBorder border = selected
+        ? Border.all(width: 1.0, color: Theme.of(context).colorScheme.primary,)
+        : null;
     return GestureDetector(
       onTap: () {
-        _colorCallback(this._color);
+        if (colorCallback != null) colorCallback(this.color);
       },
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
+      child: Container(
+        margin: const EdgeInsets.all(7.0),
+        padding: const EdgeInsets.all(1.0),
+        width: 20.0,
+        height: 20.0,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: border,
+        ),
         child: Container(
-          width: 20.0,
-          height: 20.0,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _color
+            color: color,
           ),
         ),
       ),
@@ -766,6 +768,206 @@ class SaveButton extends StatelessWidget {
           style: TextStyle(
             color: Colors.white,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class EditDialog extends StatefulWidget {
+
+  final String title;
+  final String text;
+  final int maxLength;
+  final bool autoFocus;
+
+  EditDialog({this.title, this.text, this.maxLength, this.autoFocus});
+
+  @override
+  _EditDialogState createState() => _EditDialogState();
+}
+
+class _EditDialogState extends State<EditDialog> {
+  
+  TextEditingController controller;
+  StreamController<int> leftLengthController;
+  
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.text ?? null);
+    leftLengthController = StreamController();
+  }
+  
+  @override
+  void dispose() {
+    controller.dispose();
+    leftLengthController.close();
+    super.dispose();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+
+    final ThemeData theme = Theme.of(context);
+    final int lines = 4;
+
+    final TextStyle titleTextStyle = TextStyle(
+      color: theme.colorScheme.primary,
+      fontSize: 18.0,
+      fontWeight: FontWeight.bold,
+    );
+    final TextStyle countTextStyle = TextStyle(
+      color: theme.colorScheme.secondaryVariant,
+      fontSize: 18.0,
+    );
+    final TextStyle buttonTextStyle = TextStyle(
+      color: theme.colorScheme.onBackground,
+      fontSize: 18.0,
+    );
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Material(
+            color: theme.colorScheme.background,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(4.0)),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 6.0, top: 6.0, right: 6.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// 标题和剩余数量
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      buildTitle(widget.title, titleTextStyle),
+                      StreamBuilder<int>(
+                        initialData: widget.maxLength - widget.text.length,
+                        stream: leftLengthController.stream,
+                        builder: (context, snapshot) => buildCounter(snapshot.data, countTextStyle),
+                      ),
+                    ],
+                  ),
+                  VerticalSeparator(8.0),
+                  /// 编辑区域
+                  TextField(
+                    scrollPadding: const EdgeInsets.all(4.0),
+                    controller: controller,
+                    minLines: lines,
+                    maxLines: lines,
+                    maxLength: widget.maxLength ?? 30,
+                    autofocus: widget.autoFocus,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: theme.colorScheme.onBackground,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    ),
+                    buildCounter: counter,
+                  ),
+                  /// 底部按钮区域
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      /// 取消按钮
+                      TextButton(
+                        text: CANCEL,
+                        textStyle: buttonTextStyle,
+                        backgroundColor: theme.colorScheme.secondaryVariant,
+                        borderRadius: BorderRadius.circular(4.0),
+                        onTap: cancel,
+                      ),
+                      /// 保存按钮
+                      TextButton(
+                        text: SAVE,
+                        textStyle: buttonTextStyle,
+                        backgroundColor: colorBlue2,
+                        borderRadius: BorderRadius.circular(4.0),
+                        onTap: save,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildTitle(String title, TextStyle textStyle) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        title,
+        style: textStyle,
+      ),
+    );
+  }
+
+  Widget buildCounter(int leftCount, TextStyle textStyle) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 4.0),
+      child: Text(
+        '${leftCount ?? 0}',
+        style: textStyle,
+      ),
+    );
+  }
+
+  Widget counter(
+    BuildContext context,
+    {
+      int currentLength,
+      int maxLength,
+      bool isFocused,
+    }
+  ) {
+    leftLengthController.sink.add(maxLength - currentLength);
+    return Container();
+  }
+
+  void cancel() {
+    Navigator.of(context).pop('');
+  }
+
+  void save() {
+    Navigator.of(context).pop(controller.text);
+  }
+}
+
+class TextButton extends StatelessWidget {
+
+  final String text;
+  final Color backgroundColor;
+  final TextStyle textStyle;
+  final BorderRadius borderRadius;
+  final VoidCallback onTap;
+
+  TextButton({
+    this.text,
+    this.textStyle,
+    this.backgroundColor,
+    this.borderRadius,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      onPressed: onTap,
+      constraints: BoxConstraints(minWidth: 0, minHeight: 0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          color: backgroundColor,
+        ),
+        child: Center(
+          child: Text(text, style: textStyle,),
         ),
       ),
     );

@@ -18,16 +18,35 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
   // todo 记录变量
 
   AnimationController controller;
+  TimeEventModel model;
 
   @override
   void initState() {
     super.initState();
+    model = TimeEventModel(
+      color: bgColorList[0].value,
+      title: '',
+      remark: '默认备注',
+      startTime: 0,
+      endTime: 0,
+      type: TimeEventType.countDownDay.index,
+    );
     controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     controller.forward();
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+
+    final Color eventColor = Color(model.color);
+    final TimeEventType eventType = TimeEventType.countDownDay;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -58,7 +77,11 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
             /// 分隔
             VerticalSeparator(18.0),
             /// 倒计日名称
-            EventNameTile.countDown(null),
+            EventNameTile(
+              name: model.title,
+              hint: COUNT_DOWN_EVENT_NAME,
+              onTap: () => showTitleEditDialog(context),
+            ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 起始日期
@@ -74,11 +97,18 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
             /// 分隔
             VerticalSeparator(18.0),
             /// 颜色选择条
-            ColorSelectTile(0),
+            ColorSelectTile(
+              colorList: bgColorList,
+              selectedColor: eventColor,
+              colorChangedCallback: onColorChanged,
+            ),
             /// 分隔
             VerticalSeparator(18.0),
             // 预览效果
-
+            Text(PREVIEW_EFFECT),
+            VerticalSeparator(8.0),
+            TimeEventItem(eventColor, eventType, model.title, 1, null),
+            VerticalSeparator(8.0),
             /// 分割
 
             /// 保存按钮
@@ -102,5 +132,31 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
         ),
       ),
     );
+  }
+
+  void onColorChanged(Color color) {
+    if (model.color == color.value) return;
+    setState(() {
+      model.color = color.value;
+    });
+  }
+
+  void showTitleEditDialog(BuildContext context) async {
+    final String text = await showDialog(
+      context: context,
+      builder: (context) {
+        return EditDialog(
+          title: COUNT_DOWN_EVENT_NAME,
+          maxLength: 30,
+          text: model.title,
+          autoFocus: true,
+        );
+      },
+    );
+    if (text.isNotEmpty) {
+      setState(() {
+        model.title = text;
+      });
+    }
   }
 }
