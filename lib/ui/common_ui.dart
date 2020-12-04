@@ -954,15 +954,12 @@ class EditDialogField extends StatelessWidget {
     );
   }
 
-  Widget counter(
-      BuildContext context,
-      {
+  Widget counter(BuildContext context, {
         int currentLength,
         int maxLength,
         bool isFocused,
-      }
-      ) {
-    return Container();
+      }) {
+    return null;
   }
 
   Widget buildTitle(String title, TextStyle textStyle) {
