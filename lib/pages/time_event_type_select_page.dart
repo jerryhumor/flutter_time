@@ -35,9 +35,7 @@ class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorAppBarBg,
-        title: AppBarTitle(CREATE),
-        centerTitle: true,
+        title: Text(CREATE),
         actions: <Widget>[
           IconButton(
             icon: Icon(
@@ -50,6 +48,7 @@ class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with 
           ),
         ],
       ),
+
       body: AnimationColumn(
         fadeStart: 1.0,
         fadeEnd: 0.0,

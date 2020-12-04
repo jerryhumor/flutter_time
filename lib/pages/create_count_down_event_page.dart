@@ -49,14 +49,11 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(CREATE_COUNT_DOWN_TIME_EVENT),
-        centerTitle: true,
         actions: <Widget>[
           IconButton(
             icon: Icon(
               Icons.close,
-              color: colorGrey,
             ),
             onPressed: () {
               Navigator.pop(context);
@@ -72,7 +69,7 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
           positionStart: Offset(0.2, 0.0),
           positionEnd: Offset.zero,
           controller: controller,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             /// 分隔
             VerticalSeparator(18.0),
@@ -105,28 +102,39 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
             /// 分隔
             VerticalSeparator(18.0),
             // 预览效果
-            Text(PREVIEW_EFFECT),
+            Padding(padding: const EdgeInsets.only(left: 16.0), child: Text(PREVIEW_EFFECT),),
             VerticalSeparator(8.0),
             TimeEventItem(eventColor, eventType, model.title, 1, null),
             VerticalSeparator(8.0),
             /// 分割
 
             /// 保存按钮
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: SaveButton(
-                onPressed: () {
-                  final EventWrap eventWrap =  EventWrap(
-                    TimeEventOrigin.add,
-                    TimeEventModel(
-                      color: bgColorList[0].value,
-                      title: '添加标题', remark: '添加备注',
-                      type: TimeEventType.countDownDay.index,
-                    ),
-                  );
-                  Navigator.pop(context, eventWrap);
-                },
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  text: SAVE,
+                  textStyle: TextStyle(
+                    color: Colors.white,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+                  backgroundColor: colorBlue2,
+                  borderRadius: BorderRadius.circular(12.0),
+                  onTap: () {
+                    final EventWrap eventWrap =  EventWrap(
+                      TimeEventOrigin.add,
+                      TimeEventModel(
+                        color: bgColorList[0].value,
+                        title: '添加标题', remark: '添加备注',
+                        type: TimeEventType.countDownDay.index,
+                      ),
+                    );
+                    Navigator.pop(context, eventWrap);
+                  },
+                ),
+                SizedBox(width: 8.0,),
+              ],
             ),
           ],
         ),
@@ -153,7 +161,7 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
         );
       },
     );
-    if (text.isNotEmpty) {
+    if (text != null && text.isNotEmpty) {
       setState(() {
         model.title = text;
       });

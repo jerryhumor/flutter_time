@@ -345,6 +345,7 @@ class VerticalSeparator extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(height: _height,);
 }
 
+
 // 事件名称编辑条目
 class EventNameTile extends StatelessWidget {
 
@@ -388,8 +389,9 @@ class StartDateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
     return Container(
-      color: Colors.white,
+      color: backgroundColor,
       child: ListTile(
         leading: Image.asset(
           'images/time_event_start_time.png',
@@ -414,8 +416,9 @@ class TargetDateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
     return Container(
-      color: Colors.white,
+      color: backgroundColor,
       child: ListTile(
         leading: Image.asset(
           'images/time_event_target_time.png',
@@ -440,8 +443,9 @@ class RemarkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
     return Container(
-      color: Colors.white,
+      color: backgroundColor,
       child: ListTile(
         leading: Image.asset(
           'images/time_event_remark.png',
@@ -471,9 +475,10 @@ class ColorSelectTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
     return Container(
       height: 70.0,
-      color: Colors.white,
+      color: backgroundColor,
       child: ListView.separated(
         padding: const EdgeInsets.all(10.0),
         physics: BouncingScrollPhysics(),
@@ -790,22 +795,81 @@ class EditDialog extends StatefulWidget {
 class _EditDialogState extends State<EditDialog> {
   
   TextEditingController controller;
-  StreamController<int> leftLengthController;
+  ValueKey barrierKey = ValueKey('barrier');
   
   @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.text ?? null);
-    leftLengthController = StreamController();
   }
   
   @override
   void dispose() {
     controller.dispose();
-    leftLengthController.close();
     super.dispose();
   }
   
+  @override
+  Widget build(BuildContext context) {
+
+    return Stack(
+      children: [
+        /// 最下面的点击事件监听 点击空白处退出编辑
+        GestureDetector(
+          key: barrierKey,
+          onTap: cancel,
+          behavior: HitTestBehavior.translucent,
+          child: SizedBox(height: double.infinity, width: double.infinity,),
+        ),
+        /// 靠底部的编辑框
+        /// 添加[AnimatedPadding]是为了让键盘升起和下降的时候有一个动画
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 70),
+            padding: MediaQuery.of(context).viewInsets,
+            child: EditDialogField(
+              title: widget.title,
+              controller: controller,
+              leftLength: widget.maxLength - controller.text.length,
+              autoFocus: widget.autoFocus,
+              onCancel: cancel,
+              onSave: save,
+            )
+          ),
+        ),
+      ],
+    );
+  }
+
+  void cancel() {
+    Navigator.of(context).pop('');
+  }
+
+  void save() {
+    Navigator.of(context).pop(controller.text);
+  }
+}
+
+class EditDialogField extends StatelessWidget {
+
+  final String title;
+  final TextEditingController controller;
+  final int leftLength;
+  final bool autoFocus;
+  final VoidCallback onSave;
+  final VoidCallback onCancel;
+
+
+  EditDialogField({
+    this.title,
+    this.controller,
+    this.leftLength,
+    this.autoFocus,
+    this.onSave,
+    this.onCancel,
+  });
+
   @override
   Widget build(BuildContext context) {
 
@@ -825,77 +889,80 @@ class _EditDialogState extends State<EditDialog> {
       color: theme.colorScheme.onBackground,
       fontSize: 18.0,
     );
-    return Stack(
-      children: [
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Material(
-            color: theme.colorScheme.background,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(4.0)),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 6.0, top: 6.0, right: 6.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  /// 标题和剩余数量
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      buildTitle(widget.title, titleTextStyle),
-                      StreamBuilder<int>(
-                        initialData: widget.maxLength - widget.text.length,
-                        stream: leftLengthController.stream,
-                        builder: (context, snapshot) => buildCounter(snapshot.data, countTextStyle),
-                      ),
-                    ],
-                  ),
-                  VerticalSeparator(8.0),
-                  /// 编辑区域
-                  TextField(
-                    scrollPadding: const EdgeInsets.all(4.0),
-                    controller: controller,
-                    minLines: lines,
-                    maxLines: lines,
-                    maxLength: widget.maxLength ?? 30,
-                    autofocus: widget.autoFocus,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: theme.colorScheme.onBackground,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    ),
-                    buildCounter: counter,
-                  ),
-                  /// 底部按钮区域
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      /// 取消按钮
-                      TextButton(
-                        text: CANCEL,
-                        textStyle: buttonTextStyle,
-                        backgroundColor: theme.colorScheme.secondaryVariant,
-                        borderRadius: BorderRadius.circular(4.0),
-                        onTap: cancel,
-                      ),
-                      /// 保存按钮
-                      TextButton(
-                        text: SAVE,
-                        textStyle: buttonTextStyle,
-                        backgroundColor: colorBlue2,
-                        borderRadius: BorderRadius.circular(4.0),
-                        onTap: save,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+
+    return Material(
+      color: theme.colorScheme.background,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(4.0)),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 6.0, top: 6.0, right: 6.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /// 标题和剩余数量
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                buildTitle(title, titleTextStyle),
+                buildCounter(leftLength, countTextStyle),
+              ],
             ),
-          ),
+            VerticalSeparator(8.0),
+            /// 编辑区域
+            TextField(
+              scrollPadding: const EdgeInsets.all(4.0),
+              controller: controller,
+              minLines: lines,
+              maxLines: lines,
+              maxLength: leftLength,
+              autofocus: autoFocus,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: theme.colorScheme.onBackground,
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+              ),
+              buildCounter: counter,
+            ),
+            /// 底部按钮区域
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                /// 取消按钮
+                TextButton(
+                  text: CANCEL,
+                  textStyle: buttonTextStyle,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+                  backgroundColor: theme.colorScheme.secondaryVariant,
+                  borderRadius: BorderRadius.circular(4.0),
+                  onTap: onCancel,
+                ),
+                /// 保存按钮
+                TextButton(
+                  text: SAVE,
+                  textStyle: buttonTextStyle,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+                  backgroundColor: colorBlue2,
+                  borderRadius: BorderRadius.circular(4.0),
+                  onTap: onSave,
+                ),
+              ],
+            ),
+          ],
         ),
-      ],
+      ),
     );
+  }
+
+  Widget counter(
+      BuildContext context,
+      {
+        int currentLength,
+        int maxLength,
+        bool isFocused,
+      }
+      ) {
+    return Container();
   }
 
   Widget buildTitle(String title, TextStyle textStyle) {
@@ -917,39 +984,22 @@ class _EditDialogState extends State<EditDialog> {
       ),
     );
   }
-
-  Widget counter(
-    BuildContext context,
-    {
-      int currentLength,
-      int maxLength,
-      bool isFocused,
-    }
-  ) {
-    leftLengthController.sink.add(maxLength - currentLength);
-    return Container();
-  }
-
-  void cancel() {
-    Navigator.of(context).pop('');
-  }
-
-  void save() {
-    Navigator.of(context).pop(controller.text);
-  }
 }
+
 
 class TextButton extends StatelessWidget {
 
   final String text;
   final Color backgroundColor;
   final TextStyle textStyle;
+  final EdgeInsetsGeometry contentPadding;
   final BorderRadius borderRadius;
   final VoidCallback onTap;
 
   TextButton({
     this.text,
     this.textStyle,
+    this.contentPadding,
     this.backgroundColor,
     this.borderRadius,
     this.onTap,
@@ -961,7 +1011,7 @@ class TextButton extends StatelessWidget {
       onPressed: onTap,
       constraints: BoxConstraints(minWidth: 0, minHeight: 0),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+        padding: contentPadding,
         decoration: BoxDecoration(
           borderRadius: borderRadius,
           color: backgroundColor,
