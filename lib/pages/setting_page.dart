@@ -13,6 +13,7 @@ class SettingPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(SETTING),),
       body: ListView(
+        physics: BouncingScrollPhysics(),
         children: [
           SettingGroup(
             groupTitle: '通用',

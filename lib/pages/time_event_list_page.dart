@@ -15,7 +15,6 @@ import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
 /// 时间事件列表界面
-/// TODO(kengou): 完善添加item时的动画
 /// TODO(kengou): 没有数据时的兜底页面
 class TimeEventListPage extends StatefulWidget {
 
@@ -110,7 +109,6 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
           IconButton(
             icon: Icon(Icons.add,),
             onPressed: () async {
-//              print('state: ${state.hashCode}, init: ${state.initialized}, list: ${state.modelList}');
               final EventWrap eventWarp = await _navToAddEventPage();
               if (eventWarp == null) return;
               _addEvent(eventWarp);

@@ -128,7 +128,7 @@ class ListPageButton extends PageButton {
     VoidCallback onTap,
     bool checked = false
   }) : super(
-    icon: Icons.web,
+    icon: Icons.dashboard,
     size: const Size(48.0, 48.0),
     onTap: onTap,
     checked: checked,
@@ -141,7 +141,7 @@ class SettingPageButton extends PageButton {
     VoidCallback onTap,
     bool checked = false
   }): super(
-      icon: Icons.library_books,
+      icon: Icons.assessment,
       size: const Size(48.0, 48.0),
       onTap: onTap,
       checked: checked

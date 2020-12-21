@@ -10,7 +10,6 @@ const TextStyle viewDetailTextStyle = TextStyle(
 // 标题文字样式
 const TextStyle timeEventItemTitleTextStyle = TextStyle(
   fontSize: 16.0,
-  color: Colors.white
 );
 
 // 剩余天数 已过天数的文字样式

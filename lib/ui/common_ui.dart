@@ -23,6 +23,9 @@ class TimeEventItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color textColor = Theme.of(context).colorScheme.secondary;
+
     return GestureDetector(
       onTap: () {
 
@@ -38,11 +41,11 @@ class TimeEventItem extends StatelessWidget {
           child: Column(
             children: <Widget>[
               // 包含标题 类型信息的row
-              TitleRow(title: title, type: type.index),
+              TitleRow(title: title, type: type.index, textColor: textColor,),
               // 间隔
               SizedBox(height: 8.0,),
               // 包含日期信息的row
-              TimeRow(type.index, null, null),
+              TimeRow(type: type.index, textColor: textColor,),
             ],
           ),
         ),
@@ -56,8 +59,9 @@ class TitleRow extends StatelessWidget {
   final String title;
   final int type;
   final String titleHeroTag;
+  final Color textColor;
 
-  TitleRow({this.title, this.type, this.titleHeroTag});
+  TitleRow({this.title, this.type, this.titleHeroTag, this.textColor,});
 
   @override
   Widget build(BuildContext context) {
@@ -70,16 +74,16 @@ class TitleRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // 标题
-            TimeEventTitle(title),
+            TimeEventTitle(title: title, textColor: textColor,),
             // 间距
             SizedBox(height: 6.0,),
-            type == TimeEventType.countDownDay.index ?
-              TimeEventTypeLabel.countDownDaySmall(heroTag: titleHeroTag,)
-              : TimeEventTypeLabel.cumulativeDaySmall(heroTag: titleHeroTag,),
+            type == TimeEventType.countDownDay.index
+                ? TimeEventTypeLabel(label: COUNT_DOWN_DAY, isLarge: false, textColor: textColor, heroTag: titleHeroTag,)
+                : TimeEventTypeLabel(label: CUMULATIVE_DAY, isLarge: false, textColor: textColor, heroTag: titleHeroTag,),
           ],
         ),
         // 查看详情
-        ViewDetailLabel()
+        ViewDetailLabel(textColor: textColor,)
       ],
     );
   }
@@ -91,8 +95,9 @@ class TimeRow extends StatelessWidget {
   // 开始时间和结束时间
   // 如果是累计日 则_endTime 为空
   final int startTime, endTime;
+  final Color textColor;
 
-  TimeRow(this.type, this.startTime, this.endTime);
+  TimeRow({this.type, this.startTime, this.endTime, this.textColor,});
 
   @override
   Widget build(BuildContext context) {
@@ -108,15 +113,19 @@ class TimeRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // 累计日的倒计时文字
-            type == TimeEventType.countDownDay.index ? TimeEventPassText(9, 1) : Container(),
+            type == TimeEventType.countDownDay.index 
+                ? TimeEventPassText(totalDay: 9, passDay: 1, textColor: textColor,) 
+                : Container(),
             // 分割
             SizedBox(height: 2.0,),
             // 累计日的倒计时进度条
-            type == TimeEventType.countDownDay.index ? TimeEventPassProgress(9, 1) : Container(),
+            type == TimeEventType.countDownDay.index
+                ? TimeEventPassProgress(totalDay: 9, passDay: 1,)
+                : Container(),
             // 分割
             SizedBox(height: 2.0,),
             // 目标日
-            TargetDay(null),
+            TargetDay(textColor: textColor,),
           ],
         ),
         // 剩余天数 或者 已过天数
@@ -124,9 +133,11 @@ class TimeRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             // 标志 剩余天数 已过天数
-            type == TimeEventType.countDownDay.index ? RemainingDayLabel() : PassDayLabel(),
+            type == TimeEventType.countDownDay.index 
+                ? RemainingDayLabel(textColor: textColor,) 
+                : PassDayLabel(textColor: textColor,),
             // 日期文字
-            DayText(1),
+            DayText(day: 1, textColor: textColor,),
           ],
         ),
       ],
@@ -136,17 +147,25 @@ class TimeRow extends StatelessWidget {
 
 // 时间条目的查看详情标志
 class ViewDetailLabel extends StatelessWidget {
+
+  final Color textColor;
+
+  ViewDetailLabel({this.textColor,});
+
   @override
   Widget build(BuildContext context) {
+
+    final textStyle = viewDetailTextStyle.apply(color: textColor);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: Colors.white,)
+        border: Border.all(color: textColor,)
       ),
       child: Text(
         VIEW_DETAIL,
-        style: viewDetailTextStyle,
+        style: textStyle,
       ),
     );
   }
@@ -154,22 +173,38 @@ class ViewDetailLabel extends StatelessWidget {
 
 // 剩余天数标志
 class RemainingDayLabel extends StatelessWidget {
+
+  final Color textColor;
+
+  RemainingDayLabel({this.textColor,});
+
   @override
   Widget build(BuildContext context) {
+
+    final textStyle = timeEventItemDayLabelTextStyle.apply(color: textColor);
+
     return Text(
       REMAINING_DAY,
-      style: timeEventItemDayLabelTextStyle,
+      style: textStyle,
     );
   }
 }
 
 // 已过天数标志
 class PassDayLabel extends StatelessWidget {
+
+  final Color textColor;
+  
+  PassDayLabel({this.textColor,});
+
   @override
   Widget build(BuildContext context) {
+    
+    final textStyle = timeEventItemDayLabelTextStyle.apply(color: textColor);
+    
     return Text(
       PASS_DAY,
-      style: timeEventItemDayLabelTextStyle,
+      style: textStyle,
     );
   }
 }
@@ -178,20 +213,20 @@ class PassDayLabel extends StatelessWidget {
 class TimeEventTypeLabel extends StatelessWidget {
 
   final String label;
-  final TextStyle labelTextStyle;
+  final bool isLarge;
+  final Color textColor;
   final String heroTag;
-  
-  TimeEventTypeLabel(this.label, this.labelTextStyle, this.heroTag);
-  
-  TimeEventTypeLabel.countDownDaySmall({String heroTag}) : this.label = COUNT_DOWN_DAY, this.labelTextStyle = timeEventTypeLabelSmallTextStyle, this.heroTag = heroTag;
-  TimeEventTypeLabel.countDownDayLarge({String heroTag}) : this.label = COUNT_DOWN_DAY, this.labelTextStyle = timeEventTypeLabelLargeTextStyle, this.heroTag = heroTag;
 
-  TimeEventTypeLabel.cumulativeDaySmall({String heroTag}) : this.label = CUMULATIVE_DAY, this.labelTextStyle = timeEventTypeLabelSmallTextStyle, this.heroTag = heroTag;
-  TimeEventTypeLabel.cumulativeDayLarge({String heroTag}) : this.label = CUMULATIVE_DAY, this.labelTextStyle = timeEventTypeLabelLargeTextStyle, this.heroTag = heroTag;
+  TimeEventTypeLabel({this.label, this.isLarge, this.textColor, this.heroTag,});
 
   @override
   Widget build(BuildContext context) {
-    Widget labelWidget = _buildLabel();
+
+    final textStyle = isLarge
+        ? timeEventTypeLabelLargeTextStyle.apply(color: textColor)
+        : timeEventTypeLabelSmallTextStyle.apply(color: textColor);
+
+    Widget labelWidget = _buildLabel(textStyle);
     if (heroTag != null && heroTag.isNotEmpty) {
       labelWidget = Hero(
         tag: heroTag,
@@ -201,7 +236,7 @@ class TimeEventTypeLabel extends StatelessWidget {
     return labelWidget;
   }
 
-  Widget _buildLabel() {
+  Widget _buildLabel(TextStyle textStyle) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 8.0),
       decoration: BoxDecoration(
@@ -210,7 +245,7 @@ class TimeEventTypeLabel extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: labelTextStyle,
+        style: textStyle,
       ),
     );
   }
@@ -219,15 +254,19 @@ class TimeEventTypeLabel extends StatelessWidget {
 // 已过天数label
 class TimeEventPassText extends StatelessWidget {
 
-  final int _totalDay, _passDay;
+  final int totalDay, passDay;
+  final Color textColor;
 
-  TimeEventPassText(this._totalDay, this._passDay);
+  TimeEventPassText({this.totalDay, this.passDay, this.textColor,});
 
   @override
   Widget build(BuildContext context) {
+    
+    final textStyle = timeEventItemDayLabelTextStyle.apply(color: textColor); 
+    
     return Text(
-      '$PASS$_passDay/$_totalDay',
-      style: timeEventItemDayLabelTextStyle,
+      '$PASS$passDay/$totalDay',
+      style: textStyle,
     );
   }
 }
@@ -236,16 +275,20 @@ class TimeEventPassText extends StatelessWidget {
 class TimeEventPassProgress extends StatelessWidget {
 
   static final double PROGRESS_WIDTH = 100.0, PROGRESS_HEIGHT = 5.0;
-  final int _totalDay;
-  final int _passDay;
+  final int totalDay;
+  final int passDay;
 
-  TimeEventPassProgress(this._totalDay, this._passDay);
+  TimeEventPassProgress({this.totalDay, this.passDay,});
 
   @override
   Widget build(BuildContext context) {
 
     final double _progressWidth =
-      _passDay >= _totalDay ? 1.0 * PROGRESS_WIDTH : _passDay * PROGRESS_WIDTH / _totalDay;
+      passDay >= totalDay ? 1.0 * PROGRESS_WIDTH : passDay * PROGRESS_WIDTH / totalDay;
+
+    final ThemeData theme = Theme.of(context);
+    final Color background = theme.colorScheme.secondaryVariant;
+    final Color onBackground = theme.colorScheme.secondary;
 
     return Container(
       height: PROGRESS_HEIGHT,
@@ -259,7 +302,7 @@ class TimeEventPassProgress extends StatelessWidget {
           Container(
             width: _progressWidth,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: onBackground,
               borderRadius: BorderRadius.circular(3.0),
             ),
           ),
@@ -273,15 +316,19 @@ class TimeEventPassProgress extends StatelessWidget {
 // 目标日
 class TargetDay extends StatelessWidget {
 
-  final String _targetDay;
+  final String targetDay;
+  final Color textColor;
 
-  TargetDay(this._targetDay);
+  TargetDay({this.targetDay, this.textColor,});
 
   @override
   Widget build(BuildContext context) {
+    
+    final textStyle = timeEventTargetDayTextStyle.apply(color: textColor);
+    
     return Text(
-      '$TARGET_DAY:$_targetDay',
-      style: timeEventTargetDayTextStyle,
+      '$TARGET_DAY:$targetDay',
+      style: textStyle,
     );
   }
 }
@@ -305,15 +352,19 @@ class StartDay extends StatelessWidget {
 // 剩余或已过天数日期文字
 class DayText extends StatelessWidget {
 
-  final int _day;
+  final int day;
+  final Color textColor;
 
-  DayText(this._day);
+  DayText({this.day, this.textColor,});
 
   @override
   Widget build(BuildContext context) {
+
+    final textStyle = timeEventItemDayTextStyle.apply(color: textColor);
+
     return Text(
-      '$_day',
-      style: timeEventItemDayTextStyle,
+      '$day',
+      style: textStyle,
     );
   }
 }
@@ -321,15 +372,20 @@ class DayText extends StatelessWidget {
 // 标题
 class TimeEventTitle extends StatelessWidget {
 
-  final String _title;
+  final String title;
+  final Color textColor;
 
-  TimeEventTitle(this._title);
+  TimeEventTitle({this.title, this.textColor,});
 
   @override
   Widget build(BuildContext context) {
+
+    print('title text color: $textColor');
+    final textStyle = timeEventItemTitleTextStyle.apply(color: textColor);
+
     return Text(
-      _title,
-      style: timeEventItemTitleTextStyle,
+      title,
+      style: textStyle,
     );
   }
 }
@@ -689,8 +745,6 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-
-    /// TODO 重新定义 uncheckedColor
     final ThemeData theme = Theme.of(context);
     final checkedColor = theme.colorScheme.primaryVariant;
     final uncheckedColor = theme.colorScheme.secondaryVariant;

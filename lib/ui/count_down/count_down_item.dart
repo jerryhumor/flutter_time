@@ -18,6 +18,8 @@ class CountDownItem extends StatelessWidget {
     String bgHeroTag = 'bg_hero_$index';
     String titleHeroTag = 'title_hero_$index';
 
+    final Color textColor = Theme.of(context).colorScheme.secondary;
+
     return SizedBox(
       width: double.infinity,
       /// todo 提取常量
@@ -33,7 +35,7 @@ class CountDownItem extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             _buildBackground(model.color, bgHeroTag),
-            _buildContent(model, titleHeroTag),
+            _buildContent(model, titleHeroTag, textColor),
           ],
         )
       ),
@@ -60,17 +62,17 @@ class CountDownItem extends StatelessWidget {
   }
 
   /// 创建内容
-  Widget _buildContent(TimeEventModel model, String tag) {
+  Widget _buildContent(TimeEventModel model, String tag, Color textColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: <Widget>[
           // 包含标题 类型信息的row
-          TitleRow(title: model.title, type: model.type, titleHeroTag: tag,),
+          TitleRow(title: model.title, type: model.type, titleHeroTag: tag, textColor: textColor,),
           // 间隔
           SizedBox(height: 8.0,),
           // 包含日期信息的row
-          TimeRow(model.type, null, null),
+          TimeRow(type: model.type, textColor: textColor,),
         ],
       ),
     );

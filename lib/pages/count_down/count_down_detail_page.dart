@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/ui/common_ui.dart';
+import 'package:flutter_time/value/strings.dart';
 
 class CountDownDetailPage extends StatelessWidget {
   final String bgHeroTag;
@@ -16,13 +17,16 @@ class CountDownDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color textColor = Theme.of(context).colorScheme.secondary;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Material(
           child: Stack(
         children: <Widget>[
           _buildBackground(),
-          _buildContent(),
+          _buildContent(textColor),
         ],
       )),
     );
@@ -46,16 +50,16 @@ class CountDownDetailPage extends StatelessWidget {
   }
 
   /// 创建倒计日内容
-  Widget _buildContent() {
+  Widget _buildContent(Color textColor) {
     return Column(
       children: <Widget>[
-        _buildTitleBar(),
+        _buildTitleBar(textColor),
       ],
     );
   }
 
   /// 创建顶部标题栏
-  Widget _buildTitleBar() {
+  Widget _buildTitleBar(Color textColor) {
     return SafeArea(
       child: Container(
         height: 56,
@@ -67,17 +71,19 @@ class CountDownDetailPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             /// 左边的取消按钮
-            /// todo 颜色提出
             IconButton(
               icon: Icon(
                 Icons.clear,
-                color: Colors.white,
+                color: textColor,
               ),
               onPressed: () {},
             ),
 
             /// 事件的类型标签
-            TimeEventTypeLabel.countDownDayLarge(
+            TimeEventTypeLabel(
+              label: COUNT_DOWN_DAY,
+              isLarge: true,
+              textColor: textColor,
               heroTag: labelHeroTag,
             ),
 
@@ -85,7 +91,7 @@ class CountDownDetailPage extends StatelessWidget {
             IconButton(
               icon: Icon(
                 Icons.edit,
-                color: Colors.white,
+                color: textColor,
               ),
               onPressed: () {},
             ),

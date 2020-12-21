@@ -43,7 +43,7 @@ class TimeThemeData {
   static const ColorScheme lightColorScheme = ColorScheme(
     primary: Color(0xFF636585),
     primaryVariant: Color(0xFF2E3641),
-    secondary: Color(0xFFDEDEDE),
+    secondary: Color(0xFFFFFFFF),
     secondaryVariant: Color(0xFFDEDEDE),
     background: Color(0xFFF8F8F8),
     surface: Color(0xFFFAFBFB),
@@ -57,11 +57,11 @@ class TimeThemeData {
   );
 
   static const ColorScheme darkColorScheme = ColorScheme(
-    primary: Color(0xFFFF8383),
-    primaryVariant: Color(0xFF1CDEC9),
-    secondary: Color(0xFF4D1F7C),
-    secondaryVariant: Color(0xFF451B6F),
-    background: Color(0xFF241E30),
+    primary: Color(0xFFEBEBEB),
+    primaryVariant: Color(0xFFB7B7B7),
+    secondary: Color(0xFFDDDDDD),
+    secondaryVariant: Color(0xFF5B5B5B),
+    background: Color(0xFF242424),
     surface: Color(0xFF1F1929),
     onBackground: Color(0x0DFFFFFF), // White with 0.05 opacity
     error: _darkFillColor,
