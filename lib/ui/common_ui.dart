@@ -137,7 +137,7 @@ class TimeRow extends StatelessWidget {
                 ? RemainingDayLabel(textColor: textColor,) 
                 : PassDayLabel(textColor: textColor,),
             // 日期文字
-            DayText(day: 1, textColor: textColor,),
+            DayText(day: 1, textColor: textColor, isLarge: false,),
           ],
         ),
       ],
@@ -354,13 +354,16 @@ class DayText extends StatelessWidget {
 
   final int day;
   final Color textColor;
+  final bool isLarge;
 
-  DayText({this.day, this.textColor,});
+  DayText({this.day, this.textColor, this.isLarge});
 
   @override
   Widget build(BuildContext context) {
 
-    final textStyle = timeEventItemDayTextStyle.apply(color: textColor);
+    final textStyle = isLarge
+        ? timeEventItemLargeDayTextStyle.apply(color: textColor)
+        : timeEventItemSmallDayTextStyle.apply(color: textColor);
 
     return Text(
       '$day',

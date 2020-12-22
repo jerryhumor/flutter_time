@@ -12,11 +12,17 @@ const TextStyle timeEventItemTitleTextStyle = TextStyle(
   fontSize: 16.0,
 );
 
-// 剩余天数 已过天数的文字样式
-const TextStyle timeEventItemDayTextStyle = TextStyle(
+/// 剩余天数 已过天数的文字样式 小
+const TextStyle timeEventItemSmallDayTextStyle = TextStyle(
   fontSize: 28.0,
   fontWeight: FontWeight.bold,
   color: Colors.white
+);
+
+/// 剩余天数 已过天数的文字样式 大
+const TextStyle timeEventItemLargeDayTextStyle = TextStyle(
+    fontSize: 36.0,
+    fontWeight: FontWeight.bold,
 );
 
 const TextStyle timeEventItemDayLabelTextStyle = TextStyle(
@@ -56,4 +62,10 @@ const TextStyle appBarTitleTextStyle = TextStyle(
   fontSize: 20.0,
   fontWeight: FontWeight.bold,
   color: colorAppBarTitle
+);
+
+/// 事件详情页面 标题文字的样式
+const TextStyle timeEventDetailTitleTextStyle = TextStyle(
+  fontSize: 16.0,
+  fontWeight: FontWeight.bold,
 );

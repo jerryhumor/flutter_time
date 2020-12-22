@@ -28,7 +28,8 @@ class MyApp extends StatelessWidget {
       bloc: GlobalBloc(),
       child: MaterialApp(
         title: APP_NAME,
-        theme: TimeThemeData.darkThemeData,
+        theme: TimeThemeData.lightThemeData,
+        darkTheme: TimeThemeData.darkThemeData,
         onGenerateRoute: routerFactory,
         home: MainPage(),
       ),

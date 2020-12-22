@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/value/strings.dart';
+import 'package:flutter_time/value/styles.dart';
 
 class CountDownDetailPage extends StatelessWidget {
   final String bgHeroTag;
@@ -54,6 +55,12 @@ class CountDownDetailPage extends StatelessWidget {
     return Column(
       children: <Widget>[
         _buildTitleBar(textColor),
+        _buildTitle(textColor),
+        VerticalSeparator(24.0),
+        DayText(day: 1, textColor: textColor, isLarge: true,),
+        RemainingDayLabel(textColor: textColor,),
+        VerticalSeparator(16.0),
+        TimeEventPassProgress(totalDay: 9, passDay: 1,),
       ],
     );
   }
@@ -90,7 +97,7 @@ class CountDownDetailPage extends StatelessWidget {
             /// 编辑按钮
             IconButton(
               icon: Icon(
-                Icons.edit,
+                Icons.low_priority,
                 color: textColor,
               ),
               onPressed: () {},
@@ -99,6 +106,13 @@ class CountDownDetailPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// 创建标题
+  Widget _buildTitle(Color textColor) {
+    final textStyle = timeEventDetailTitleTextStyle.apply(color: textColor);
+
+    return Text(model.title, style: textStyle,);
   }
 
   /// 创建备注区域
