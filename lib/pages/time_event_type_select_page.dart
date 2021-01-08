@@ -36,15 +36,14 @@ class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with 
     return Scaffold(
       appBar: AppBar(
         title: Text(CREATE),
+        automaticallyImplyLeading: false,
         actions: <Widget>[
           IconButton(
             icon: Icon(
               Icons.close,
               color: colorGrey,
             ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),

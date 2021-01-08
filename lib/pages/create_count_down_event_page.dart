@@ -50,6 +50,7 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
     return Scaffold(
       appBar: AppBar(
         title: Text(CREATE_COUNT_DOWN_TIME_EVENT),
+        automaticallyImplyLeading: false,
         actions: <Widget>[
           IconButton(
             icon: Icon(

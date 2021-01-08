@@ -69,3 +69,8 @@ const TextStyle timeEventDetailTitleTextStyle = TextStyle(
   fontSize: 16.0,
   fontWeight: FontWeight.bold,
 );
+
+/// 事件详情页面 备注的文字样式
+const TextStyle timeEventDetailRemarkTextStyle = TextStyle(
+  fontSize: 14.0,
+);
