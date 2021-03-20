@@ -4,6 +4,7 @@ import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/ui/animation_column.dart';
 import 'package:flutter_time/ui/common_ui.dart';
+import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
@@ -15,22 +16,21 @@ class CreateCountDownEventPage extends StatefulWidget {
 
 class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> with SingleTickerProviderStateMixin {
 
-  // todo 记录变量
-
   AnimationController controller;
-  TimeEventModel model;
+  TimeEventModelChangeNotifier modelNotifier;
 
   @override
   void initState() {
     super.initState();
-    model = TimeEventModel(
+    final DateTime dateTime = DateTime.now();
+    modelNotifier = TimeEventModelChangeNotifier(TimeEventModel(
       color: bgColorList[0].value,
       title: '',
       remark: '默认备注',
-      startTime: 0,
-      endTime: 0,
+      startTime: dateTime.millisecondsSinceEpoch,
+      endTime: dateTime.millisecondsSinceEpoch,
       type: TimeEventType.countDownDay.index,
-    );
+    ));
     controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     controller.forward();
   }
@@ -38,13 +38,13 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
   @override
   void dispose() {
     controller.dispose();
+    modelNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    final Color eventColor = Color(model.color);
     final TimeEventType eventType = TimeEventType.countDownDay;
 
     return Scaffold(
@@ -75,19 +75,41 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
             /// 分隔
             VerticalSeparator(18.0),
             /// 倒计日名称
-            EventNameTile(
-              name: model.title,
-              hint: COUNT_DOWN_EVENT_NAME,
-              onTap: () => showTitleEditDialog(context),
+            ValueListenableBuilder(
+              valueListenable: modelNotifier.titleNotifier,
+              builder: (context, value, child) {
+                return EventNameTile(
+                  name: value,
+                  hint: COUNT_DOWN_EVENT_NAME,
+                  onTap: () => showTitleEditDialog(context),
+                );
+              },
             ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 起始日期
-            StartDateTile('2019-03-19', () {}),
+            ValueListenableBuilder(
+              valueListenable: modelNotifier.startTimeNotifier,
+              builder: (context, value, child) {
+                print('创建起始日期: $value');
+                return StartDateTile(
+                  startTime: value,
+                  onTap: handleTapStartTime,
+                );
+              },
+            ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 目标日期
-            TargetDateTile('2019-03-20', (){}),
+            ValueListenableBuilder(
+              valueListenable: modelNotifier.endTimeNotifier,
+              builder: (context, value, child) {
+                return TargetDateTile(
+                  targetTime: value,
+                  onTap: handleTapTargetTime,
+                );
+              },
+            ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 备注
@@ -95,17 +117,27 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
             /// 分隔
             VerticalSeparator(18.0),
             /// 颜色选择条
-            ColorSelectTile(
-              colorList: bgColorList,
-              selectedColor: eventColor,
-              colorChangedCallback: onColorChanged,
+            ValueListenableBuilder(
+              valueListenable: modelNotifier.colorNotifier,
+              builder: (context, value, child) {
+                return ColorSelectTile(
+                  colorList: bgColorList,
+                  selectedColor: Color(value),
+                  colorChangedCallback: onColorChanged,
+                );
+              },
             ),
             /// 分隔
             VerticalSeparator(18.0),
             // 预览效果
             Padding(padding: const EdgeInsets.only(left: 16.0), child: Text(PREVIEW_EFFECT),),
             VerticalSeparator(8.0),
-            TimeEventItem(eventColor, eventType, model.title, 1, null),
+            ValueListenableBuilder<TimeEventModel>(
+              valueListenable: modelNotifier.modelNotifier,
+              builder: (context, value, child) {
+                return TimeEventItem(Color(value.color), eventType, value.title, 1, null);
+              },
+            ),
             VerticalSeparator(8.0),
             /// 分割
 
@@ -123,13 +155,9 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
                   backgroundColor: colorBlue2,
                   borderRadius: BorderRadius.circular(12.0),
                   onTap: () {
-                    final EventWrap eventWrap =  EventWrap(
+                    final EventWrap eventWrap = EventWrap(
                       TimeEventOrigin.add,
-                      TimeEventModel(
-                        color: bgColorList[0].value,
-                        title: '添加标题', remark: '添加备注',
-                        type: TimeEventType.countDownDay.index,
-                      ),
+                      modelNotifier.model,
                     );
                     Navigator.pop(context, eventWrap);
                   },
@@ -143,11 +171,47 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
     );
   }
 
+  void handleTapStartTime(int timestamp) async {
+    final selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.fromMillisecondsSinceEpoch(timestamp),
+      firstDate: DateTime(2000,),
+      lastDate: DateTime(2030),
+    );
+    if (selectedDate != null) {
+      onStartTimeChanged(selectedDate.millisecondsSinceEpoch);
+    }
+  }
+
+  void handleTapTargetTime(int timestamp) async {
+    final selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.fromMillisecondsSinceEpoch(timestamp),
+      firstDate: DateTime(2000,),
+      lastDate: DateTime(2030),
+    );
+    if (selectedDate != null) {
+      onTargetTimeChanged(selectedDate.millisecondsSinceEpoch);
+    }
+  }
+
+  void onTitleChanged(String title) {
+    if (title != null && title.isNotEmpty) {
+      modelNotifier.title = title;
+    }
+  }
+
   void onColorChanged(Color color) {
-    if (model.color == color.value) return;
-    setState(() {
-      model.color = color.value;
-    });
+    if (modelNotifier.color == color.value) return;
+    modelNotifier.color = color.value;
+  }
+
+  void onStartTimeChanged(int timestamp) {
+    modelNotifier.startTime = timestamp;
+  }
+
+  void onTargetTimeChanged(int timestamp) {
+    modelNotifier.endTime = timestamp;
   }
 
   void showTitleEditDialog(BuildContext context) async {
@@ -157,15 +221,94 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
         return EditDialog(
           title: COUNT_DOWN_EVENT_NAME,
           maxLength: 30,
-          text: model.title,
+          text: modelNotifier.title,
           autoFocus: true,
         );
       },
     );
     if (text != null && text.isNotEmpty) {
-      setState(() {
-        model.title = text;
-      });
+      modelNotifier.title = text;
     }
+  }
+}
+
+class TimeEventModelChangeNotifier {
+
+  TimeEventModel model;
+
+  ValueNotifier<TimeEventModel> modelNotifier;
+  ValueNotifier<int> colorNotifier;
+  ValueNotifier<String> titleNotifier;
+  ValueNotifier<String> remarkNotifier;
+  ValueNotifier<int> startTimeNotifier;
+  ValueNotifier<int> endTimeNotifier;
+
+  TimeEventModelChangeNotifier(TimeEventModel model) {
+    this.model = model;
+    modelNotifier = ValueNotifier(model);
+    colorNotifier = ValueNotifier(model.color);
+    titleNotifier = ValueNotifier(model.title);
+    remarkNotifier = ValueNotifier(model.remark);
+    startTimeNotifier = ValueNotifier(model.startTime);
+    endTimeNotifier = ValueNotifier(model.endTime);
+  }
+
+  int get color {
+    return model.color;
+  }
+
+  set color(int value) {
+    model.color = value;
+    colorNotifier.value = value;
+    modelNotifier.notifyListeners();
+  }
+
+  String get title {
+    return model.title;
+  }
+
+  set title(String value) {
+    model.title = value;
+    titleNotifier.value = value;
+    modelNotifier.notifyListeners();
+  }
+
+  String get remark {
+    return model.remark;
+  }
+
+  set remark(String value) {
+    model.remark = value;
+    remarkNotifier.value = value;
+    modelNotifier.notifyListeners();
+  }
+
+  int get startTime {
+    return model.startTime;
+  }
+
+  set startTime(int value) {
+    model.startTime = value;
+    startTimeNotifier.value = value;
+    modelNotifier.notifyListeners();
+  }
+
+  int get endTime {
+    return model.endTime;
+  }
+
+  set endTime(int value) {
+    model.endTime = value;
+    endTimeNotifier.value = value;
+    modelNotifier.notifyListeners();
+  }
+
+  void dispose() {
+    modelNotifier.dispose();
+    colorNotifier.dispose();
+    titleNotifier.dispose();
+    remarkNotifier.dispose();
+    startTimeNotifier.dispose();
+    endTimeNotifier.dispose();
   }
 }

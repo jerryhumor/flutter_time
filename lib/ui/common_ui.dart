@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
+import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 import 'package:flutter_time/value/styles.dart';
@@ -383,7 +384,6 @@ class TimeEventTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    print('title text color: $textColor');
     final textStyle = timeEventItemTitleTextStyle.apply(color: textColor);
 
     return Text(
@@ -441,10 +441,10 @@ class EventNameTile extends StatelessWidget {
 // 起始日期编辑条目
 class StartDateTile extends StatelessWidget {
 
-  final String _startTime;
-  final VoidCallback _onTap;
+  final int startTime;
+  final void Function(int timestamp) onTap;
 
-  StartDateTile(this._startTime, this._onTap);
+  StartDateTile({this.startTime, this.onTap,});
 
   @override
   Widget build(BuildContext context) {
@@ -458,8 +458,10 @@ class StartDateTile extends StatelessWidget {
           width: 24.0,
         ),
         title: Text(START_DATE),
-        trailing: Text(_startTime),
-        onTap: _onTap,
+        trailing: Text(TimeUtils.millis2String(startTime, 'yyyy-MM-dd')),
+        onTap: () {
+          if (onTap != null) onTap(startTime);
+        },
       ),
     );
   }
@@ -468,10 +470,10 @@ class StartDateTile extends StatelessWidget {
 // 目标日期编辑条目
 class TargetDateTile extends StatelessWidget {
 
-  final String _targetTime;
-  final VoidCallback _onTap;
+  final int targetTime;
+  final void Function(int timestamp) onTap;
 
-  TargetDateTile(this._targetTime, this._onTap);
+  TargetDateTile({this.targetTime, this.onTap,});
 
   @override
   Widget build(BuildContext context) {
@@ -485,8 +487,10 @@ class TargetDateTile extends StatelessWidget {
           width: 24.0,
         ),
         title: Text(TARGET_DATE),
-        trailing: Text(_targetTime),
-        onTap: _onTap,
+        trailing: Text(TimeUtils.millis2String(targetTime, 'yyyy-MM-dd')),
+        onTap: () {
+          if (onTap != null) onTap(targetTime);
+        },
       ),
     );
   }

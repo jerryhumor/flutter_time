@@ -36,7 +36,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    log('Main page init state', tag: 'MAIN');
   }
 
   @override
