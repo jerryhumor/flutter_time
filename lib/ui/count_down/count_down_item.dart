@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 
@@ -139,12 +140,14 @@ class _CountDownItemState extends State<CountDownItem> with SingleTickerProvider
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: <Widget>[
-          // 包含标题 类型信息的row
+          /// 包含标题 类型信息的row
           TitleRow(title: model.title, type: model.type, titleHeroTag: tag, textColor: textColor,),
-          // 间隔
+          /// 间隔
           SizedBox(height: 8.0,),
-          // 包含日期信息的row
-          TimeRow(type: model.type, textColor: textColor,),
+          /// 包含日期信息的row
+          model.type == TimeEventType.countDownDay.index
+              ? CountDownDetail(startTime: model.startTime, endTime: model.endTime,)
+              : CumulativeDetail(),
         ],
       ),
     );

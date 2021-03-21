@@ -64,6 +64,8 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
         color: bgColorList[random.nextInt(13)].value,
         title: '测试标题',
         remark: '这是备注',
+        startTime: 1609430400000,
+        endTime: 1616308077000,
         type: TimeEventType.countDownDay.index,
       );
       events.add(EventWrap(TimeEventOrigin.init, model));

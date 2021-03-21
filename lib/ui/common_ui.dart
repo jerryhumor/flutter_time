@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_time/constant/time_constants.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
@@ -85,6 +87,65 @@ class TitleRow extends StatelessWidget {
         ),
         // 查看详情
         ViewDetailLabel(textColor: textColor,)
+      ],
+    );
+  }
+}
+
+/// 累计日具体信息
+class CumulativeDetail extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+/// 倒计日具体信息
+class CountDownDetail extends StatelessWidget {
+
+  final int startTime, endTime;
+
+  CountDownDetail({this.startTime, this.endTime,});
+
+  @override
+  Widget build(BuildContext context) {
+
+    final Color textColor = Theme.of(context).colorScheme.secondary;
+    final int totalDay = ((endTime - startTime) / DAY_TIME_MILLIS).toInt();
+    final int passDay = ((DateTime.now().millisecondsSinceEpoch - startTime) / DAY_TIME_MILLIS).toInt();
+    final int remainDay = max(totalDay - passDay, 0);
+    final String targetDay = TimeUtils.millis2String(endTime, 'yyyy-MM-dd');
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: <Widget>[
+        /// 左边的进度和目标日
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            /// 倒计日的倒计时文字
+            TimeEventPassText(totalDay: totalDay, passDay: passDay, textColor: textColor,),
+            /// 分割
+            SizedBox(height: 2.0,),
+            /// 倒计日的倒计时进度条
+            TimeEventPassProgress(totalDay: totalDay, passDay: passDay,),
+            /// 分割
+            SizedBox(height: 2.0,),
+            /// 目标日
+            TargetDay(targetDay: targetDay, textColor: textColor,),
+          ],
+        ),
+        /// 剩余天数 或者 已过天数
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            /// 标志 剩余天数 已过天数
+            RemainingDayLabel(textColor: textColor,),
+            /// 日期文字
+            DayText(day: remainDay, textColor: textColor, isLarge: false,),
+          ],
+        ),
       ],
     );
   }
@@ -320,7 +381,7 @@ class TargetDay extends StatelessWidget {
   final String targetDay;
   final Color textColor;
 
-  TargetDay({this.targetDay, this.textColor,});
+  TargetDay({this.targetDay = '', this.textColor,});
 
   @override
   Widget build(BuildContext context) {
