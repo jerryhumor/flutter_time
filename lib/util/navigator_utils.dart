@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/pages/create_count_down_event_page.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/pages/time_event_type_select_page.dart';
 
 class NavigatorUtils {
+
+  static Future<dynamic> navToDetail(BuildContext context, TimeEventModel model) async {
+    Navigator.of(context).pushNamed('count_down_detail', arguments: {
+      'model': model,
+    });
+  }
 
   /// 启动事件类型选择界面带动画
   static Future<dynamic> startTimeEventTypeSelectWithAnimation(BuildContext context) async {

@@ -4,8 +4,9 @@ import 'package:flutter_time/ui/common_ui.dart';
 class ItemGestureWrapper extends StatefulWidget {
 
   final Widget child;
+  final VoidCallback onTap;
 
-  ItemGestureWrapper({this.child,});
+  ItemGestureWrapper({this.child, this.onTap,});
 
   @override
   _ItemGestureWrapperState createState() => _ItemGestureWrapperState();
@@ -55,17 +56,6 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTick
     slideAnimationController.reverse();
   }
 
-  void onTap() {
-
-//    String bgHeroTag = 'bg_hero_${widget.index}';
-//    String titleHeroTag = 'title_hero_${widget.index}';
-
-    // todo 重新添加hero动画
-    // Navigator.of(context).pushNamed('count_down_detail', arguments: {
-    //   'model': widget.model,
-    // });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -99,7 +89,7 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTick
       onHorizontalDragUpdate: onDragUpdate,
       onHorizontalDragEnd: onDragEnd,
       onHorizontalDragCancel: onDragCancel,
-      onTap: onTap,
+      onTap: widget.onTap,
       child: SlideTransition(
           position: slideAnimation,
           child: widget.child,
