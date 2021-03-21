@@ -3,114 +3,28 @@ import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 
-// 时间事件的条目
-class CountDownItem extends StatefulWidget {
+// 倒计日事件的条目
+class CountDownItem extends StatelessWidget {
 
-  /// 序号
   final int index;
-  /// 数据
   final TimeEventModel model;
 
+
   CountDownItem({this.index, this.model,});
-
-  @override
-  _CountDownItemState createState() => _CountDownItemState();
-}
-
-class _CountDownItemState extends State<CountDownItem> with SingleTickerProviderStateMixin {
-
-  AnimationController slideAnimationController;
-  Animation<Offset> slideAnimation;
-
-  // 手指滑动的累计偏移量
-  double _dragExtent = 0.0;
-
-  void onDragCancel() {
-    print('drag cancel');
-    slideAnimationController.reverse();
-  }
-
-  void onDragStart(DragStartDetails details) {
-    print('drag start, position: ${details.localPosition}');
-  }
-
-  void onDragDown(DragDownDetails details) {
-    print('drag down, position: ${details.localPosition}');
-  }
-
-  void onDragUpdate(DragUpdateDetails details) {
-    print('drag update, delta: ${details.delta}, drag extent');
-
-    // 暂存一个上一次的偏移量
-    final double oldDragExtent = _dragExtent;
-    // 更新偏移量
-    _dragExtent += details.delta.dx;
-
-    if (oldDragExtent.sign != _dragExtent.sign) {
-      setState(() {
-        _updateAnimation();
-      });
-    }
-
-    final double width = context.size.width;
-    slideAnimationController.value = _dragExtent.abs() / width;
-  }
-
-  void onDragEnd(DragEndDetails details) {
-    print('drag end, velocity: $details');
-    slideAnimationController.reverse();
-  }
-
-  void onTap() {
-
-//    String bgHeroTag = 'bg_hero_${widget.index}';
-//    String titleHeroTag = 'title_hero_${widget.index}';
-
-    // todo 重新添加hero动画
-    Navigator.of(context).pushNamed('count_down_detail', arguments: {
-      'model': widget.model,
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    slideAnimationController = new AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-
-    _updateAnimation();
-
-    slideAnimationController.addStatusListener((status) {
-      switch (status) {
-        case AnimationStatus.dismissed:
-          _dragExtent = 0.0;
-          break;
-        default: break;
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    slideAnimationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
 
     final Color textColor = Theme.of(context).colorScheme.secondary;
-    final Widget item = buildItem(context, textColor);
 
-    return GestureDetector(
-      onHorizontalDragStart: onDragStart,
-      onHorizontalDragDown: onDragDown,
-      onHorizontalDragUpdate: onDragUpdate,
-      onHorizontalDragEnd: onDragEnd,
-      onHorizontalDragCancel: onDragCancel,
-      onTap: onTap,
-      child: SlideTransition(
-        position: slideAnimation,
-        child: item
+    return SizedBox(
+      width: double.infinity,
+      height: 122,
+      child: Stack(
+        children: <Widget>[
+          _buildBackground(model.color, null),
+          _buildContent(model, null, textColor),
+        ],
       ),
     );
   }
@@ -151,26 +65,6 @@ class _CountDownItemState extends State<CountDownItem> with SingleTickerProvider
         ],
       ),
     );
-  }
-
-  Widget buildItem(BuildContext context, Color textColor) {
-    return SizedBox(
-      width: double.infinity,
-      height: 122,
-      child: Stack(
-        children: <Widget>[
-          _buildBackground(widget.model.color, null),
-          _buildContent(widget.model, null, textColor),
-        ],
-      ),
-    );
-  }
-
-  void _updateAnimation() {
-    slideAnimation = slideAnimationController.drive(Tween<Offset>(
-      begin: Offset.zero,
-      end: Offset(_dragExtent.sign, 0.0),
-    ));
   }
 }
 

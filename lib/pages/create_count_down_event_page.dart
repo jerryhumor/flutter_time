@@ -4,6 +4,7 @@ import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/ui/animation_column.dart';
 import 'package:flutter_time/ui/common_ui.dart';
+import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
@@ -129,13 +130,16 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
             ),
             /// 分隔
             VerticalSeparator(18.0),
-            // 预览效果
+            /// 预览效果
             Padding(padding: const EdgeInsets.only(left: 16.0), child: Text(PREVIEW_EFFECT),),
             VerticalSeparator(8.0),
             ValueListenableBuilder<TimeEventModel>(
               valueListenable: modelNotifier.modelNotifier,
               builder: (context, value, child) {
-                return TimeEventItem(Color(value.color), eventType, value.title, 1, null);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: CountDownItem(model: value,),
+                );
               },
             ),
             VerticalSeparator(8.0),
