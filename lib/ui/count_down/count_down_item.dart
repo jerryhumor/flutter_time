@@ -4,11 +4,10 @@ import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 
 // 倒计日事件的条目
-class CountDownItem extends StatelessWidget {
+class CountDownItem extends StatelessWidget with ITimeEventItem {
 
   final int index;
   final TimeEventModel model;
-
 
   CountDownItem({this.index, this.model,});
 
@@ -65,6 +64,11 @@ class CountDownItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  @override
+  TimeEventModel getModel() {
+    return model;
   }
 }
 

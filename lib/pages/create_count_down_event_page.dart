@@ -27,7 +27,7 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
     modelNotifier = TimeEventModelChangeNotifier(TimeEventModel(
       color: bgColorList[0].value,
       title: '',
-      remark: '默认备注',
+      remark: '',
       startTime: dateTime.millisecondsSinceEpoch,
       endTime: dateTime.millisecondsSinceEpoch,
       type: TimeEventType.countDownDay.index,
@@ -45,8 +45,6 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
 
   @override
   Widget build(BuildContext context) {
-
-    final TimeEventType eventType = TimeEventType.countDownDay;
 
     return Scaffold(
       appBar: AppBar(
@@ -78,55 +76,52 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
             /// 倒计日名称
             ValueListenableBuilder(
               valueListenable: modelNotifier.titleNotifier,
-              builder: (context, value, child) {
-                return EventNameTile(
-                  name: value,
-                  hint: COUNT_DOWN_EVENT_NAME,
-                  onTap: () => showTitleEditDialog(context),
-                );
-              },
+              builder: (context, value, child) => EventNameTile(
+                name: value,
+                hint: COUNT_DOWN_EVENT_NAME,
+                onTap: () => showTitleEditDialog(context),
+              ),
             ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 起始日期
             ValueListenableBuilder(
               valueListenable: modelNotifier.startTimeNotifier,
-              builder: (context, value, child) {
-                print('创建起始日期: $value');
-                return StartDateTile(
-                  startTime: value,
-                  onTap: handleTapStartTime,
-                );
-              },
+              builder: (context, value, child) => StartDateTile(
+                startTime: value,
+                onTap: handleTapStartTime,
+              ),
             ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 目标日期
             ValueListenableBuilder(
               valueListenable: modelNotifier.endTimeNotifier,
-              builder: (context, value, child) {
-                return TargetDateTile(
-                  targetTime: value,
-                  onTap: handleTapTargetTime,
-                );
-              },
+              builder: (context, value, child) => TargetDateTile(
+                targetTime: value,
+                onTap: handleTapTargetTime,
+              ),
             ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 备注
-            RemarkTile('无', (){}),
+            ValueListenableBuilder(
+              valueListenable: modelNotifier.remarkNotifier,
+              builder: (context, value, child) => RemarkTile(
+                remark: modelNotifier.remark,
+                onTap: () => showRemarkEditDialog(context)
+              ),
+            ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 颜色选择条
             ValueListenableBuilder(
               valueListenable: modelNotifier.colorNotifier,
-              builder: (context, value, child) {
-                return ColorSelectTile(
-                  colorList: bgColorList,
-                  selectedColor: Color(value),
-                  colorChangedCallback: onColorChanged,
-                );
-              },
+              builder: (context, value, child) => ColorSelectTile(
+                colorList: bgColorList,
+                selectedColor: Color(value),
+                colorChangedCallback: onColorChanged,
+              ),
             ),
             /// 分隔
             VerticalSeparator(18.0),
@@ -135,16 +130,14 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
             VerticalSeparator(8.0),
             ValueListenableBuilder<TimeEventModel>(
               valueListenable: modelNotifier.modelNotifier,
-              builder: (context, value, child) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  child: CountDownItem(model: value,),
-                );
-              },
+              builder: (context, value, child) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                child: CountDownItem(model: value,),
+              ),
             ),
             VerticalSeparator(8.0),
             /// 分割
-
+            SizedBox(height: 8.0,),
             /// 保存按钮
             Row(
               mainAxisSize: MainAxisSize.max,
@@ -232,6 +225,23 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
     );
     if (text != null && text.isNotEmpty) {
       modelNotifier.title = text;
+    }
+  }
+
+  void showRemarkEditDialog(BuildContext context) async {
+    final String text = await showDialog(
+      context: context,
+      builder: (context) {
+        return EditDialog(
+          title: REMARK,
+          maxLength: 30,
+          text: modelNotifier.remark,
+          autoFocus: true,
+        );
+      },
+    );
+    if (text != null && text.isNotEmpty) {
+      modelNotifier.remark = text;
     }
   }
 }

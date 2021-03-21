@@ -4,57 +4,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_constants.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
+import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 import 'package:flutter_time/value/styles.dart';
 
 // 时间事件的条目
-class TimeEventItem extends StatelessWidget {
-  /// 背景颜色
-  final Color bgColor;
-  /// 事件类型
-  final TimeEventType type;
-  /// 事件标题
-  final String title;
-  /// 时间剩余
-  final int day;
-  /// 点击事件
-  final VoidCallback onTap;
-
-  TimeEventItem(this.bgColor, this.type, this.title, this.day, this.onTap);
-
-  @override
-  Widget build(BuildContext context) {
-
-    final Color textColor = Theme.of(context).colorScheme.secondary;
-
-    return GestureDetector(
-      onTap: () {
-
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          child: Column(
-            children: <Widget>[
-              // 包含标题 类型信息的row
-              TitleRow(title: title, type: type.index, textColor: textColor,),
-              // 间隔
-              SizedBox(height: 8.0,),
-              // 包含日期信息的row
-              TimeRow(type: type.index, textColor: textColor,),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+abstract class ITimeEventItem {
+  TimeEventModel getModel();
 }
 
 class TitleRow extends StatelessWidget {
@@ -510,20 +468,13 @@ class StartDateTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
-    return Container(
-      color: backgroundColor,
-      child: ListTile(
-        leading: Image.asset(
-          'images/time_event_start_time.png',
-          height: 24.0,
-          width: 24.0,
-        ),
-        title: Text(START_DATE),
-        trailing: Text(TimeUtils.millis2String(startTime, 'yyyy-MM-dd')),
-        onTap: () {
-          if (onTap != null) onTap(startTime);
-        },
-      ),
+    return EventEditItem(
+      asset: 'images/time_event_start_time.png',
+      title: START_DATE,
+      content: TimeUtils.millis2String(startTime, 'yyyy-MM-dd'),
+      onTap: () {
+        if (onTap != null) onTap(startTime);
+      },
     );
   }
 }
@@ -539,20 +490,13 @@ class TargetDateTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
-    return Container(
-      color: backgroundColor,
-      child: ListTile(
-        leading: Image.asset(
-          'images/time_event_target_time.png',
-          height: 24.0,
-          width: 24.0,
-        ),
-        title: Text(TARGET_DATE),
-        trailing: Text(TimeUtils.millis2String(targetTime, 'yyyy-MM-dd')),
-        onTap: () {
-          if (onTap != null) onTap(targetTime);
-        },
-      ),
+    return EventEditItem(
+      asset: 'images/time_event_target_time.png',
+      title: TARGET_DATE,
+      content: TimeUtils.millis2String(targetTime, 'yyyy-MM-dd'),
+      onTap: () {
+        if (onTap != null) onTap(targetTime);
+      },
     );
   }
 }
@@ -560,26 +504,18 @@ class TargetDateTile extends StatelessWidget {
 // 备注编辑条目
 class RemarkTile extends StatelessWidget {
 
-  final String _remark;
-  final VoidCallback _onTap;
+  final String remark;
+  final VoidCallback onTap;
 
-  RemarkTile(this._remark, this._onTap);
+  RemarkTile({this.remark = '', this.onTap,});
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
-    return Container(
-      color: backgroundColor,
-      child: ListTile(
-        leading: Image.asset(
-          'images/time_event_remark.png',
-          height: 24.0,
-          width: 24.0,
-        ),
-        title: Text(REMARK),
-        trailing: Text(_remark),
-        onTap: _onTap,
-      ),
+    return EventEditItem(
+      asset: 'images/time_event_remark.png',
+      title: REMARK,
+      content: remark ?? '',
+      onTap: onTap,
     );
   }
 }
@@ -1137,6 +1073,47 @@ class TextButton extends StatelessWidget {
         ),
         child: Center(
           child: Text(text, style: textStyle,),
+        ),
+      ),
+    );
+  }
+}
+
+class EventEditItem extends StatelessWidget {
+
+  final String asset;
+  final String title;
+  final String content;
+  final VoidCallback onTap;
+
+  EventEditItem({this.asset, this.title, this.content, this.onTap,});
+
+  @override
+  Widget build(BuildContext context) {
+
+    final ThemeData theme = Theme.of(context);
+    final Color bgColor = theme.colorScheme.onBackground;
+    final Color titleColor = theme.colorScheme.primary;
+    final Color dateColor = theme.colorScheme.onSecondary;
+
+    final TextStyle titleStyle = timeEventDetailTitleTextStyle.apply(color: titleColor);
+    final TextStyle dateStyle = timeEventDetailTitleTextStyle.apply(color: dateColor,);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 60,
+        color: bgColor,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            Image.asset(asset, width: 18.0, height: 18.0,),
+            SizedBox(width: 10.0,),
+            Text(title, style: titleStyle,),
+            Spacer(),
+            Text(content, style: dateStyle,),
+          ],
         ),
       ),
     );
