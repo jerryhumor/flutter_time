@@ -5,7 +5,6 @@ import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/ui/animation_column.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
-import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
