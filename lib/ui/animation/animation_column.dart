@@ -4,10 +4,9 @@ enum AnimationColumnDirection{
   startToEnd,
   endToStart
 }
-/**
- * 带动画的Column
- * 可以通过动画决定
- */
+
+/// 带动画的Column
+/// 可以通过动画决定
 class AnimationColumn extends StatelessWidget {
 
   final double fadeStart, fadeEnd;
@@ -41,7 +40,7 @@ class AnimationColumn extends StatelessWidget {
         Animation<Offset> slideAnimation = 
           TriggerOffsetTween(
             begin: positionStart, 
-            end: positionEnd, 
+            end: positionEnd,
             triggerStart: triggerStart,
             triggerEnd: triggerEnd
           ).animate(controller);
@@ -54,7 +53,7 @@ class AnimationColumn extends StatelessWidget {
         Animation<double> fadeAnimation = 
           TriggerFadeTween(
             begin: fadeStart, 
-            end: fadeEnd, 
+            end: fadeEnd,
             triggerStart: triggerStart,
             triggerEnd: triggerEnd
           ).animate(controller);

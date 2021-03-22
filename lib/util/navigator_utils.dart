@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/model/base/models.dart';
-import 'package:flutter_time/pages/create_count_down_event_page.dart';
+import 'package:flutter_time/pages/count_down/create_count_down_event_page.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/pages/time_event_type_select_page.dart';
 
@@ -34,14 +34,17 @@ class NavigatorUtils {
   /// 一般是由当前事件类型选择页面调用的
   /// 所以会先pop掉当前页面 然后在启动创建倒计时事件页面
   static Future<dynamic> startCreateCountDownTimeEvent(BuildContext context) async {
-    return await Navigator.pushNamed(
+    return await Navigator.popAndPushNamed(
       context,
       'create_count_down_event_page',
     );
   }
 
-  static void startCreateCumulativeTimeEvent(BuildContext context) {
-
+  static Future<dynamic> startCreateCumulativeTimeEvent(BuildContext context) async {
+    return await Navigator.popAndPushNamed(
+      context,
+      'create_cumulative_event_page',
+    );
   }
 
 }

@@ -601,29 +601,29 @@ class ColorSelectItem extends StatelessWidget {
 // 创建事件类型选择Item
 class EventTypeItem extends StatelessWidget {
 
-  final String _title;
-  final String _subTitle;
-  final Color _bgColor;
-  final VoidCallback _onTap;
+  final String title;
+  final String subTitle;
+  final Color bgColor;
+  final VoidCallback onTap;
 
-  EventTypeItem(this._title, this._subTitle, this._bgColor, this._onTap);
+  EventTypeItem({this.title, this.subTitle, this.bgColor, this.onTap,});
 
-  EventTypeItem.countDownDay(this._onTap) :
-        this._title = COUNT_DOWN_TYPE_ITEM_TITLE,
-        this._subTitle = COUNT_DOWN_TYPE_ITEM_SUB_TITLE,
-        this._bgColor = colorRed1;
-  EventTypeItem.cumulativeDay(this._onTap) :
-        this._title = CUMULATIVE_TYPE_ITEM_TITLE,
-        this._subTitle = CUMULATIVE_TYPE_ITEM_SUB_TITLE,
-        this._bgColor = colorBlue1;
+  EventTypeItem.countDownDay(this.onTap) :
+        this.title = COUNT_DOWN_TYPE_ITEM_TITLE,
+        this.subTitle = COUNT_DOWN_TYPE_ITEM_SUB_TITLE,
+        this.bgColor = colorRed1;
+  EventTypeItem.cumulativeDay(this.onTap) :
+        this.title = CUMULATIVE_TYPE_ITEM_TITLE,
+        this.subTitle = CUMULATIVE_TYPE_ITEM_SUB_TITLE,
+        this.bgColor = colorBlue1;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _onTap,
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: _bgColor,
+          color: bgColor,
           borderRadius: BorderRadius.circular(16.0)
         ),
         margin: const EdgeInsets.symmetric(horizontal: 28.0),
@@ -638,7 +638,7 @@ class EventTypeItem extends StatelessWidget {
               children: <Widget>[
                 // 主标题
                 Text(
-                  _title,
+                  title,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18.0,
@@ -649,7 +649,7 @@ class EventTypeItem extends StatelessWidget {
                 SizedBox(height: 4.0,),
                 // 副标题
                 Text(
-                  _subTitle,
+                  subTitle,
                   style: TextStyle(
                     color: colorWhiteTransparent,
                     fontSize: 14.0,

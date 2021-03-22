@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_time/ui/animation_column.dart';
+import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/util/navigator_utils.dart';
 import 'package:flutter_time/value/colors.dart';
@@ -12,23 +12,12 @@ class TimeEventTypeSelectPage extends StatefulWidget {
 
 class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with SingleTickerProviderStateMixin {
 
-  AnimationController controller;
+  bool countDownTapped = false, cumulativeTapped = false;
+  ItemState from = ItemState.completed, to = ItemState.completed;
 
   @override
   void initState() {
     super.initState();
-    controller = 
-      AnimationController(
-        vsync: this, 
-        duration: const Duration(milliseconds: 300)
-      );
-      controller.addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          NavigatorUtils.startCreateCountDownTimeEvent(context).then((value) {
-            Navigator.pop(context, value);
-          });
-        }
-      });
   }
 
   @override
@@ -47,26 +36,55 @@ class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with 
           ),
         ],
       ),
-
-      body: AnimationColumn(
-        fadeStart: 1.0,
-        fadeEnd: 0.0,
-        positionStart: Offset.zero,
-        positionEnd: Offset(-0.2, 0.0),
-        controller: controller,
-        children: <Widget>[
-          // 倒计日条目
-          EventTypeItem.countDownDay(() {
-            controller.forward();
-          }),
-          // 分隔
+      body: AnimationColumn2(
+        onAnimationFinished: () {
+          if (countDownTapped) {
+            NavigatorUtils.startCreateCountDownTimeEvent(context);
+          } else if (cumulativeTapped){
+            NavigatorUtils.startCreateCumulativeTimeEvent(context);
+          }
+        },
+        children: [
+          AnimationColumnItem(
+            first: countDownTapped,
+            child: EventTypeItem(
+              title: COUNT_DOWN_TYPE_ITEM_TITLE,
+              subTitle: COUNT_DOWN_TYPE_ITEM_SUB_TITLE,
+              bgColor: colorRed1,
+              onTap: handleTapCountDownItem,
+            ),
+          ),
           SizedBox(height: 32.0,),
-          // 累计日条目
-          EventTypeItem.cumulativeDay(() {
-            controller.forward();
-          }),
+          AnimationColumnItem(
+            first: cumulativeTapped,
+            child: EventTypeItem(
+              title: CUMULATIVE_TYPE_ITEM_TITLE,
+              subTitle: CUMULATIVE_TYPE_ITEM_SUB_TITLE,
+              bgColor: colorBlue1,
+              onTap: handleTapCumulativeItem,
+            ),
+          ),
         ],
+        fromState: from,
+        toState: to,
+        animationType: AnimationType.showOneFirst,
       ),
     );
+  }
+
+  void handleTapCountDownItem() {
+    setState(() {
+      countDownTapped = true;
+      from = ItemState.completed;
+      to = ItemState.dismissed;
+    });
+  }
+
+  void handleTapCumulativeItem() {
+    setState(() {
+      cumulativeTapped = true;
+      from = ItemState.completed;
+      to = ItemState.dismissed;
+    });
   }
 }

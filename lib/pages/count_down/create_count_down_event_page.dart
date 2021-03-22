@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
-import 'package:flutter_time/ui/animation_column.dart';
+import 'package:flutter_time/ui/animation/animation_column.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/value/colors.dart';
@@ -131,7 +131,7 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
               valueListenable: modelNotifier.modelNotifier,
               builder: (context, value, child) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                child: CountDownItem(model: value,),
+                child: TimeEventItem(model: value,),
               ),
             ),
             VerticalSeparator(8.0),

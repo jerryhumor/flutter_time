@@ -136,7 +136,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ItemGestureWrapper(
-              child: CountDownItem(
+              child: TimeEventItem(
                 index: index,
                 model: model,
               ),
@@ -168,7 +168,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ItemGestureWrapper(
-              child: CountDownItem(
+              child: TimeEventItem(
                 index: index,
                 model: model,
               ),

@@ -14,6 +14,7 @@ const String START_DAY = '起始日';
 const String PASS = '已过';
 
 const String CREATE_COUNT_DOWN_TIME_EVENT = '创建倒计日';
+const String CREATE_CUMULATIVE_TIME_EVENT = '创建累计日';
 
 const String START_DATE = '起始日期';
 const String TARGET_DATE = '目标日期';
