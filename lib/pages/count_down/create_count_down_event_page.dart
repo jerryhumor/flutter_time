@@ -147,9 +147,9 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
                   textStyle: TextStyle(
                     color: Colors.white,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 18.0),
                   backgroundColor: colorBlue2,
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(18.0),
                   onTap: () {
                     final EventWrap eventWrap = EventWrap(
                       TimeEventOrigin.add,
