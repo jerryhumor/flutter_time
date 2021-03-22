@@ -20,10 +20,14 @@ class NavigatorUtils {
         pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
           /// 从小到大变化的animation
           /// 使用非线性动画
-          final Animation<double> smallToBigAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut));
+          final Animation<double> smallToBigAnimation = Tween(begin: 0.0, end: 1.0)
+              .animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOut,
+          ),);
           return ScaleTransition(
             scale: smallToBigAnimation,
-            alignment: Alignment.topRight,
+            alignment: Alignment(1.0, -0.85),
             child: TimeEventTypeSelectPage(),
           );
         }
