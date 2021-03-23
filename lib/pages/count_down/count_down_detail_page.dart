@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_time/model/base/models.dart';
+import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
@@ -57,13 +58,14 @@ class CountDownDetailPage extends StatelessWidget {
     return Column(
       children: <Widget>[
         _buildTitleBar(context, textColor),
+        SizedBox(height: 12.0,),
         _buildTitle(textColor),
         VerticalSeparator(24.0),
         DayText(day: 1, textColor: textColor, isLarge: true,),
         RemainingDayLabel(textColor: textColor,),
         VerticalSeparator(16.0),
-        TimeEventPassProgress(totalDay: 9, passDay: 1,),
-        TimeEventPassText(totalDay: 9, passDay: 1,),
+        TimeEventPassProgress(width: 120.0, height: 8.0, totalDay: 9, passDay: 1,),
+        TimeEventPassText(totalDay: 9, passDay: 1, textColor: textColor,),
         _buildRemark(model.remark, textColor),
       ],
     );
@@ -91,10 +93,8 @@ class CountDownDetailPage extends StatelessWidget {
             ),
 
             /// 事件的类型标签
-            TimeEventTypeLabel(
+            TimeEventTypeLabel.normal(
               label: COUNT_DOWN_DAY,
-              isLarge: true,
-              textColor: textColor,
               heroTag: labelHeroTag,
             ),
 
@@ -114,7 +114,7 @@ class CountDownDetailPage extends StatelessWidget {
 
   /// 创建标题
   Widget _buildTitle(Color textColor) {
-    final textStyle = timeEventDetailTitleTextStyle.apply(color: textColor);
+    final textStyle = TimeThemeData.titleTextStyle.apply(color: textColor);
 
     return Text(model.title, style: textStyle,);
   }
@@ -122,7 +122,11 @@ class CountDownDetailPage extends StatelessWidget {
   /// 创建备注区域
   Widget _buildRemark(String remark, Color textColor) {
 
-    final TextStyle textStyle = timeEventDetailRemarkTextStyle.apply(color: textColor);
+    final TextStyle labelStyle = TimeThemeData.smallTextStyle.apply(color: textColor.withOpacity(0.5));
+    final TextStyle textStyle = TimeThemeData.smallTextStyle.apply(
+      color: (remark == null) ? textColor.withOpacity(0.5) : textColor,
+    );
+
 
     return Container(
       width: double.infinity,
@@ -131,12 +135,12 @@ class CountDownDetailPage extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: colorWhiteTransparent),
+        border: Border.all(color: textColor.withOpacity(0.1),),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('备注:', style: textStyle,),
+          Text('备注:', style: labelStyle,),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(remark ?? '无', style: textStyle,),

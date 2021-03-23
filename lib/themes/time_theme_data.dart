@@ -103,7 +103,7 @@ class TimeThemeData {
     /// minimum
     headline6: TextStyle(fontSize: 8.0),
     /// large 1
-    bodyText1: TextStyle(fontSize: 36.0, fontWeight: _bold,),
+    bodyText1: TextStyle(fontSize: 54.0, fontWeight: _bold,),
     /// large 2
     bodyText2: TextStyle(fontSize: 32.0, fontWeight: _bold),
   );
@@ -118,6 +118,10 @@ class TimeThemeData {
 
   static TextStyle get titleTextStyle {
     return myTextTheme.headline2;
+  }
+
+  static TextStyle get normalTextStyle {
+    return myTextTheme.headline3;
   }
 
   static TextStyle get smallTextStyle {

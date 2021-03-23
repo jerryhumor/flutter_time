@@ -32,8 +32,8 @@ class TitleRow extends StatelessWidget {
         ? COUNT_DOWN_DAY
         : CUMULATIVE_DAY;
     final Widget label = type == TimeEventType.countDownDay.index
-        ? TimeEventTypeLabel(label: COUNT_DOWN_DAY, isLarge: false, textColor: textColor, heroTag: titleHeroTag,)
-        : TimeEventTypeLabel(label: CUMULATIVE_DAY, isLarge: false, textColor: textColor, heroTag: titleHeroTag,);
+        ? TimeEventTypeLabel.small(label: COUNT_DOWN_DAY, heroTag: titleHeroTag,)
+        : TimeEventTypeLabel.small(label: CUMULATIVE_DAY, heroTag: titleHeroTag,);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -303,35 +303,66 @@ class PassDayLabel extends StatelessWidget {
 class TimeEventTypeLabel extends StatelessWidget {
 
   final String label;
-  final bool isLarge;
-  final Color textColor;
+  final EdgeInsetsGeometry padding;
+  final double radius;
   final String heroTag;
+  final TextStyle style;
 
-  TimeEventTypeLabel({this.label, this.isLarge, this.textColor, this.heroTag,});
+  TimeEventTypeLabel({
+    this.label,
+    this.padding,
+    this.radius,
+    this.heroTag,
+    this.style,
+  });
+
+  TimeEventTypeLabel.normal({
+    String label,
+    Object heroTag,
+  }) :
+        padding = const EdgeInsets.symmetric(vertical: 1.0, horizontal: 12.0),
+        radius = 8.0,
+        style = TimeThemeData.normalTextStyle,
+        label = label,
+        heroTag = heroTag;
+
+  TimeEventTypeLabel.small({
+    String label,
+    Object heroTag,
+  }) :
+        padding = const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
+        radius = 4.0,
+        style = TimeThemeData.minimumTextStyle,
+        label = label,
+        heroTag = heroTag;
 
   @override
   Widget build(BuildContext context) {
 
-    final textStyle = isLarge
-        ? TimeThemeData.tinyTextStyle.apply(color: textColor)
-        : TimeThemeData.minimumTextStyle.apply(color: textColor);
+    ThemeData theme = Theme.of(context);
+    TextStyle textStyle = style.apply(color: theme.colorScheme.onBackground);
 
-    Widget labelWidget = _buildLabel(textStyle);
-    if (heroTag != null && heroTag.isNotEmpty) {
-      labelWidget = Hero(
+    Widget label = _buildLabel(textStyle);
+    label = wrapHero(label);
+    return label;
+  }
+
+  Widget wrapHero(Widget child) {
+    if (heroTag != null) {
+      child = Hero(
         tag: heroTag,
-        child: labelWidget,
+        child: child,
       );
     }
-    return labelWidget;
+    return child;
   }
 
   Widget _buildLabel(TextStyle textStyle) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 8.0),
+      padding: padding,
       decoration: BoxDecoration(
-        color: colorWhiteTransparent,
-        borderRadius: BorderRadius.circular(4.0),
+        color: textStyle.color.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(radius),
       ),
       child: Text(
         label,
@@ -355,34 +386,43 @@ class TimeEventPassText extends StatelessWidget {
     final textStyle = TimeThemeData.tinyTextStyle.apply(color: textColor.withOpacity(0.5));
     
     return Text(
-      '$PASS$passDay/$totalDay',
+      '$PASS:$passDay/$totalDay',
       style: textStyle,
     );
   }
 }
 
+const _kProgressWidth = 100.0;
+const _kProgressHeigth = 5.0;
+
 // 目标日已过进度条
 class TimeEventPassProgress extends StatelessWidget {
 
-  static final double PROGRESS_WIDTH = 100.0, PROGRESS_HEIGHT = 5.0;
+  final double width, height;
+
   final int totalDay;
   final int passDay;
 
-  TimeEventPassProgress({this.totalDay, this.passDay,});
+  TimeEventPassProgress({
+    this.width = _kProgressWidth,
+    this.height = _kProgressHeigth,
+    this.totalDay,
+    this.passDay,
+  });
 
   @override
   Widget build(BuildContext context) {
 
     final double _progressWidth =
-      passDay >= totalDay ? 1.0 * PROGRESS_WIDTH : passDay * PROGRESS_WIDTH / totalDay;
+      passDay >= totalDay ? 1.0 * width : passDay * width / totalDay;
 
     final ThemeData theme = Theme.of(context);
     final Color background = theme.colorScheme.secondaryVariant;
     final Color onBackground = theme.colorScheme.secondary;
 
     return Container(
-      height: PROGRESS_HEIGHT,
-      width: PROGRESS_WIDTH,
+      height: height,
+      width: width,
       decoration: BoxDecoration(
         color: colorWhiteTransparent,
         borderRadius: BorderRadius.circular(3.0)
@@ -452,7 +492,7 @@ class DayText extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final textStyle = isLarge
-        ? timeEventItemLargeDayTextStyle.apply(color: textColor)
+        ? TimeThemeData.dayStyle1.apply(color: textColor)
         : TimeThemeData.dayStyle2.apply(color: textColor);
 
     return Text(
