@@ -581,8 +581,8 @@ class ColorSelectItem extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(7.0),
         padding: const EdgeInsets.all(1.0),
-        width: 20.0,
-        height: 20.0,
+        width: 24.0,
+        height: 24.0,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: border,
@@ -607,15 +607,6 @@ class EventTypeItem extends StatelessWidget {
   final VoidCallback onTap;
 
   EventTypeItem({this.title, this.subTitle, this.bgColor, this.onTap,});
-
-  EventTypeItem.countDownDay(this.onTap) :
-        this.title = COUNT_DOWN_TYPE_ITEM_TITLE,
-        this.subTitle = COUNT_DOWN_TYPE_ITEM_SUB_TITLE,
-        this.bgColor = colorRed1;
-  EventTypeItem.cumulativeDay(this.onTap) :
-        this.title = CUMULATIVE_TYPE_ITEM_TITLE,
-        this.subTitle = CUMULATIVE_TYPE_ITEM_SUB_TITLE,
-        this.bgColor = colorBlue1;
 
   @override
   Widget build(BuildContext context) {
