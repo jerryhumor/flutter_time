@@ -18,7 +18,7 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
 
     return SizedBox(
       width: double.infinity,
-      height: 122,
+      height: 136,
       child: Stack(
         children: <Widget>[
           _buildBackground(model.color, null),
@@ -50,13 +50,13 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
   /// 创建内容
   Widget _buildContent(TimeEventModel model, String tag, Color textColor) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
       child: Column(
         children: <Widget>[
           /// 包含标题 类型信息的row
           TitleRow(title: model.title, type: model.type, titleHeroTag: tag, textColor: textColor,),
           /// 间隔
-          SizedBox(height: 8.0,),
+          Spacer(),
           /// 包含日期信息的row
           model.type == TimeEventType.countDownDay.index
               ? CountDownDetail(startTime: model.startTime, endTime: model.endTime,)

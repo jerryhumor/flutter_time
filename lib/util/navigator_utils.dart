@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/model/base/models.dart';
-import 'package:flutter_time/pages/count_down/create_count_down_event_page.dart';
+import 'package:flutter_time/pages/count_down/create_count_down_event_screen.dart';
+import 'package:flutter_time/pages/create/create_event_page.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
-import 'package:flutter_time/pages/time_event_type_select_page.dart';
+import 'package:flutter_time/pages/create/time_event_type_select_screen.dart';
 
 class NavigatorUtils {
 
@@ -28,7 +29,7 @@ class NavigatorUtils {
           return ScaleTransition(
             scale: smallToBigAnimation,
             alignment: Alignment(1.0, -0.85),
-            child: TimeEventTypeSelectPage(),
+            child: CreateEventPage(),
           );
         }
       )

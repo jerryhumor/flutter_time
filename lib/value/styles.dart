@@ -9,12 +9,12 @@ const TextStyle viewDetailTextStyle = TextStyle(
 
 // 标题文字样式
 const TextStyle timeEventItemTitleTextStyle = TextStyle(
-  fontSize: 16.0,
+  fontSize: 20.0,
 );
 
 /// 剩余天数 已过天数的文字样式 小
 const TextStyle timeEventItemSmallDayTextStyle = TextStyle(
-  fontSize: 28.0,
+  fontSize: 32.0,
   fontWeight: FontWeight.bold,
   color: Colors.white
 );

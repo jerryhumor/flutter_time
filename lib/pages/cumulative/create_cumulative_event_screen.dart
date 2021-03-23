@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
-import 'package:flutter_time/pages/count_down/create_count_down_event_page.dart';
+import 'package:flutter_time/pages/count_down/create_count_down_event_screen.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
-class CreateCumulativeEventPage extends StatefulWidget {
+const CREATE_CUMULATIVE_EVENT = 'create_cumulative_event';
+
+class CreateCumulativeEventScreen extends StatefulWidget {
 
   @override
-  _CreateCumulativeEventPageState createState() => _CreateCumulativeEventPageState();
+  _CreateCumulativeEventScreenState createState() => _CreateCumulativeEventScreenState();
 }
 
-class _CreateCumulativeEventPageState extends State<CreateCumulativeEventPage> {
+class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScreen> {
 
   TimeEventModelChangeNotifier modelNotifier;
 

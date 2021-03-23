@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_time/pages/cumulative/create_cumulative_event_screen.dart';
 import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/util/navigator_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
-class TimeEventTypeSelectPage extends StatefulWidget {
+import '../count_down/create_count_down_event_screen.dart';
+
+typedef ScreenSelectedCallback = void Function(String route);
+
+class TimeEventTypeSelectScreen extends StatefulWidget {
+
+  final ScreenSelectedCallback onScreenSelected;
+
+  TimeEventTypeSelectScreen({this.onScreenSelected,});
+
   @override
-  _TimeEventTypeSelectPageState createState() => _TimeEventTypeSelectPageState();
+  _TimeEventTypeSelectScreenState createState() => _TimeEventTypeSelectScreenState();
 }
 
-class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with SingleTickerProviderStateMixin {
+class _TimeEventTypeSelectScreenState extends State<TimeEventTypeSelectScreen> with SingleTickerProviderStateMixin {
 
   bool countDownTapped = false, cumulativeTapped = false;
   ItemState from = ItemState.completed, to = ItemState.completed;
@@ -38,10 +48,12 @@ class _TimeEventTypeSelectPageState extends State<TimeEventTypeSelectPage> with 
       ),
       body: AnimationColumn2(
         onAnimationFinished: () {
-          if (countDownTapped) {
-            NavigatorUtils.startCreateCountDownTimeEvent(context);
-          } else if (cumulativeTapped){
-            NavigatorUtils.startCreateCumulativeTimeEvent(context);
+          if (widget.onScreenSelected != null) {
+            if (countDownTapped) {
+              widget.onScreenSelected(CREATE_COUNT_DOWN_EVENT);
+            } else if (cumulativeTapped) {
+              widget.onScreenSelected(CREATE_CUMULATIVE_EVENT);
+            }
           }
         },
         children: [

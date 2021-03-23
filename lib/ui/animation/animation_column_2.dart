@@ -35,6 +35,12 @@ class AnimationColumn2 extends StatefulWidget {
   final ItemState fromState;
   final ItemState toState;
   final AnimationType animationType;
+  final int durationMillis;
+  final int delayMillis;
+  final double slideFactor;
+  final CrossAxisAlignment crossAxisAlignment;
+  final MainAxisAlignment mainAxisAlignment;
+  final bool displayAnimationWhenInit;
 
   AnimationColumn2({
     this.children, 
@@ -42,6 +48,12 @@ class AnimationColumn2 extends StatefulWidget {
     this.fromState,
     this.toState,
     this.animationType = AnimationType.showOrdered,
+    this.durationMillis = _kDuration,
+    this.delayMillis = _kDelayDuration,
+    this.slideFactor = _kSlideFactor,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.mainAxisAlignment = MainAxisAlignment.center,
+    this.displayAnimationWhenInit = false,
   });
 
   /// 获取children中需要展示动画的widget的数量
@@ -77,13 +89,6 @@ class _AnimationColumn2State extends State<AnimationColumn2> with SingleTickerPr
   void initState() {
     super.initState();
     controller = AnimationController(vsync: this);
-    controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        if (widget.onAnimationFinished != null) widget.onAnimationFinished();
-      } else if (status == AnimationStatus.dismissed) {
-        if (widget.onAnimationFinished != null) widget.onAnimationFinished();
-      }
-    });
     initAnimation();
   }
   
@@ -106,8 +111,8 @@ class _AnimationColumn2State extends State<AnimationColumn2> with SingleTickerPr
     List<Widget> children = [];
     if (getAnimationType() == AnimationType.showOneFirst) {
       final int firstIndex = widget.firstAnimationItemIndex;
-      final double firstEnd = 1.0 - (_kDelayDuration / _kDuration);
-      final double otherStart = _kDelayDuration / _kDuration;
+      final double firstEnd = 1.0 - (widget.delayMillis / widget.durationMillis);
+      final double otherStart = widget.delayMillis / widget.durationMillis;
       for (int i = 0; i < widget.children.length; i++) {
         Widget child = widget.children[i];
         if (child is AnimationColumnItem) {
@@ -121,10 +126,10 @@ class _AnimationColumn2State extends State<AnimationColumn2> with SingleTickerPr
       }
     } else {
       int animationIndex = 0;
-      int unitDuration = _kDuration - _kDelayDuration;
-      double unitCount = (_kDuration / unitDuration - 1) * widget.animationItemCount + 1;
+      int unitDuration = widget.durationMillis - widget.delayMillis;
+      double unitCount = (widget.durationMillis / unitDuration - 1) * widget.animationItemCount + 1;
       double unitLength = 1 / unitCount;
-      double delayLength = _kDelayDuration / unitDuration * unitLength;
+      double delayLength = widget.delayMillis / unitDuration * unitLength;
 
       for (int i = 0; i < widget.children.length; i++) {
         Widget child = widget.children[i];
@@ -139,8 +144,8 @@ class _AnimationColumn2State extends State<AnimationColumn2> with SingleTickerPr
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: widget.crossAxisAlignment,
+      mainAxisAlignment: widget.mainAxisAlignment,
       children: children,
     );
   }
@@ -149,7 +154,7 @@ class _AnimationColumn2State extends State<AnimationColumn2> with SingleTickerPr
     Animation<Offset> position = controller.drive(DelayTween<Offset>(
       startValue: start,
       endValue: end,
-      begin: Offset(_kSlideFactor, 0.0),
+      begin: Offset(widget.slideFactor, 0.0),
       end: Offset.zero,
     ));
     Animation opacity = controller.drive(DelayTween<double>(
@@ -169,13 +174,36 @@ class _AnimationColumn2State extends State<AnimationColumn2> with SingleTickerPr
 
   void initAnimation() {
     Duration animationDuration = Duration(
-        milliseconds: _kDelayDuration * widget.animationItemCount + (_kDuration - _kDelayDuration));
+        milliseconds: widget.delayMillis * widget.animationItemCount + (widget.durationMillis - widget.delayMillis));
     controller.duration = animationDuration;
 
-    if (widget.toState == ItemState.completed && controller.status == AnimationStatus.dismissed) {
-      controller.value = 1.0;
-    } else if (widget.toState == ItemState.dismissed && controller.status == AnimationStatus.completed){
-      controller.value = 0.0;
+    bool needDisplay = widget.fromState != widget.toState;
+    if (needDisplay && widget.displayAnimationWhenInit) {
+      controller.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          if (widget.onAnimationFinished != null) widget.onAnimationFinished();
+        } else if (status == AnimationStatus.dismissed) {
+          if (widget.onAnimationFinished != null) widget.onAnimationFinished();
+        }
+      });
+      if (widget.toState == ItemState.dismissed) {
+        controller.reverse(from: 1.0);
+      } else if (widget.toState == ItemState.completed) {
+        controller.forward(from: 0.0);
+      }
+    } else {
+      if (widget.toState == ItemState.completed && controller.status == AnimationStatus.dismissed) {
+        controller.value = 1.0;
+      } else if (widget.toState == ItemState.dismissed && controller.status == AnimationStatus.completed){
+        controller.value = 0.0;
+      }
+      controller.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          if (widget.onAnimationFinished != null) widget.onAnimationFinished();
+        } else if (status == AnimationStatus.dismissed) {
+          if (widget.onAnimationFinished != null) widget.onAnimationFinished();
+        }
+      });
     }
   }
 
@@ -185,7 +213,7 @@ class _AnimationColumn2State extends State<AnimationColumn2> with SingleTickerPr
     /// 判断children是否有变化 是否需要改变动画时长
     if (widget.animationItemCount != oldWidget.animationItemCount) {
       Duration animationDuration = Duration(
-        milliseconds: _kDelayDuration * widget.animationItemCount + (_kDuration - _kDelayDuration));
+        milliseconds: widget.delayMillis * widget.animationItemCount + (widget.durationMillis - widget.delayMillis));
       controller.duration = animationDuration;
     }
     /// 判断状态是否有变化 是否需要展示动画

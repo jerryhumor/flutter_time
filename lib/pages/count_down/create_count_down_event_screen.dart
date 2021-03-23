@@ -3,20 +3,22 @@ import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/ui/animation/animation_column.dart';
+import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
+const CREATE_COUNT_DOWN_EVENT = 'create_count_down_event';
+
 /// 创建倒计日事件页面
-class CreateCountDownEventPage extends StatefulWidget {
+class CreateCountDownEventScreen extends StatefulWidget {
   @override
-  _CreateCountDownEventPageState createState() => _CreateCountDownEventPageState();
+  _CreateCountDownEventScreenState createState() => _CreateCountDownEventScreenState();
 }
 
-class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> with SingleTickerProviderStateMixin {
+class _CreateCountDownEventScreenState extends State<CreateCountDownEventScreen> with SingleTickerProviderStateMixin {
 
-  AnimationController controller;
   TimeEventModelChangeNotifier modelNotifier;
 
   @override
@@ -31,13 +33,10 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
       endTime: dateTime.millisecondsSinceEpoch,
       type: TimeEventType.countDownDay.index,
     ));
-    controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
-    controller.forward();
   }
 
   @override
   void dispose() {
-    controller.dispose();
     modelNotifier.dispose();
     super.dispose();
   }
@@ -62,104 +61,87 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
       ),
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
-        child: AnimationColumn(
-          fadeStart: 0.0,
-          fadeEnd: 1.0,
-          positionStart: Offset(0.2, 0.0),
-          positionEnd: Offset.zero,
-          controller: controller,
+        child: AnimationColumn2(
+          onAnimationFinished: showTitleEditDialog,
+          fromState: ItemState.dismissed,
+          toState: ItemState.completed,
+          slideFactor: 0.3,
           crossAxisAlignment: CrossAxisAlignment.start,
+          displayAnimationWhenInit: true,
           children: <Widget>[
             /// 分隔
             VerticalSeparator(18.0),
             /// 倒计日名称
-            ValueListenableBuilder(
-              valueListenable: modelNotifier.titleNotifier,
-              builder: (context, value, child) => EventNameTile(
-                name: value,
-                hint: COUNT_DOWN_EVENT_NAME,
-                onTap: () => showTitleEditDialog(context),
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.titleNotifier,
+                builder: (context, value, child) => EventNameTile(
+                  name: value,
+                  hint: COUNT_DOWN_EVENT_NAME,
+                  onTap: () => showTitleEditDialog(),
+                ),
               ),
             ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 起始日期
-            ValueListenableBuilder(
-              valueListenable: modelNotifier.startTimeNotifier,
-              builder: (context, value, child) => StartDateTile(
-                startTime: value,
-                onTap: handleTapStartTime,
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.startTimeNotifier,
+                builder: (context, value, child) => StartDateTile(
+                  startTime: value,
+                  onTap: handleTapStartTime,
+                ),
               ),
             ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 目标日期
-            ValueListenableBuilder(
-              valueListenable: modelNotifier.endTimeNotifier,
-              builder: (context, value, child) => TargetDateTile(
-                targetTime: value,
-                onTap: handleTapTargetTime,
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.endTimeNotifier,
+                builder: (context, value, child) => TargetDateTile(
+                  targetTime: value,
+                  onTap: handleTapTargetTime,
+                ),
               ),
             ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 备注
-            ValueListenableBuilder(
-              valueListenable: modelNotifier.remarkNotifier,
-              builder: (context, value, child) => RemarkTile(
-                remark: modelNotifier.remark,
-                onTap: () => showRemarkEditDialog(context)
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.remarkNotifier,
+                builder: (context, value, child) => RemarkTile(
+                  remark: modelNotifier.remark,
+                  onTap: () => showRemarkEditDialog()
+                ),
               ),
             ),
             /// 分隔
             VerticalSeparator(18.0),
             /// 颜色选择条
-            ValueListenableBuilder(
-              valueListenable: modelNotifier.colorNotifier,
-              builder: (context, value, child) => ColorSelectTile(
-                colorList: bgColorList,
-                selectedColor: Color(value),
-                colorChangedCallback: onColorChanged,
-              ),
-            ),
-            /// 分隔
-            VerticalSeparator(18.0),
-            /// 预览效果
-            Padding(padding: const EdgeInsets.only(left: 16.0), child: Text(PREVIEW_EFFECT),),
-            VerticalSeparator(8.0),
-            ValueListenableBuilder<TimeEventModel>(
-              valueListenable: modelNotifier.modelNotifier,
-              builder: (context, value, child) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                child: TimeEventItem(model: value,),
-              ),
-            ),
-            VerticalSeparator(8.0),
-            /// 分割
-            SizedBox(height: 8.0,),
-            /// 保存按钮
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  text: SAVE,
-                  textStyle: TextStyle(
-                    color: Colors.white,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 18.0),
-                  backgroundColor: colorBlue2,
-                  borderRadius: BorderRadius.circular(18.0),
-                  onTap: () {
-                    final EventWrap eventWrap = EventWrap(
-                      TimeEventOrigin.add,
-                      modelNotifier.model,
-                    );
-                    Navigator.pop(context, eventWrap);
-                  },
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.colorNotifier,
+                builder: (context, value, child) => ColorSelectTile(
+                  colorList: bgColorList,
+                  selectedColor: Color(value),
+                  colorChangedCallback: onColorChanged,
                 ),
-                SizedBox(width: 8.0,),
-              ],
+              ),
+            ),
+            /// 预览
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.modelNotifier,
+                builder: (context, value, child) {
+                  return ItemPreview(
+                    model: value,
+                    onTap: handleTapSave,
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -191,6 +173,14 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
     }
   }
 
+  void handleTapSave() {
+    final EventWrap eventWrap = EventWrap(
+      TimeEventOrigin.add,
+      modelNotifier.model,
+    );
+    Navigator.pop(context, eventWrap);
+  }
+
   void onTitleChanged(String title) {
     if (title != null && title.isNotEmpty) {
       modelNotifier.title = title;
@@ -210,7 +200,7 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
     modelNotifier.endTime = timestamp;
   }
 
-  void showTitleEditDialog(BuildContext context) async {
+  void showTitleEditDialog() async {
     final String text = await showDialog(
       context: context,
       builder: (context) {
@@ -227,7 +217,7 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
     }
   }
 
-  void showRemarkEditDialog(BuildContext context) async {
+  void showRemarkEditDialog() async {
     final String text = await showDialog(
       context: context,
       builder: (context) {
@@ -244,6 +234,49 @@ class _CreateCountDownEventPageState extends State<CreateCountDownEventPage> wit
     }
   }
 }
+
+class ItemPreview extends StatelessWidget {
+  
+  final TimeEventModel model;
+  final VoidCallback onTap;
+
+  ItemPreview({
+    this.model,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(PREVIEW_EFFECT),
+          SizedBox(height: 8.0,),
+          TimeEventItem(model: model,),
+          SizedBox(height: 30.0,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                text: SAVE,
+                textStyle: TextStyle(
+                  color: Colors.white,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 18.0),
+                backgroundColor: colorBlue2,
+                borderRadius: BorderRadius.circular(18.0),
+                onTap: onTap,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class TimeEventModelChangeNotifier {
 
