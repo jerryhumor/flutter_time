@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_constants.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
+import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
@@ -26,21 +27,31 @@ class TitleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final String defaultTitle = type == TimeEventType.countDownDay.index
+        ? COUNT_DOWN_DAY
+        : CUMULATIVE_DAY;
+    final Widget label = type == TimeEventType.countDownDay.index
+        ? TimeEventTypeLabel(label: COUNT_DOWN_DAY, isLarge: false, textColor: textColor, heroTag: titleHeroTag,)
+        : TimeEventTypeLabel(label: CUMULATIVE_DAY, isLarge: false, textColor: textColor, heroTag: titleHeroTag,);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // 标题和类型
+        /// 标题和类型
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // 标题
-            TimeEventTitle(title: title, textColor: textColor,),
-            // 间距
+            TimeEventTitle(
+              title: (title != null && title.isNotEmpty) ? title : defaultTitle,
+              textColor: textColor,
+            ),
+            /// 间距
             SizedBox(height: 6.0,),
-            type == TimeEventType.countDownDay.index
-                ? TimeEventTypeLabel(label: COUNT_DOWN_DAY, isLarge: false, textColor: textColor, heroTag: titleHeroTag,)
-                : TimeEventTypeLabel(label: CUMULATIVE_DAY, isLarge: false, textColor: textColor, heroTag: titleHeroTag,),
+            /// 类型
+            label,
           ],
         ),
         // 查看详情
@@ -52,9 +63,68 @@ class TitleRow extends StatelessWidget {
 
 /// 累计日具体信息
 class CumulativeDetail extends StatelessWidget {
+
+  final int startTime;
+
+  CumulativeDetail({this.startTime,}): assert (startTime != null);
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+
+    final ThemeData theme = Theme.of(context);
+    final Color color = theme.colorScheme.onBackground;
+    final dateStyle = TimeThemeData.smallTextStyle.apply(color: color.withOpacity(0.5),);
+    final labelStyle = TimeThemeData.tinyTextStyle.apply(color: color.withOpacity(0.4),);
+    final dayStyle = TimeThemeData.dayStyle2.apply(color: color,);
+
+    return Container(
+      height: 56,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          /// 起始日
+          buildStartDate(dateStyle),
+          /// 可伸缩的间隔
+          Spacer(),
+          Column(
+            children: [
+              /// 已过天数label
+              buildPassedLabel(labelStyle),
+              /// 间隔
+              Spacer(),
+              /// 已过天数数字
+              buildPassedDayDay(dayStyle),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildStartDate(TextStyle style) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Text(
+        '起始日: ${TimeUtils.millis2String(startTime, FORMAT_YYYY_MM_DD)}',
+        style: style,
+      ),
+    );
+  }
+
+  Widget buildPassedLabel(TextStyle style) {
+    return Text(
+      PASS_DAY,
+      style: style,
+    );
+  }
+
+  Widget buildPassedDayDay(TextStyle style) {
+    int difference = DateTime.now().millisecondsSinceEpoch - startTime;
+    int day = (difference / DAY_TIME_MILLIS).toInt();
+    return Text(
+      '$day',
+      style: style,
+    );
   }
 }
 
@@ -175,10 +245,10 @@ class ViewDetailLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final textStyle = viewDetailTextStyle.apply(color: textColor);
+    final textStyle = TimeThemeData.tinyTextStyle.apply(color: textColor);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+      padding: const EdgeInsets.fromLTRB(8.0, 2.0, 8.0, 2.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(color: textColor,)
@@ -201,7 +271,7 @@ class RemainingDayLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final textStyle = timeEventItemDayLabelTextStyle.apply(color: textColor);
+    final textStyle = TimeThemeData.tinyTextStyle.apply(color: textColor.withOpacity(0.5));
 
     return Text(
       REMAINING_DAY,
@@ -243,8 +313,8 @@ class TimeEventTypeLabel extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final textStyle = isLarge
-        ? timeEventTypeLabelLargeTextStyle.apply(color: textColor)
-        : timeEventTypeLabelSmallTextStyle.apply(color: textColor);
+        ? TimeThemeData.tinyTextStyle.apply(color: textColor)
+        : TimeThemeData.minimumTextStyle.apply(color: textColor);
 
     Widget labelWidget = _buildLabel(textStyle);
     if (heroTag != null && heroTag.isNotEmpty) {
@@ -282,7 +352,7 @@ class TimeEventPassText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     
-    final textStyle = timeEventItemDayLabelTextStyle.apply(color: textColor); 
+    final textStyle = TimeThemeData.tinyTextStyle.apply(color: textColor.withOpacity(0.5));
     
     return Text(
       '$PASS$passDay/$totalDay',
@@ -344,7 +414,7 @@ class TargetDay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     
-    final textStyle = timeEventTargetDayTextStyle.apply(color: textColor);
+    final textStyle = TimeThemeData.smallTextStyle.apply(color: textColor.withOpacity(0.5));
     
     return Text(
       '$TARGET_DAY:$targetDay',
@@ -383,7 +453,7 @@ class DayText extends StatelessWidget {
 
     final textStyle = isLarge
         ? timeEventItemLargeDayTextStyle.apply(color: textColor)
-        : timeEventItemSmallDayTextStyle.apply(color: textColor);
+        : TimeThemeData.dayStyle2.apply(color: textColor);
 
     return Text(
       '$day',

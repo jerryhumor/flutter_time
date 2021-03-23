@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
+const FORMAT_YYYY_MM_DD = 'yyyy-MM-dd';
+const FORMAT_YYYY_MM_DD_HH_MM_SS = 'yyyy-MM-dd HH:mm:ss';
+
 class TimeUtils {
 
   static String millis2String(int timeMillis, String format) {
+    if (timeMillis == null) return '';
     final dateTime = DateTime.fromMillisecondsSinceEpoch(timeMillis);
     String timeStr = format;
     timeStr = timeStr.replaceAll('yyyy', '${dateTime.year}');

@@ -3,6 +3,7 @@ import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/pages/count_down/create_count_down_event_screen.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
+import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/value/colors.dart';
@@ -58,92 +59,80 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
           )
         ],
       ),
-      body: ListView(
+      body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
-        children: [
-          /// 分隔
-          VerticalSeparator(18.0),
-          /// 倒计日名称
-          ValueListenableBuilder(
-            valueListenable: modelNotifier.titleNotifier,
-            builder: (context, value, child) => EventNameTile(
-              name: value,
-              hint: CUMULATIVE_EVENT_NAME,
-              onTap: () => showTitleEditDialog(context),
-            ),
-          ),
-          /// 分隔
-          VerticalSeparator(18.0),
-          /// 起始日期
-          ValueListenableBuilder(
-            valueListenable: modelNotifier.startTimeNotifier,
-            builder: (context, value, child) => StartDateTile(
-              startTime: value,
-              onTap: handleTapStartTime,
-            ),
-          ),
-          /// 分隔
-          VerticalSeparator(18.0),
-          /// 备注
-          ValueListenableBuilder(
-            valueListenable: modelNotifier.remarkNotifier,
-            builder: (context, value, child) => RemarkTile(
-                remark: modelNotifier.remark,
-                onTap: () => showRemarkEditDialog(context)
-            ),
-          ),
-          /// 分隔
-          VerticalSeparator(18.0),
-          /// 颜色选择条
-          ValueListenableBuilder(
-            valueListenable: modelNotifier.colorNotifier,
-            builder: (context, value, child) => ColorSelectTile(
-              colorList: bgColorList,
-              selectedColor: Color(value),
-              colorChangedCallback: onColorChanged,
-            ),
-          ),
-          /// 分隔
-          VerticalSeparator(18.0),
-          /// 预览效果
-          Padding(padding: const EdgeInsets.only(left: 16.0), child: Text(PREVIEW_EFFECT),),
-          VerticalSeparator(8.0),
-          ValueListenableBuilder<TimeEventModel>(
-            valueListenable: modelNotifier.modelNotifier,
-            builder: (context, value, child) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              child: TimeEventItem(model: value,),
-            ),
-          ),
-          VerticalSeparator(8.0),
-          /// 分割
-          SizedBox(height: 8.0,),
-          /// 保存按钮
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                text: SAVE,
-                textStyle: TextStyle(
-                  color: Colors.white,
+        child: AnimationColumn2(
+          onAnimationFinished: showTitleEditDialog,
+          fromState: ItemState.dismissed,
+          toState: ItemState.completed,
+          slideFactor: 0.3,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          displayAnimationWhenInit: true,
+          children: <Widget>[
+            /// 分隔
+            VerticalSeparator(18.0),
+            /// 倒计日名称
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.titleNotifier,
+                builder: (context, value, child) => EventNameTile(
+                  name: value,
+                  hint: COUNT_DOWN_EVENT_NAME,
+                  onTap: () => showTitleEditDialog(),
                 ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
-                backgroundColor: colorBlue2,
-                borderRadius: BorderRadius.circular(12.0),
-                onTap: () {
-                  final EventWrap eventWrap = EventWrap(
-                    TimeEventOrigin.add,
-                    modelNotifier.model,
+              ),
+            ),
+            /// 分隔
+            VerticalSeparator(18.0),
+            /// 起始日期
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.startTimeNotifier,
+                builder: (context, value, child) => StartDateTile(
+                  startTime: value,
+                  onTap: handleTapStartTime,
+                ),
+              ),
+            ),
+            /// 分隔
+            VerticalSeparator(18.0),
+            /// 备注
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.remarkNotifier,
+                builder: (context, value, child) => RemarkTile(
+                    remark: modelNotifier.remark,
+                    onTap: () => showRemarkEditDialog()
+                ),
+              ),
+            ),
+            /// 分隔
+            VerticalSeparator(18.0),
+            /// 颜色选择条
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.colorNotifier,
+                builder: (context, value, child) => ColorSelectTile(
+                  colorList: bgColorList,
+                  selectedColor: Color(value),
+                  colorChangedCallback: onColorChanged,
+                ),
+              ),
+            ),
+            /// 预览
+            AnimationColumnItem(
+              child: ValueListenableBuilder(
+                valueListenable: modelNotifier.modelNotifier,
+                builder: (context, value, child) {
+                  return ItemPreview(
+                    model: value,
+                    onTap: handleTapSave,
                   );
-                  Navigator.pop(context, eventWrap);
                 },
               ),
-              SizedBox(width: 8.0,),
-            ],
-          ),
-
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -158,6 +147,14 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
     if (selectedDate != null) {
       onStartTimeChanged(selectedDate.millisecondsSinceEpoch);
     }
+  }
+
+  void handleTapSave() {
+    final EventWrap eventWrap = EventWrap(
+      TimeEventOrigin.add,
+      modelNotifier.model,
+    );
+    Navigator.pop(context, eventWrap);
   }
 
   void onTitleChanged(String title) {
@@ -175,7 +172,7 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
     modelNotifier.startTime = timestamp;
   }
 
-  void showTitleEditDialog(BuildContext context) async {
+  void showTitleEditDialog() async {
     final String text = await showDialog(
       context: context,
       builder: (context) {
@@ -192,7 +189,7 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
     }
   }
 
-  void showRemarkEditDialog(BuildContext context) async {
+  void showRemarkEditDialog() async {
     final String text = await showDialog(
       context: context,
       builder: (context) {

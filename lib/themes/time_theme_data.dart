@@ -79,15 +79,57 @@ class TimeThemeData {
 
   static final TextTheme _textTheme = TextTheme(
     headline4: TextStyle(fontWeight: _bold, fontSize: 20.0),
-    caption: TextStyle(fontWeight: _semiBold, fontSize: 16.0),
     headline5: TextStyle(fontWeight: _medium, fontSize: 14.0),
-    subtitle1: TextStyle(fontWeight: _medium, fontSize: 16.0),
-    overline: TextStyle(fontWeight: _medium, fontSize: 12.0),
-    bodyText1: TextStyle(fontWeight: _regular, fontSize: 14.0),
-    subtitle2: TextStyle(fontWeight: _medium, fontSize: 14.0),
-    bodyText2: TextStyle(fontWeight: _regular, fontSize: 16.0),
     headline6: TextStyle(fontWeight: _bold, fontSize: 20.0),
+    bodyText1: TextStyle(fontWeight: _regular, fontSize: 14.0),
+    bodyText2: TextStyle(fontWeight: _regular, fontSize: 16.0),
+    subtitle1: TextStyle(fontWeight: _medium, fontSize: 16.0),
+    subtitle2: TextStyle(fontWeight: _medium, fontSize: 14.0),
+    caption: TextStyle(fontWeight: _semiBold, fontSize: 16.0),
+    overline: TextStyle(fontWeight: _medium, fontSize: 12.0),
     button: TextStyle(fontWeight: _semiBold, fontSize: 14.0),
   );
+
+  static final TextTheme myTextTheme = TextTheme(
+    headline1: TextStyle(fontSize: 32.0, fontWeight: _bold),
+    /// big
+    headline2: TextStyle(fontSize: 24.0, fontWeight: _bold),
+    /// normal
+    headline3: TextStyle(fontSize: 18.0),
+    /// small
+    headline4: TextStyle(fontSize: 14.0),
+    /// tiny
+    headline5: TextStyle(fontSize: 10.0),
+    /// minimum
+    headline6: TextStyle(fontSize: 8.0),
+    /// large 1
+    bodyText1: TextStyle(fontSize: 36.0, fontWeight: _bold,),
+    /// large 2
+    bodyText2: TextStyle(fontSize: 32.0, fontWeight: _bold),
+  );
+
+  static TextStyle get dayStyle1 {
+    return myTextTheme.bodyText1;
+  }
+
+  static TextStyle get dayStyle2 {
+    return myTextTheme.bodyText2;
+  }
+
+  static TextStyle get titleTextStyle {
+    return myTextTheme.headline2;
+  }
+
+  static TextStyle get smallTextStyle {
+    return myTextTheme.headline4;
+  }
+
+  static TextStyle get tinyTextStyle {
+    return myTextTheme.headline5;
+  }
+
+  static TextStyle get minimumTextStyle {
+    return myTextTheme.headline6;
+  }
 
 }

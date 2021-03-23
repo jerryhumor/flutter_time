@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/ui/common_ui.dart';
+import 'package:flutter_time/value/strings.dart';
 
 // 倒计日事件的条目
 class TimeEventItem extends StatelessWidget with ITimeEventItem {
@@ -16,6 +17,7 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
 
     final Color textColor = Theme.of(context).colorScheme.secondary;
 
+    /// 136
     return SizedBox(
       width: double.infinity,
       height: 136,
@@ -60,7 +62,7 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
           /// 包含日期信息的row
           model.type == TimeEventType.countDownDay.index
               ? CountDownDetail(startTime: model.startTime, endTime: model.endTime,)
-              : CumulativeDetail(),
+              : CumulativeDetail(startTime: model.startTime,),
         ],
       ),
     );
