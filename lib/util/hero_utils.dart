@@ -5,6 +5,8 @@ import 'package:flutter_time/util/text_utils.dart';
 
 class HeroUtils {
 
+  /// 文字控件执行Hero动画时，兼容文字变大变小的问题
+  /// 原理是 使用ScaleTransition，控制文字的大小
   static Widget _textFlightShuttleBuilder(
       BuildContext flightContext,
       Animation<double> animation,
@@ -16,9 +18,11 @@ class HeroUtils {
     final bool reverse = animation.status == AnimationStatus.completed
         || animation.status == AnimationStatus.reverse;
 
+    /// 获取控件
     Text fromText = (fromHeroContext.widget as Hero).child;
     Text toText = (toHeroContext.widget as Hero).child;
 
+    /// 如果是反向 交换两个控件
     if (reverse) {
       Text temp = toText;
       toText = fromText;
@@ -44,8 +48,6 @@ class HeroUtils {
       factor = min(widthFactor, heightFactor);
     }
 
-    print('from: $fromSize, to: $toSize, reverse: $reverse, factor: $factor');
-
     final scaleAnimation = animation.drive(Tween(begin: 1.0, end: factor,));
 
     return ScaleTransition(
@@ -56,7 +58,7 @@ class HeroUtils {
   }
 
   /// 当我们使用Hero控件，并且子控件为Text的时候，很容易出现文字大小不一致的问题
-  ///
+  /// 使用这个函数包裹 可以解决这个问题
   static Widget wrapHeroText(Object tag, Text text) {
     if (tag == null) return text;
     Widget wrapped = Hero(
