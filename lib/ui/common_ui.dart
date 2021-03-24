@@ -437,7 +437,7 @@ class DayText extends StatelessWidget {
       '$day',
       style: textStyle,
     );
-    text = wrapHero('day-$heroTag', text);
+    text = wrapHeroText('day-$heroTag', text);
     return text;
   }
 }
