@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/ui/common_ui.dart';
+import 'package:flutter_time/util/hero_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 import 'package:flutter_time/value/styles.dart';
@@ -42,7 +43,7 @@ class CountDownDetailPage extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
     );
-    bg = wrapHero('bg', heroTag, bg);
+    bg = HeroUtils.wrapHero('bg-$heroTag', bg);
     return bg;
   }
 

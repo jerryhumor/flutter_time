@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/ui/common_ui.dart';
+import 'package:flutter_time/util/hero_utils.dart';
 import 'package:flutter_time/value/strings.dart';
 
 // 倒计日事件的条目
@@ -40,7 +41,7 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
         borderRadius: BorderRadius.circular(16.0),
       ),
     );
-    background = wrapHero('bg', tag, background);
+    background = wrapHero('bg-$tag', background);
     return background;
   }
 

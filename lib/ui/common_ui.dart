@@ -6,21 +6,12 @@ import 'package:flutter_time/constant/time_constants.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
+import 'package:flutter_time/util/hero_utils.dart';
+import 'package:flutter_time/util/text_utils.dart';
 import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 import 'package:flutter_time/value/styles.dart';
-
-Widget wrapHero(String prefix, Object tag, Widget child) {
-  print('包裹hero tag, $prefix, $tag, $child');
-  if (tag != null) {
-    child = Hero(
-      tag: '$prefix-$tag',
-      child: child,
-    );
-  }
-  return child;
-}
 
 // 时间事件的条目
 abstract class ITimeEventItem {
@@ -243,14 +234,16 @@ class PassDayLabel extends StatelessWidget {
 class TimeEventTypeLabel extends StatelessWidget {
 
   final String label;
-  final EdgeInsetsGeometry padding;
   final double radius;
   final Object heroTag;
   final TextStyle style;
+  final double width;
+  final double height;
 
   TimeEventTypeLabel({
+    this.width,
+    this.height,
     this.label,
-    this.padding,
     this.radius,
     this.heroTag,
     this.style,
@@ -260,7 +253,8 @@ class TimeEventTypeLabel extends StatelessWidget {
     String label,
     Object heroTag,
   }) :
-        padding = const EdgeInsets.symmetric(vertical: 1.0, horizontal: 12.0),
+        width = 84.0,
+        height = 32.0,
         radius = 8.0,
         style = TimeThemeData.normalTextStyle,
         label = label,
@@ -270,7 +264,8 @@ class TimeEventTypeLabel extends StatelessWidget {
     String label,
     Object heroTag,
   }) :
-        padding = const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
+        width = 38.0,
+        height = 14.0,
         radius = 4.0,
         style = TimeThemeData.minimumTextStyle,
         label = label,
@@ -280,25 +275,37 @@ class TimeEventTypeLabel extends StatelessWidget {
   Widget build(BuildContext context) {
 
     ThemeData theme = Theme.of(context);
-    TextStyle textStyle = style.apply(color: theme.colorScheme.onBackground);
+    TextStyle textStyle = style.apply(
+      color: theme.colorScheme.onBackground,
+      decoration: TextDecoration.none,
+    );
 
-    Widget label = _buildLabel(textStyle);
-    label = wrapHero('label', heroTag, label);
-    return label;
-  }
+    /// 文字部分
+    Widget text = Text(label, style: textStyle,);
+    text = wrapHeroText('label-text-$heroTag', text);
 
-  Widget _buildLabel(TextStyle textStyle) {
-    return Container(
-      padding: padding,
+    Widget bg = Container(
+      constraints: BoxConstraints.expand(),
       decoration: BoxDecoration(
         color: textStyle.color.withOpacity(0.4),
         borderRadius: BorderRadius.circular(radius),
       ),
-      child: Text(
-        label,
-        style: textStyle,
+    );
+    bg = wrapHero('label-bg-$heroTag', bg);
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Stack(
+        children: [
+          /// 背景
+          bg,
+          /// 文字
+          Center(child: text,),
+        ],
       ),
     );
+    return text;
   }
 }
 
@@ -430,7 +437,7 @@ class DayText extends StatelessWidget {
       '$day',
       style: textStyle,
     );
-    text = wrapHero('day', heroTag, text);
+    text = wrapHero('day-$heroTag', text);
     return text;
   }
 }
