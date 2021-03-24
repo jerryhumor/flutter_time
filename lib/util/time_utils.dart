@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 const FORMAT_YYYY_MM_DD = 'yyyy-MM-dd';
 const FORMAT_YYYY_MM_DD_HH_MM_SS = 'yyyy-MM-dd HH:mm:ss';
 

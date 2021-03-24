@@ -11,6 +11,17 @@ import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 import 'package:flutter_time/value/styles.dart';
 
+Widget wrapHero(String prefix, Object tag, Widget child) {
+  print('包裹hero tag, $prefix, $tag, $child');
+  if (tag != null) {
+    child = Hero(
+      tag: '$prefix-$tag',
+      child: child,
+    );
+  }
+  return child;
+}
+
 // 时间事件的条目
 abstract class ITimeEventItem {
   TimeEventModel getModel();
@@ -20,10 +31,10 @@ class TitleRow extends StatelessWidget {
 
   final String title;
   final int type;
-  final String titleHeroTag;
+  final Object heroTag;
   final Color textColor;
 
-  TitleRow({this.title, this.type, this.titleHeroTag, this.textColor,});
+  TitleRow({this.title, this.type, this.heroTag, this.textColor,});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +43,8 @@ class TitleRow extends StatelessWidget {
         ? COUNT_DOWN_DAY
         : CUMULATIVE_DAY;
     final Widget label = type == TimeEventType.countDownDay.index
-        ? TimeEventTypeLabel.small(label: COUNT_DOWN_DAY, heroTag: titleHeroTag,)
-        : TimeEventTypeLabel.small(label: CUMULATIVE_DAY, heroTag: titleHeroTag,);
+        ? TimeEventTypeLabel.small(label: COUNT_DOWN_DAY, heroTag: heroTag,)
+        : TimeEventTypeLabel.small(label: CUMULATIVE_DAY, heroTag: heroTag,);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -55,7 +66,7 @@ class TitleRow extends StatelessWidget {
           ],
         ),
         // 查看详情
-        ViewDetailLabel(textColor: textColor,)
+        ViewDetailLabel()
       ],
     );
   }
@@ -65,8 +76,9 @@ class TitleRow extends StatelessWidget {
 class CumulativeDetail extends StatelessWidget {
 
   final int startTime;
+  final Object heroTag;
 
-  CumulativeDetail({this.startTime,}): assert (startTime != null);
+  CumulativeDetail({this.startTime, this.heroTag,}): assert (startTime != null);
 
   @override
   Widget build(BuildContext context) {
@@ -75,55 +87,37 @@ class CumulativeDetail extends StatelessWidget {
     final Color color = theme.colorScheme.onBackground;
     final dateStyle = TimeThemeData.smallTextStyle.apply(color: color.withOpacity(0.5),);
     final labelStyle = TimeThemeData.tinyTextStyle.apply(color: color.withOpacity(0.4),);
-    final dayStyle = TimeThemeData.dayStyle2.apply(color: color,);
 
-    return Container(
-      height: 56,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          /// 起始日
-          buildStartDate(dateStyle),
-          /// 可伸缩的间隔
-          Spacer(),
-          Column(
-            children: [
-              /// 已过天数label
-              buildPassedLabel(labelStyle),
-              /// 间隔
-              Spacer(),
-              /// 已过天数数字
-              buildPassedDayDay(dayStyle),
-            ],
-          ),
-        ],
-      ),
+    /// 其实就是(x / y).toInt()
+    int day = (DateTime.now().millisecondsSinceEpoch - startTime) ~/ DAY_TIME_MILLIS;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        /// 起始日
+        buildStartDate(dateStyle),
+        /// 可伸缩的间隔
+        Spacer(),
+        Column(
+          children: [
+            /// 已过天数label
+            Text(PASS_DAY, style: labelStyle,),
+            /// 间隔
+            /// 已过天数数字
+            DayText(day: day, textColor: color, heroTag: heroTag,),
+          ],
+        ),
+      ],
     );
   }
 
   Widget buildStartDate(TextStyle style) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 0.0),
       child: Text(
         '起始日: ${TimeUtils.millis2String(startTime, FORMAT_YYYY_MM_DD)}',
         style: style,
       ),
-    );
-  }
-
-  Widget buildPassedLabel(TextStyle style) {
-    return Text(
-      PASS_DAY,
-      style: style,
-    );
-  }
-
-  Widget buildPassedDayDay(TextStyle style) {
-    int difference = DateTime.now().millisecondsSinceEpoch - startTime;
-    int day = (difference / DAY_TIME_MILLIS).toInt();
-    return Text(
-      '$day',
-      style: style,
     );
   }
 }
@@ -132,17 +126,22 @@ class CumulativeDetail extends StatelessWidget {
 class CountDownDetail extends StatelessWidget {
 
   final int startTime, endTime;
+  final Object heroTag;
 
-  CountDownDetail({this.startTime, this.endTime,});
+  CountDownDetail({
+    this.startTime,
+    this.endTime,
+    this.heroTag,
+  });
 
   @override
   Widget build(BuildContext context) {
 
     final Color textColor = Theme.of(context).colorScheme.secondary;
-    final int totalDay = ((endTime - startTime) / DAY_TIME_MILLIS).toInt();
-    final int passDay = ((DateTime.now().millisecondsSinceEpoch - startTime) / DAY_TIME_MILLIS).toInt();
+    final int totalDay = (endTime - startTime) ~/ DAY_TIME_MILLIS;
+    final int passDay = (DateTime.now().millisecondsSinceEpoch - startTime) ~/ DAY_TIME_MILLIS;
     final int remainDay = max(totalDay - passDay, 0);
-    final String targetDay = TimeUtils.millis2String(endTime, 'yyyy-MM-dd');
+    final String targetDay = TimeUtils.millis2String(endTime, FORMAT_YYYY_MM_DD);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -171,63 +170,7 @@ class CountDownDetail extends StatelessWidget {
             /// 标志 剩余天数 已过天数
             RemainingDayLabel(textColor: textColor,),
             /// 日期文字
-            DayText(day: remainDay, textColor: textColor, isLarge: false,),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class TimeRow extends StatelessWidget {
-  // 类型 倒计日 累计日
-  final int type;
-  // 开始时间和结束时间
-  // 如果是累计日 则_endTime 为空
-  final int startTime, endTime;
-  final Color textColor;
-
-  TimeRow({this.type, this.startTime, this.endTime, this.textColor,});
-
-  @override
-  Widget build(BuildContext context) {
-
-    // todo 使用utils类计算好信息
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[
-        // 左边的进度和目标日
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            // 累计日的倒计时文字
-            type == TimeEventType.countDownDay.index 
-                ? TimeEventPassText(totalDay: 9, passDay: 1, textColor: textColor,) 
-                : Container(),
-            // 分割
-            SizedBox(height: 2.0,),
-            // 累计日的倒计时进度条
-            type == TimeEventType.countDownDay.index
-                ? TimeEventPassProgress(totalDay: 9, passDay: 1,)
-                : Container(),
-            // 分割
-            SizedBox(height: 2.0,),
-            // 目标日
-            TargetDay(textColor: textColor,),
-          ],
-        ),
-        // 剩余天数 或者 已过天数
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            // 标志 剩余天数 已过天数
-            type == TimeEventType.countDownDay.index 
-                ? RemainingDayLabel(textColor: textColor,) 
-                : PassDayLabel(textColor: textColor,),
-            // 日期文字
-            DayText(day: 1, textColor: textColor, isLarge: false,),
+            DayText(day: remainDay, textColor: textColor, isLarge: false, heroTag: heroTag,),
           ],
         ),
       ],
@@ -238,24 +181,21 @@ class TimeRow extends StatelessWidget {
 // 时间条目的查看详情标志
 class ViewDetailLabel extends StatelessWidget {
 
-  final Color textColor;
-
-  ViewDetailLabel({this.textColor,});
-
   @override
   Widget build(BuildContext context) {
 
-    final textStyle = TimeThemeData.tinyTextStyle.apply(color: textColor);
+    final color = TimeThemeData.getTitleColor(context);
+    final style = TimeThemeData.tinyTextStyle.apply(color: color);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(8.0, 2.0, 8.0, 2.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: textColor,)
+        border: Border.all(color: color,)
       ),
       child: Text(
         VIEW_DETAIL,
-        style: textStyle,
+        style: style,
       ),
     );
   }
@@ -305,7 +245,7 @@ class TimeEventTypeLabel extends StatelessWidget {
   final String label;
   final EdgeInsetsGeometry padding;
   final double radius;
-  final String heroTag;
+  final Object heroTag;
   final TextStyle style;
 
   TimeEventTypeLabel({
@@ -343,18 +283,8 @@ class TimeEventTypeLabel extends StatelessWidget {
     TextStyle textStyle = style.apply(color: theme.colorScheme.onBackground);
 
     Widget label = _buildLabel(textStyle);
-    label = wrapHero(label);
+    label = wrapHero('label', heroTag, label);
     return label;
-  }
-
-  Widget wrapHero(Widget child) {
-    if (heroTag != null) {
-      child = Hero(
-        tag: heroTag,
-        child: child,
-      );
-    }
-    return child;
   }
 
   Widget _buildLabel(TextStyle textStyle) {
@@ -485,20 +415,23 @@ class DayText extends StatelessWidget {
   final int day;
   final Color textColor;
   final bool isLarge;
+  final Object heroTag;
 
-  DayText({this.day, this.textColor, this.isLarge});
+  DayText({this.day, this.textColor, this.isLarge = false, this.heroTag,});
 
   @override
   Widget build(BuildContext context) {
 
     final textStyle = isLarge
-        ? TimeThemeData.dayStyle1.apply(color: textColor)
-        : TimeThemeData.dayStyle2.apply(color: textColor);
+        ? TimeThemeData.dayStyle1.apply(color: textColor, decoration: TextDecoration.none,)
+        : TimeThemeData.dayStyle2.apply(color: textColor, decoration: TextDecoration.none,);
 
-    return Text(
+    Widget text = Text(
       '$day',
       style: textStyle,
     );
+    text = wrapHero('day', heroTag, text);
+    return text;
   }
 }
 
@@ -581,7 +514,7 @@ class StartDateTile extends StatelessWidget {
     return EventEditItem(
       asset: 'images/time_event_start_time.png',
       title: START_DATE,
-      content: TimeUtils.millis2String(startTime, 'yyyy-MM-dd'),
+      content: TimeUtils.millis2String(startTime, FORMAT_YYYY_MM_DD),
       onTap: () {
         if (onTap != null) onTap(startTime);
       },
@@ -603,7 +536,7 @@ class TargetDateTile extends StatelessWidget {
     return EventEditItem(
       asset: 'images/time_event_target_time.png',
       title: TARGET_DATE,
-      content: TimeUtils.millis2String(targetTime, 'yyyy-MM-dd'),
+      content: TimeUtils.millis2String(targetTime, FORMAT_YYYY_MM_DD),
       onTap: () {
         if (onTap != null) onTap(targetTime);
       },

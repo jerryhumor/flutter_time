@@ -136,4 +136,13 @@ class TimeThemeData {
     return myTextTheme.headline6;
   }
 
+  static Color getTitleColor(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    return theme.colorScheme.onBackground;
+  }
+
+  static Color getTitleColorWithOpacity(BuildContext context, double opacity) {
+    return getTitleColor(context).withOpacity(opacity);
+  }
+
 }

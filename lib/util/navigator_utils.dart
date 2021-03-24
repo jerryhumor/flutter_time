@@ -7,9 +7,10 @@ import 'package:flutter_time/pages/create/time_event_type_select_screen.dart';
 
 class NavigatorUtils {
 
-  static Future<dynamic> navToDetail(BuildContext context, TimeEventModel model) async {
+  static Future<dynamic> navToDetail(BuildContext context, TimeEventModel model, Object heroTag) async {
     Navigator.of(context).pushNamed('count_down_detail', arguments: {
       'model': model,
+      'heroTag': heroTag,
     });
   }
 

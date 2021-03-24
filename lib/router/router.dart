@@ -20,8 +20,7 @@ Widget Function(BuildContext context, RouteSettings settings) buildPage = (conte
     case 'count_down_detail': {
       page = CountDownDetailPage(
         model: argument['model'],
-        bgHeroTag: argument['bgHeroTag'],
-        labelHeroTag: argument['labelHeroTag'],
+        heroTag: argument['heroTag'],
       );
       break;
     }

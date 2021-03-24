@@ -8,14 +8,12 @@ import 'package:flutter_time/value/strings.dart';
 import 'package:flutter_time/value/styles.dart';
 
 class CountDownDetailPage extends StatelessWidget {
-  final String bgHeroTag;
-  final String labelHeroTag;
+  final Object heroTag;
   final TimeEventModel model;
 
   CountDownDetailPage({
     this.model,
-    this.bgHeroTag,
-    this.labelHeroTag,
+    this.heroTag,
   });
 
   @override
@@ -44,12 +42,7 @@ class CountDownDetailPage extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
     );
-    if (bgHeroTag != null && bgHeroTag.isNotEmpty) {
-      bg = Hero(
-        tag: bgHeroTag,
-        child: bg,
-      );
-    }
+    bg = wrapHero('bg', heroTag, bg);
     return bg;
   }
 
@@ -61,7 +54,7 @@ class CountDownDetailPage extends StatelessWidget {
         SizedBox(height: 12.0,),
         _buildTitle(textColor),
         VerticalSeparator(24.0),
-        DayText(day: 1, textColor: textColor, isLarge: true,),
+        DayText(day: 1, textColor: textColor, isLarge: true, heroTag: heroTag,),
         RemainingDayLabel(textColor: textColor,),
         VerticalSeparator(16.0),
         TimeEventPassProgress(width: 120.0, height: 8.0, totalDay: 9, passDay: 1,),
@@ -95,7 +88,7 @@ class CountDownDetailPage extends StatelessWidget {
             /// 事件的类型标签
             TimeEventTypeLabel.normal(
               label: COUNT_DOWN_DAY,
-              heroTag: labelHeroTag,
+              heroTag: heroTag,
             ),
 
             /// 编辑按钮
