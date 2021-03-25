@@ -6,6 +6,7 @@ import 'package:flutter_time/ui/animation/animation_column.dart';
 import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
+import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
@@ -24,13 +25,12 @@ class _CreateCountDownEventScreenState extends State<CreateCountDownEventScreen>
   @override
   void initState() {
     super.initState();
-    final DateTime dateTime = DateTime.now();
     modelNotifier = TimeEventModelChangeNotifier(TimeEventModel(
       color: bgColorList[0].value,
       title: '',
       remark: '',
-      startTime: dateTime.millisecondsSinceEpoch,
-      endTime: dateTime.millisecondsSinceEpoch,
+      startTime: TimeUtils.getTodayStartTime().millisecondsSinceEpoch,
+      endTime: TimeUtils.getTodayEndTime().millisecondsSinceEpoch,
       type: TimeEventType.countDownDay.index,
     ));
   }
@@ -193,11 +193,13 @@ class _CreateCountDownEventScreenState extends State<CreateCountDownEventScreen>
   }
 
   void onStartTimeChanged(int timestamp) {
-    modelNotifier.startTime = timestamp;
+    final DateTime start = TimeUtils.getStartTime(DateTime.fromMillisecondsSinceEpoch(timestamp));
+    modelNotifier.startTime = start.millisecondsSinceEpoch;
   }
 
   void onTargetTimeChanged(int timestamp) {
-    modelNotifier.endTime = timestamp;
+    final DateTime end = TimeUtils.getEndTime(DateTime.fromMillisecondsSinceEpoch(timestamp));
+    modelNotifier.endTime = end.millisecondsSinceEpoch;
   }
 
   void showTitleEditDialog() async {

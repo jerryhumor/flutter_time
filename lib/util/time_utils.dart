@@ -16,4 +16,22 @@ class TimeUtils {
     return timeStr;
   }
 
+  static DateTime getStartTime(DateTime date) {
+    return DateTime(date.year, date.month, date.day,);
+  }
+
+  static DateTime getEndTime(DateTime date) {
+    return DateTime(date.year, date.month, date.day,);
+  }
+
+  /// 获取今天的开始时间
+  static DateTime getTodayStartTime() {
+    return getStartTime(DateTime.now());
+  }
+
+  /// 获取今天结束时间
+  static DateTime getTodayEndTime() {
+    return getEndTime(DateTime.now());
+  }
+
 }
