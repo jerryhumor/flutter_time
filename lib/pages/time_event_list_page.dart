@@ -10,7 +10,7 @@ import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/model/list/event_list_page_state.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
-import 'package:flutter_time/ui/item_gesture_wrapper.dart';
+import 'package:flutter_time/ui/animation/item_gesture_wrapper.dart';
 import 'package:flutter_time/util/navigator_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
@@ -136,11 +136,12 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ItemGestureWrapper(
+              leftAction: ActionIcon.archive(),
+              rightAction: ActionIcon.delete(),
               child: TimeEventItem(
                 index: index,
                 model: model,
               ),
-              onTap: () => NavigatorUtils.navToDetail(context, model, index),
             ),
             SizedBox(height: 12,),
           ],

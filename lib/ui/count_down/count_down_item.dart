@@ -33,7 +33,7 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
 
   /// 创建背景
   Widget _buildBackground(int color, Object tag) {
-    Widget background =  Container(
+    Widget background = Container(
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(

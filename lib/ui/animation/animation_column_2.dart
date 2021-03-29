@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_time/ui/animation/delay_tween.dart';
+import 'package:flutter_time/ui/animation/customize_tween.dart';
 
 enum ItemState {
   completed,
