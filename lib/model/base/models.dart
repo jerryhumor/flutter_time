@@ -1,5 +1,12 @@
 /// 时间事件model
 class TimeEventModel {
+  /// 数据库的id
+  int id;
+  /// 已归档标志
+  bool archived;
+  /// 已删除标志
+  bool deleted;
+
   /// 背景颜色
   int color;
 
@@ -20,6 +27,9 @@ class TimeEventModel {
   int type;
 
   TimeEventModel({
+    this.id,
+    this.archived,
+    this.deleted,
     this.color,
     this.title,
     this.remark,
@@ -27,4 +37,44 @@ class TimeEventModel {
     this.endTime,
     this.type,
   });
+
+  factory TimeEventModel.fromMap(Map<String, dynamic> map) {
+    return TimeEventModel(
+      id: map['id'],
+      archived: map['archived'] > 0 ? true : false,
+      deleted: map['deleted'] > 0 ? true : false,
+      color: map['color'],
+      title: map['title'],
+      remark: map['remark'],
+      startTime: map['startTime'],
+      endTime: map['endTime'],
+      type: map['type'],
+    );
+  }
+
+  Map<String, dynamic> toUpdateMap() {
+    return {
+      'archived': archived ? 1 : 0,
+      'deleted': deleted ? 1 : 0,
+      'color': color,
+      'title': title,
+      'remark': remark,
+      'startTime': startTime,
+      'endTime': endTime,
+    };
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'archived': archived ? 1 : 0,
+      'deleted': deleted ? 1 : 0,
+      'color': color,
+      'title': title,
+      'remark': remark,
+      'startTime': startTime,
+      'endTime': endTime,
+      'type': type,
+    };
+  }
 }
