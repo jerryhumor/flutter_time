@@ -10,8 +10,9 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
 
   final int index;
   final TimeEventModel model;
+  final EdgeInsetsGeometry margin;
 
-  TimeEventItem({this.index, this.model,});
+  TimeEventItem({this.index, this.model, this.margin,});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +20,10 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
     final Color textColor = Theme.of(context).colorScheme.secondary;
 
     /// 136
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 136,
+      margin: margin,
       child: Stack(
         children: <Widget>[
           _buildBackground(model.color, index),

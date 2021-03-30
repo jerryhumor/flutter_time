@@ -141,6 +141,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
               child: TimeEventItem(
                 index: index,
                 model: model,
+                margin: const EdgeInsets.symmetric(horizontal: 16.0),
               ),
             ),
             SizedBox(height: 12,),
@@ -186,7 +187,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
   Widget _buildAnimationList() {
     return AnimatedList(
       key: listKey,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       physics: BouncingScrollPhysics(),
       initialItemCount: state.eventLength,
       itemBuilder: (BuildContext context, int index, Animation<double> animation) {
