@@ -7,6 +7,7 @@ import 'package:flutter_time/bloc/global_bloc.dart';
 import 'package:flutter_time/db/event_db.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/model/list/event_list_page_state.dart';
+import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/ui/animation/item_gesture_wrapper.dart';
 import 'package:flutter_time/util/navigator_utils.dart';
@@ -186,8 +187,32 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
 
   /// 创建空的数据
   Widget _buildEmpty() {
+
+    final ThemeData theme = Theme.of(context);
+    final color = theme.colorScheme.secondaryVariant;
+    final style = TimeThemeData.normalTextStyle.apply(color: color, letterSpacingFactor: 2.0);
+
     return Center(
-      child: Text('空空如也'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.inbox,
+            size: 64,
+            color: color,
+          ),
+          SizedBox(height: 16.0,),
+          Text(
+            '点击右上角',
+            style: style,
+          ),
+          SizedBox(height: 16.0,),
+          Text(
+            '创建「时间卡」吧👊',
+            style: style,
+          ),
+        ],
+      ),
     );
   }
 
