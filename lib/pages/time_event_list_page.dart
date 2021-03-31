@@ -2,17 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_saber/log/log_utils.dart';
 import 'package:flutter_time/bloc/bloc_provider.dart';
 import 'package:flutter_time/bloc/global_bloc.dart';
-import 'package:flutter_time/constant/time_event_constant.dart';
+import 'package:flutter_time/db/event_db.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/model/list/event_list_page_state.dart';
-import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/ui/animation/item_gesture_wrapper.dart';
 import 'package:flutter_time/util/navigator_utils.dart';
-import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
 /// 时间事件列表界面
@@ -28,50 +25,34 @@ class TimeEventListPage extends StatefulWidget {
 class _TimeEventListPageState extends State<TimeEventListPage> {
 
   GlobalKey<AnimatedListState> listKey;
-  EventListPageState state;
+  EventListModel eventListModel;
   Random random;
 
   /// 添加事件
   /// [eventWrap] 时间事件包装对象
   void _addEvent(EventWrap eventWrap) {
-    state.insertEvent(0, eventWrap);
+    final bool isEmpty = eventListModel.eventLength == 0;
+    /// 数据插入列表
+    eventListModel.insertEvent(0, eventWrap);
+    if (isEmpty) setState(() {});
+    /// 数据插入列表
     listKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 200));
   }
   
   /// 获取事件
   void _initData() async {
-    final List<EventWrap> eventWrapList = await _fetchEvents();
-    if (eventWrapList == null || eventWrapList.isEmpty) return;
-    state.addInitEvents(eventWrapList);
+    await eventListModel.fetchEvents();
+    setState(() {});
+    if (eventListModel.eventLength <= 0) return;
 //    /// debug模式下 不延迟会导致崩溃 原因如下
 //    /// i = 0 时，listKey.currentState 为空 所以第一个元素并没有插入列表
 //    /// i = 1 时，listKey.currentState 不为空 插入第二个元素
 //    /// 这时列表元素个数为0 但是我们却要插入index为1的元素 所以导致报错
 //    await Future.delayed(const Duration(milliseconds: 500));
-    for (int i = 0; i < state.eventLength; i++) {
+    for (int i = 0; i < eventListModel.eventLength; i++) {
       listKey.currentState?.insertItem(i, duration: const Duration(milliseconds: 200));
       await Future.delayed(const Duration(milliseconds: 64));
     }
-  }
-
-  /// 获取本地存储的时间事件数据
-  /// 返回时间事件的包装类 声明这些时间事件是初始数据
-  Future<List<EventWrap>> _fetchEvents() async {
-    /// 模拟数据耗时操作
-//    await Future.delayed(const Duration(milliseconds: 200));
-    List<EventWrap> events = [];
-    for (int i = 0; i < 6; i++) {
-      final TimeEventModel model = TimeEventModel(
-        color: bgColorList[random.nextInt(13)].value,
-        title: '测试标题',
-        remark: '这是备注',
-        startTime: 1616169600000,
-        endTime: 1616687999000,
-        type: random.nextBool() ? TimeEventType.countDownDay.index : TimeEventType.cumulativeDay.index,
-      );
-      events.add(EventWrap(TimeEventOrigin.init, model));
-    }
-    return events;
   }
 
   /// 跳转到添加时间事件的页面
@@ -87,17 +68,17 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
     super.initState();
     random = Random();
     listKey = GlobalKey();
-    state = BlocProvider.of<GlobalBloc>(context).eventListPageState;
+    eventListModel = BlocProvider.of<GlobalBloc>(context).eventListModel;
   }
 
   @override
   Widget build(BuildContext context) {
 
     /// 下一帧绘制完毕后 执行获取数据的操作
-    if (!state.initialized) {
+    if (!eventListModel.initialized) {
       SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        if (!state.initialized) {
-          state.initialized = true;
+        if (!eventListModel.initialized) {
+          eventListModel.initialized = true;
           _initData();
         }
       });
@@ -117,7 +98,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
           ),
         ],
       ),
-      body: _buildAnimationList(),
+      body: _buildList(),
     );
   }
 
@@ -173,6 +154,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
               child: TimeEventItem(
                 index: index,
                 model: model,
+                margin: const EdgeInsets.symmetric(horizontal: 16.0),
               ),
               onTap: () => NavigatorUtils.navToDetail(context, model, index),
             ),
@@ -183,15 +165,41 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
     );
   }
 
+  Widget _buildList() {
+    if (!eventListModel.initialized) {
+      return _buildProgress();
+    } else {
+      if (eventListModel.eventLength <= 0) {
+        return _buildEmpty();
+      } else {
+        return _buildAnimationList();
+      }
+    }
+  }
+
+  /// 创建progress
+  Widget _buildProgress() {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  /// 创建空的数据
+  Widget _buildEmpty() {
+    return Center(
+      child: Text('空空如也'),
+    );
+  }
+
   /// 创建带动画的事件列表
   Widget _buildAnimationList() {
     return AnimatedList(
       key: listKey,
       padding: const EdgeInsets.symmetric(vertical: 12),
       physics: BouncingScrollPhysics(),
-      initialItemCount: state.eventLength,
+      initialItemCount: eventListModel.eventLength,
       itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-        final model = state.modelList[index];
+        final model = eventListModel.eventWraps[index];
         Widget item;
         switch (model.origin) {
           case TimeEventOrigin.init:
