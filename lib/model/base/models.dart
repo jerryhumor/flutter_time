@@ -28,8 +28,8 @@ class TimeEventModel {
 
   TimeEventModel({
     this.id,
-    this.archived,
-    this.deleted,
+    this.archived = false,
+    this.deleted = false,
     this.color,
     this.title,
     this.remark,

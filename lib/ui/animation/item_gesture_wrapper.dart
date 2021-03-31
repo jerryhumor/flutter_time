@@ -191,7 +191,7 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTick
       children: [
         leftAction,
         rightAction,
-        // content,
+        content,
       ],
     );
 

@@ -6,14 +6,7 @@ const EVENT_TABLE_NAME = 'events';
 
 class EventDB {
 
-  static EventDB instance = null;
-
-  static EventDB getInstance() {
-    if (instance == null) {
-      instance = EventDB._();
-    }
-    return instance;
-  }
+  static EventDB _instance = null;
 
   EventDB._();
 
@@ -21,12 +14,13 @@ class EventDB {
   bool _initialized = false;
 
   static Future<EventDB> open() async {
-    final EventDB instance = getInstance();
-    if (instance._initialized) return instance;
-    
-    await instance._init();
+    if (_instance == null) _instance = EventDB._();
 
-    return instance;
+    if (_instance._initialized) return _instance;
+    
+    await _instance._init();
+
+    return _instance;
   }
 
   Future<void> _init() async {
@@ -42,13 +36,13 @@ class EventDB {
     db.execute(
       ''' 
       CREATE TABLE IF NOT EXISTS $EVENT_TABLE_NAME (
-      'id' INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      'id' INT PRIMARY KEY,
       'archived' INT NOT NULL DEFAULT 0,
       'deleted' INT NOT NULL DEFAULT 0,
       'color' INT NOT NULL,
       'title' VARCHAR(255) NOT NULL,
       'remark' VARCHAR(255) NOT NULL,
-      'startTime' INT NOT NUL,
+      'startTime' INT NOT NULL,
       'endTime' INT NOT NULL DEFAULT -1,
       'type' INT NOT NULL
       );
@@ -98,5 +92,9 @@ class EventDB {
     if (model.deleted) return 0;
     model.deleted = true;
     return await updateEvent(model);
+  }
+
+  Future<void> close() async {
+    await _database.close();
   }
 }
