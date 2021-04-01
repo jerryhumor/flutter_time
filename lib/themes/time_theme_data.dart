@@ -95,7 +95,7 @@ class TimeThemeData {
     /// big
     headline2: TextStyle(fontSize: 24.0, fontWeight: _bold),
     /// normal
-    headline3: TextStyle(fontSize: 18.0),
+    headline3: TextStyle(fontSize: 18.0, letterSpacing: 1.0,),
     /// small
     headline4: TextStyle(fontSize: 14.0),
     /// tiny
