@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_time/constant/time_constants.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
@@ -517,9 +518,8 @@ class StartDateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
     return EventEditItem(
-      asset: 'images/time_event_start_time.png',
+      icon: Icons.today,
       title: START_DATE,
       content: TimeUtils.millis2String(startTime, FORMAT_YYYY_MM_DD),
       onTap: () {
@@ -539,9 +539,8 @@ class TargetDateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = Theme.of(context).colorScheme.onBackground;
     return EventEditItem(
-      asset: 'images/time_event_target_time.png',
+      icon: Icons.event,
       title: TARGET_DATE,
       content: TimeUtils.millis2String(targetTime, FORMAT_YYYY_MM_DD),
       onTap: () {
@@ -562,7 +561,7 @@ class RemarkTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EventEditItem(
-      asset: 'images/time_event_remark.png',
+      icon: Icons.date_range,
       title: REMARK,
       content: remark ?? '',
       onTap: onTap,
@@ -779,7 +778,7 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
     _controller = AnimationController(vsync: this, duration: widget.duration);
     _animation = PageButtonTween(turningPoint: 0.8).animate(_controller);
     // 一开始不播放动画 直接显示原始大小
-    _controller.forward(from: 1.0);
+    _controller.value = 1.0;
   }
 
   @override
@@ -797,6 +796,7 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: () {
         _playAnimation();
+        _vibrate();
         if (widget.onTap != null) {
           widget.onTap();
         }
@@ -820,6 +820,10 @@ class _PageButtonState extends State<PageButton> with TickerProviderStateMixin {
 
   void _playAnimation() {
     _controller.forward(from: 0.0);
+  }
+
+  void _vibrate() {
+    HapticFeedback.lightImpact();
   }
 }
 
@@ -1122,12 +1126,12 @@ class TextButton extends StatelessWidget {
 
 class EventEditItem extends StatelessWidget {
 
-  final String asset;
+  final IconData icon;
   final String title;
   final String content;
   final VoidCallback onTap;
 
-  EventEditItem({this.asset, this.title, this.content, this.onTap,});
+  EventEditItem({this.icon, this.title, this.content, this.onTap,});
 
   @override
   Widget build(BuildContext context) {
@@ -1149,7 +1153,7 @@ class EventEditItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Row(
           children: [
-            Image.asset(asset, width: 18.0, height: 18.0,),
+            Icon(icon, size: 24, color: titleColor,),
             SizedBox(width: 10.0,),
             Text(title, style: titleStyle,),
             Spacer(),
