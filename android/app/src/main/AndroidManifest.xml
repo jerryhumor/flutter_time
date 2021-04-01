@@ -10,8 +10,8 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:label="flutter_time"
-        android:icon="@mipmap/logo_time"
-        android:roundIcon="@mipmap/logo_time_round">
+        android:icon="@mipmap/time_launcher"
+        android:roundIcon="@mipmap/time_launcher_round">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
