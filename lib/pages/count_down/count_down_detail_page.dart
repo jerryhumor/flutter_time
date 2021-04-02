@@ -22,16 +22,14 @@ class CountDownDetailPage extends StatelessWidget {
 
     final Color textColor = Theme.of(context).colorScheme.secondary;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: Material(
-          child: Stack(
+    return Material(
+      child: Stack(
         children: <Widget>[
           _buildBackground(),
           _buildContent(context, textColor),
           _buildShareButton(textColor),
         ],
-      )),
+      ),
     );
   }
 
@@ -108,7 +106,7 @@ class CountDownDetailPage extends StatelessWidget {
 
   /// 创建标题
   Widget _buildTitle(Color textColor) {
-    final textStyle = TimeThemeData.titleTextStyle.apply(color: textColor);
+    final textStyle = TimeTheme.titleTextStyle.apply(color: textColor);
 
     return Text(model.title, style: textStyle,);
   }
@@ -116,8 +114,8 @@ class CountDownDetailPage extends StatelessWidget {
   /// 创建备注区域
   Widget _buildRemark(String remark, Color textColor) {
 
-    final TextStyle labelStyle = TimeThemeData.smallTextStyle.apply(color: textColor.withOpacity(0.5));
-    final TextStyle textStyle = TimeThemeData.smallTextStyle.apply(
+    final TextStyle labelStyle = TimeTheme.smallTextStyle.apply(color: textColor.withOpacity(0.5));
+    final TextStyle textStyle = TimeTheme.smallTextStyle.apply(
       color: (remark == null) ? textColor.withOpacity(0.5) : textColor,
     );
 

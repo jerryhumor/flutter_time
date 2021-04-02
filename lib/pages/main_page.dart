@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_saber/log/log_utils.dart';
 import 'package:flutter_time/pages/setting_page.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
+import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 
 /// 主页面
@@ -45,8 +46,11 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: Theme.of(context).brightness == Brightness.light
+          ? TimeTheme.lightSystemStyle
+          : TimeTheme.darkSystemStyle,
       child: Column(
         children: <Widget>[
           // 事件列表和设置页面
@@ -97,24 +101,30 @@ class MainPageBottomBar extends StatelessWidget {
     return Material(
       elevation: 16.0,
       color: backgroundColor,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          // 事件列表页面按钮
-          Expanded(
-            child: ListPageButton(
-              checked: isListPage,
-              onTap: onTapListPage,
+      child: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            // 事件列表页面按钮
+            Expanded(
+              child: ListPageButton(
+                checked: isListPage,
+                onTap: onTapListPage,
+              ),
             ),
-          ),
-          // 设置页面按钮
-          Expanded(
-            child: SettingPageButton(
-              checked: !isListPage,
-              onTap: onTapSettingPage,
+            // 设置页面按钮
+            Expanded(
+              child: SettingPageButton(
+                checked: !isListPage,
+                onTap: onTapSettingPage,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
+import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/ui/animation/animation_column.dart';
 import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
@@ -249,12 +250,16 @@ class ItemPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color previewColor = Theme.of(context).colorScheme.primary.withOpacity(0.7);
+    final TextStyle previewStyle = TimeTheme.editItemContentStyle.apply(color: previewColor,);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(PREVIEW_EFFECT),
+          Text(PREVIEW_EFFECT, style: previewStyle,),
           SizedBox(height: 8.0,),
           TimeEventItem(model: model,),
           SizedBox(height: 30.0,),

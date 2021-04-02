@@ -40,7 +40,6 @@ class _TimeEventTypeSelectScreenState extends State<TimeEventTypeSelectScreen> w
           IconButton(
             icon: Icon(
               Icons.close,
-              color: colorGrey,
             ),
             onPressed: () => Navigator.pop(context),
           ),

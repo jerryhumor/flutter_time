@@ -33,21 +33,18 @@ class _CreateEventPageState extends State<CreateEventPage> {
   
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: PageTransitionSwitcher(
-        duration: const Duration(milliseconds: 300),
-        reverse: false,
-        child: selectedPage,
-        transitionBuilder: (child, animation, secondaryAnimation) {
-          return SharedAxisTransition(
-            child: child,
-            animation: animation,
-            secondaryAnimation: secondaryAnimation,
-            transitionType: SharedAxisTransitionType.horizontal,
-          );
-        },
-      ),
+    return PageTransitionSwitcher(
+      duration: const Duration(milliseconds: 300),
+      reverse: false,
+      child: selectedPage,
+      transitionBuilder: (child, animation, secondaryAnimation) {
+        return SharedAxisTransition(
+          child: child,
+          animation: animation,
+          secondaryAnimation: secondaryAnimation,
+          transitionType: SharedAxisTransitionType.horizontal,
+        );
+      },
     );
   }
 
