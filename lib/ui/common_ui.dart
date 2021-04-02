@@ -130,10 +130,12 @@ class CountDownDetail extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final Color textColor = Theme.of(context).colorScheme.onBackground;
-    final int totalDay = (endTime - startTime) ~/ DAY_TIME_MILLIS;
-    final int passDay = (DateTime.now().millisecondsSinceEpoch - startTime) ~/ DAY_TIME_MILLIS;
+    final int totalDay = (endTime - startTime + 1) ~/ DAY_TIME_MILLIS;
+    final int passDay = (TimeUtils.getTodayStartTime().millisecondsSinceEpoch - startTime) ~/ DAY_TIME_MILLIS;
     final int remainDay = max(totalDay - passDay, 0);
     final String targetDay = TimeUtils.millis2String(endTime, FORMAT_YYYY_MM_DD);
+
+    print('start: $startTime, end: $endTime, total: $totalDay, pass: $passDay');
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
