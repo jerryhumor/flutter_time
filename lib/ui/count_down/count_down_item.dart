@@ -17,9 +17,8 @@ class TimeEventItem extends StatelessWidget with ITimeEventItem {
   @override
   Widget build(BuildContext context) {
 
-    final Color textColor = Theme.of(context).colorScheme.secondary;
+    final Color textColor = Theme.of(context).colorScheme.onBackground;
 
-    /// 136
     return Container(
       width: double.infinity,
       height: 140,

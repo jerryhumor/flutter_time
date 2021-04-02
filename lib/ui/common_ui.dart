@@ -129,7 +129,7 @@ class CountDownDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final Color textColor = Theme.of(context).colorScheme.secondary;
+    final Color textColor = Theme.of(context).colorScheme.onBackground;
     final int totalDay = (endTime - startTime) ~/ DAY_TIME_MILLIS;
     final int passDay = (DateTime.now().millisecondsSinceEpoch - startTime) ~/ DAY_TIME_MILLIS;
     final int remainDay = max(totalDay - passDay, 0);
