@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_time/value/colors.dart';
 
 class TimeThemeData {
@@ -8,6 +9,19 @@ class TimeThemeData {
 
   static final Color _lightFocusColor = Colors.black.withOpacity(0.12);
   static final Color _darkFocusColor = Colors.white.withOpacity(0.12);
+
+  static final SystemUiOverlayStyle lightSystemStyle = SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.white,
+    systemNavigationBarIconBrightness: Brightness.dark,
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness: Brightness.light,
+  );
+  static final SystemUiOverlayStyle darkSystemStyle = SystemUiOverlayStyle(
+    systemNavigationBarColor: Color(0xFF3B3B3B),
+    systemNavigationBarIconBrightness: Brightness.light,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+  );
 
   static ThemeData lightThemeData = themeData(lightColorScheme, _lightFocusColor);
   static ThemeData darkThemeData = themeData(darkColorScheme, _darkFocusColor);
@@ -63,7 +77,7 @@ class TimeThemeData {
     secondaryVariant: Color(0xFF5B5B5B),
     background: Color(0xFF242424),
     surface: Color(0xFF1F1929),
-    onBackground: Color(0x0DFFFFFF), // White with 0.05 opacity
+    onBackground: Color(0xFF3B3B3B), // White with 0.05 opacity
     error: _darkFillColor,
     onError: _darkFillColor,
     onPrimary: _darkFillColor,

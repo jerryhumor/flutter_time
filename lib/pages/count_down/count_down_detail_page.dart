@@ -22,16 +22,14 @@ class CountDownDetailPage extends StatelessWidget {
 
     final Color textColor = Theme.of(context).colorScheme.secondary;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: Material(
-          child: Stack(
+    return Material(
+      child: Stack(
         children: <Widget>[
           _buildBackground(),
           _buildContent(context, textColor),
           _buildShareButton(textColor),
         ],
-      )),
+      ),
     );
   }
 
