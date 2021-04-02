@@ -6,6 +6,7 @@ import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
+import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
@@ -25,13 +26,12 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
   void initState() {
     super.initState();
 
-    final DateTime dateTime = DateTime.now();
     modelNotifier = TimeEventModelChangeNotifier(TimeEventModel(
       color: bgColorList[0].value,
       title: '',
       remark: '',
-      startTime: dateTime.millisecondsSinceEpoch,
-      endTime: dateTime.millisecondsSinceEpoch,
+      startTime: TimeUtils.getTodayStartTime().millisecondsSinceEpoch,
+      endTime: -1,
       type: TimeEventType.cumulativeDay.index,
     ));
   }
@@ -142,7 +142,7 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
       context: context,
       initialDate: DateTime.fromMillisecondsSinceEpoch(timestamp),
       firstDate: DateTime(2000,),
-      lastDate: DateTime(2030),
+      lastDate: TimeUtils.getTodayStartTime(),
     );
     if (selectedDate != null) {
       onStartTimeChanged(selectedDate.millisecondsSinceEpoch);
