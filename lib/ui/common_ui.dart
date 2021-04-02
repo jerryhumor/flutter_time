@@ -77,8 +77,8 @@ class CumulativeDetail extends StatelessWidget {
 
     final ThemeData theme = Theme.of(context);
     final Color color = theme.colorScheme.onBackground;
-    final dateStyle = TimeThemeData.smallTextStyle.apply(color: color.withOpacity(0.5),);
-    final labelStyle = TimeThemeData.tinyTextStyle.apply(color: color.withOpacity(0.4),);
+    final dateStyle = TimeTheme.smallTextStyle.apply(color: color.withOpacity(0.5),);
+    final labelStyle = TimeTheme.tinyTextStyle.apply(color: color.withOpacity(0.4),);
 
     /// 其实就是(x / y).toInt()
     int day = (DateTime.now().millisecondsSinceEpoch - startTime) ~/ DAY_TIME_MILLIS;
@@ -176,8 +176,8 @@ class ViewDetailLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final color = TimeThemeData.getTitleColor(context);
-    final style = TimeThemeData.tinyTextStyle.apply(color: color);
+    final color = TimeTheme.getTitleColor(context);
+    final style = TimeTheme.tinyTextStyle.apply(color: color);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(8.0, 2.0, 8.0, 2.0),
@@ -203,7 +203,7 @@ class RemainingDayLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final textStyle = TimeThemeData.tinyTextStyle.apply(color: textColor.withOpacity(0.5));
+    final textStyle = TimeTheme.tinyTextStyle.apply(color: textColor.withOpacity(0.5));
 
     return Text(
       REMAINING_DAY,
@@ -257,7 +257,7 @@ class TimeEventTypeLabel extends StatelessWidget {
         width = 84.0,
         height = 32.0,
         radius = 8.0,
-        style = TimeThemeData.normalTextStyle,
+        style = TimeTheme.normalTextStyle,
         label = label,
         heroTag = heroTag;
 
@@ -268,7 +268,7 @@ class TimeEventTypeLabel extends StatelessWidget {
         width = 38.0,
         height = 14.0,
         radius = 4.0,
-        style = TimeThemeData.minimumTextStyle,
+        style = TimeTheme.minimumTextStyle,
         label = label,
         heroTag = heroTag;
 
@@ -321,7 +321,7 @@ class TimeEventPassText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     
-    final textStyle = TimeThemeData.tinyTextStyle.apply(color: textColor.withOpacity(0.5));
+    final textStyle = TimeTheme.tinyTextStyle.apply(color: textColor.withOpacity(0.5));
     
     return Text(
       '$PASS:$passDay/$totalDay',
@@ -392,7 +392,7 @@ class TargetDay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     
-    final textStyle = TimeThemeData.smallTextStyle.apply(color: textColor.withOpacity(0.5));
+    final textStyle = TimeTheme.smallTextStyle.apply(color: textColor.withOpacity(0.5));
     
     return Text(
       '$TARGET_DAY:$targetDay',
@@ -431,8 +431,8 @@ class DayText extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final textStyle = isLarge
-        ? TimeThemeData.dayStyle1.apply(color: textColor, decoration: TextDecoration.none,)
-        : TimeThemeData.dayStyle2.apply(color: textColor, decoration: TextDecoration.none,);
+        ? TimeTheme.dayStyle1.apply(color: textColor, decoration: TextDecoration.none,)
+        : TimeTheme.dayStyle2.apply(color: textColor, decoration: TextDecoration.none,);
 
     Widget text = Text(
       '$day',
@@ -490,9 +490,9 @@ class EventNameTile extends StatelessWidget {
     final bool isEmpty = name == null || name.isEmpty;
     final String text = isEmpty ? hint : name;
     final textColor = isEmpty
-        ? theme.colorScheme.secondary
+        ? theme.colorScheme.secondaryVariant
         : theme.colorScheme.primary;
-    final TextStyle textStyle = TextStyle(color: textColor, fontSize: 18.0,);
+    final TextStyle textStyle = TimeTheme.editItemTitleStyle.apply(color: textColor,);
     return Material(
       color: theme.colorScheme.onBackground,
       child: InkWell(
@@ -556,14 +556,14 @@ class RemarkTile extends StatelessWidget {
   final String remark;
   final VoidCallback onTap;
 
-  RemarkTile({this.remark = '', this.onTap,});
+  RemarkTile({this.remark, this.onTap,});
 
   @override
   Widget build(BuildContext context) {
     return EventEditItem(
       icon: Icons.date_range,
       title: REMARK,
-      content: remark ?? '',
+      content: (remark != null && remark.isNotEmpty) ? remark : '无',
       onTap: onTap,
     );
   }
@@ -1139,10 +1139,10 @@ class EventEditItem extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final Color bgColor = theme.colorScheme.onBackground;
     final Color titleColor = theme.colorScheme.primary;
-    final Color dateColor = theme.colorScheme.onSecondary;
+    final Color dateColor = theme.colorScheme.primary.withOpacity(0.7);
 
-    final TextStyle titleStyle = timeEventDetailTitleTextStyle.apply(color: titleColor);
-    final TextStyle dateStyle = timeEventDetailTitleTextStyle.apply(color: dateColor,);
+    final TextStyle titleStyle = TimeTheme.editItemTitleStyle.apply(color: titleColor,);
+    final TextStyle dateStyle = TimeTheme.editItemContentStyle.apply(color: dateColor,);
 
     return GestureDetector(
       onTap: onTap,

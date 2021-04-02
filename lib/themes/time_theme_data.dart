@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_time/value/colors.dart';
 
-class TimeThemeData {
+class TimeTheme {
 
   static const _lightFillColor = colorAppBarTitle;
   static const _darkFillColor = Colors.white;
@@ -149,6 +149,16 @@ class TimeThemeData {
   static TextStyle get minimumTextStyle {
     return myTextTheme.headline6;
   }
+  
+  static final TextStyle editItemTitleStyle = TextStyle(
+    fontSize: 16.0,
+    fontWeight: FontWeight.bold,
+  );
+
+  static final TextStyle editItemContentStyle = TextStyle(
+    fontSize: 16.0,
+    fontWeight: FontWeight.normal,
+  );
 
   static Color getTitleColor(BuildContext context) {
     ThemeData theme = Theme.of(context);

@@ -49,8 +49,8 @@ class _MainPageState extends State<MainPage> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.light
-          ? TimeThemeData.lightSystemStyle
-          : TimeThemeData.darkSystemStyle,
+          ? TimeTheme.lightSystemStyle
+          : TimeTheme.darkSystemStyle,
       child: Column(
         children: <Widget>[
           // 事件列表和设置页面

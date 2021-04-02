@@ -190,7 +190,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
 
     final ThemeData theme = Theme.of(context);
     final color = theme.colorScheme.secondaryVariant;
-    final style = TimeThemeData.normalTextStyle.apply(color: color, letterSpacingFactor: 2.0);
+    final style = TimeTheme.normalTextStyle.apply(color: color, letterSpacingFactor: 2.0);
 
     return Center(
       child: Column(

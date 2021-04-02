@@ -245,7 +245,7 @@ class ActionIcon extends StatelessWidget {
           ),
         ),
         SizedBox(height: 4.0,),
-        Text(label, style: TimeThemeData.smallTextStyle.apply(color: bgColor),),
+        Text(label, style: TimeTheme.smallTextStyle.apply(color: bgColor),),
       ],
     );
   }
