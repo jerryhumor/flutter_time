@@ -150,12 +150,15 @@ class _CreateCountDownEventScreenState extends State<CreateCountDownEventScreen>
     );
   }
 
+  /// 点击起始时间 显示dialog选择起始时间
+  /// 起始时间最早2000年 最晚就是目标时间
+  /// [timestamp] 上一个选定的起始时间
   void handleTapStartTime(int timestamp) async {
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.fromMillisecondsSinceEpoch(timestamp),
       firstDate: DateTime(2000,),
-      lastDate: DateTime(2030),
+      lastDate: DateTime.fromMillisecondsSinceEpoch(modelNotifier.endTimeNotifier.value),
     );
     if (selectedDate != null) {
       onStartTimeChanged(selectedDate.millisecondsSinceEpoch);
@@ -166,7 +169,7 @@ class _CreateCountDownEventScreenState extends State<CreateCountDownEventScreen>
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.fromMillisecondsSinceEpoch(timestamp),
-      firstDate: DateTime(2000,),
+      firstDate: DateTime.fromMillisecondsSinceEpoch(modelNotifier.startTimeNotifier.value),
       lastDate: DateTime(2030),
     );
     if (selectedDate != null) {

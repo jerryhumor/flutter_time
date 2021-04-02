@@ -120,6 +120,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
             ItemGestureWrapper(
               leftAction: ActionIcon.archive(),
               rightAction: ActionIcon.delete(),
+              onTap: () => NavigatorUtils.navToDetail(context, model, index),
               child: TimeEventItem(
                 index: index,
                 model: model,
