@@ -24,7 +24,11 @@ class EventListModel {
     db.saveEvent(eventWrap.model);
   }
 
-  int get eventLength => eventWraps.length;
+  int get eventLength  {
+    final length = eventWraps.length;
+    print('获取长度: $length');
+    return length;
+  }
 
   Future<void> close() async {
     if (db != null) await db.close();

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_time/pages/cumulative/create_cumulative_event_screen.dart';
 import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
-import 'package:flutter_time/util/navigator_utils.dart';
+import 'package:flutter_time/router/navigator_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
