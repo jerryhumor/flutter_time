@@ -10,7 +10,7 @@ import 'package:flutter_time/model/list/event_list_page_state.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/ui/animation/item_gesture_wrapper.dart';
-import 'package:flutter_time/util/navigator_utils.dart';
+import 'package:flutter_time/router/navigator_utils.dart';
 import 'package:flutter_time/value/strings.dart';
 
 /// 时间事件列表界面
@@ -45,11 +45,6 @@ class _TimeEventListPageState extends State<TimeEventListPage> {
     await eventListModel.fetchEvents();
     setState(() {});
     if (eventListModel.eventLength <= 0) return;
-//    /// debug模式下 不延迟会导致崩溃 原因如下
-//    /// i = 0 时，listKey.currentState 为空 所以第一个元素并没有插入列表
-//    /// i = 1 时，listKey.currentState 不为空 插入第二个元素
-//    /// 这时列表元素个数为0 但是我们却要插入index为1的元素 所以导致报错
-//    await Future.delayed(const Duration(milliseconds: 500));
     for (int i = 0; i < eventListModel.eventLength; i++) {
       listKey.currentState?.insertItem(i, duration: const Duration(milliseconds: 200));
       await Future.delayed(const Duration(milliseconds: 64));

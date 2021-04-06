@@ -6,15 +6,18 @@ import 'package:flutter_time/pages/count_down/create_count_down_event_screen.dar
 import 'package:flutter_time/pages/create/create_event_page.dart';
 import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/pages/create/time_event_type_select_screen.dart';
+import 'package:flutter_time/router/routes.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 
 class NavigatorUtils {
 
   static Future<dynamic> navToDetail(BuildContext context, TimeEventModel model, Object heroTag) async {
-    Navigator.of(context).pushNamed('count_down_detail', arguments: {
-      'model': model,
-      'heroTag': heroTag,
-    });
+    Navigator.of(context).push(NoAnimationMaterialPageRoute(
+      builder: (context) => CountDownDetailPage(
+        model: model,
+        heroTag: heroTag,
+      ),
+    ));
   }
 
   /// 启动事件类型选择界面带动画
