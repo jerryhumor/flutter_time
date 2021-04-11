@@ -135,8 +135,6 @@ class CountDownDetail extends StatelessWidget {
     final int remainDay = max(totalDay - passDay, 0);
     final String targetDay = TimeUtils.millis2String(endTime, FORMAT_YYYY_MM_DD);
 
-    print('start: $startTime, end: $endTime, total: $totalDay, pass: $passDay');
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,

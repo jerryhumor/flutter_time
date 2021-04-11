@@ -22,11 +22,14 @@ const SHOW_ONE_FIRST_OTHER_END = 1.0;
 const _kDuration = 250;
 /// 下一个item动画延时 毫秒
 const _kDelayDuration = 50;
-/// item左移因子
-const _kSlideFactor = -0.3;
-/// item透明度的隐私
-const _kOpacityFactor = 1.0;
-
+/// 默认位移开始位置
+const _kPositionBegin = Offset(-0.3, 0.0);
+/// 默认位移结束位置
+const _kPositionEnd = Offset.zero;
+/// 默认透明度开始
+const _kOpacityBegin = 0.0;
+/// 默认透明度结束
+const _kOpacityEnd = 1.0;
 
 class AnimationColumn2 extends StatefulWidget {
 
@@ -37,7 +40,12 @@ class AnimationColumn2 extends StatefulWidget {
   final AnimationType animationType;
   final int durationMillis;
   final int delayMillis;
-  final double slideFactor;
+  /// 位移动画参数
+  final Offset positionBegin;
+  final Offset positionEnd;
+  /// 透明动画参数
+  final double opacityBegin;
+  final double opacityEnd;
   final CrossAxisAlignment crossAxisAlignment;
   final MainAxisAlignment mainAxisAlignment;
   final bool displayAnimationWhenInit;
@@ -50,7 +58,10 @@ class AnimationColumn2 extends StatefulWidget {
     this.animationType = AnimationType.showOrdered,
     this.durationMillis = _kDuration,
     this.delayMillis = _kDelayDuration,
-    this.slideFactor = _kSlideFactor,
+    this.positionBegin = _kPositionBegin,
+    this.positionEnd = _kPositionEnd,
+    this.opacityBegin = _kOpacityBegin,
+    this.opacityEnd = _kOpacityEnd,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisAlignment = MainAxisAlignment.center,
     this.displayAnimationWhenInit = false,
@@ -150,26 +161,35 @@ class _AnimationColumn2State extends State<AnimationColumn2> with SingleTickerPr
     );
   }
 
-  Widget wrapAnimation(AnimationColumnItem child, double start, double end) {
-    Animation<Offset> position = controller.drive(DelayTween<Offset>(
-      startValue: start,
-      endValue: end,
-      begin: Offset(widget.slideFactor, 0.0),
-      end: Offset.zero,
-    ));
-    Animation opacity = controller.drive(DelayTween<double>(
-      startValue: start,
-      endValue: end,
-      begin: 0.0,
-      end: _kOpacityFactor,
-    ));
-    return SlideTransition(
-      position: position,
-      child: FadeTransition(
+  Widget wrapAnimation(AnimationColumnItem item, double start, double end) {
+    Widget child = item;
+    if (widget.positionBegin != null && widget.positionEnd != null) {
+      Animation<Offset> position = controller.drive(DelayTween<Offset>(
+        startValue: start,
+        endValue: end,
+        begin: widget.positionBegin,
+        end: widget.positionEnd,
+      ));
+      child = SlideTransition(
+        position: position,
+        child: child,
+      );
+    }
+
+    if (widget.opacityBegin != null && widget.opacityEnd != null) {
+      Animation opacity = controller.drive(DelayTween<double>(
+        startValue: start,
+        endValue: end,
+        begin: widget.opacityBegin,
+        end: widget.opacityEnd,
+      ));
+      child = FadeTransition(
         opacity: opacity,
         child: child,
-      ),
-    );
+      );
+    }
+
+    return child;
   }
 
   void initAnimation() {

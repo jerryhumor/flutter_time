@@ -65,7 +65,7 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
           onAnimationFinished: showTitleEditDialog,
           fromState: ItemState.dismissed,
           toState: ItemState.completed,
-          slideFactor: 0.3,
+          positionBegin: Offset(0.3, 0.0),
           crossAxisAlignment: CrossAxisAlignment.start,
           displayAnimationWhenInit: true,
           children: <Widget>[
@@ -150,11 +150,7 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
   }
 
   void handleTapSave() {
-    final EventWrap eventWrap = EventWrap(
-      TimeEventOrigin.add,
-      modelNotifier.model,
-    );
-    Navigator.pop(context, eventWrap);
+    Navigator.pop(context, modelNotifier.model);
   }
 
   void onTitleChanged(String title) {
