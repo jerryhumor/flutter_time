@@ -6,29 +6,22 @@ class EventListModel {
 
   EventDB db;
   bool initialized = false;
-  List<EventWrap> eventWraps = [];
+  List<TimeEventModel> models = [];
 
   Future<void> fetchEvents() async {
-    eventWraps = [];
     if (db == null) db = await EventDB.open();
-    List<TimeEventModel> models = await db.fetchEvents();
-    models.forEach((element) {
-      eventWraps.add(EventWrap(TimeEventOrigin.init, element));
-    });
+    models = await db.fetchEvents();
     initialized = true;
-    return eventWraps;
+    return models;
   }
 
-  void insertEvent(int index, EventWrap eventWrap) {
-    eventWraps.insert(index, eventWrap);
-    db.saveEvent(eventWrap.model);
+  Future<int> insertEvent(TimeEventModel model) async {
+    final int res = await db.saveEvent(model);
+    if (res > 0) await fetchEvents();
+    return res;
   }
 
-  int get eventLength  {
-    final length = eventWraps.length;
-    print('获取长度: $length');
-    return length;
-  }
+  int get eventLength => models.length;
 
   Future<void> close() async {
     if (db != null) await db.close();
