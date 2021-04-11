@@ -50,10 +50,14 @@ class HeroUtils {
 
     final scaleAnimation = animation.drive(Tween(begin: 1.0, end: factor,));
 
-    return ScaleTransition(
-      scale: scaleAnimation,
-      alignment: Alignment.topLeft,
-      child: fromText,
+    /// 外部包一层Material是为了让字体不变化
+    return Material(
+      color: Colors.transparent,
+      child: ScaleTransition(
+        scale: scaleAnimation,
+        alignment: Alignment.topLeft,
+        child: fromText,
+      ),
     );
   }
 

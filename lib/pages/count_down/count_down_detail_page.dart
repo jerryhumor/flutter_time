@@ -1,9 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_time/constant/time_constants.dart';
+import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/util/hero_utils.dart';
+import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 import 'package:flutter_time/value/styles.dart';
@@ -50,16 +55,97 @@ class CountDownDetailPage extends StatelessWidget {
     return Column(
       children: <Widget>[
         _buildTitleBar(context, textColor),
-        SizedBox(height: 12.0,),
-        _buildTitle(textColor),
-        VerticalSeparator(24.0),
-        DayText(day: 1, textColor: textColor, isLarge: true, heroTag: heroTag,),
-        RemainingDayLabel(textColor: textColor,),
-        VerticalSeparator(16.0),
-        TimeEventPassProgress(width: 120.0, height: 8.0, totalDay: 9, passDay: 1,),
-        TimeEventPassText(totalDay: 9, passDay: 1, textColor: textColor,),
-        _buildRemark(model.remark, textColor),
+        Flexible(
+          child: ListView(
+            physics: BouncingScrollPhysics(),
+            children: [
+              SizedBox(height: 12.0,),
+              Center(child: _buildTitle(textColor), heightFactor: 1.0,),
+              VerticalSeparator(24.0),
+              Center(child: _buildDayText(textColor), heightFactor: 1.0,),
+              Center(child: _buildDayTextLabel(textColor), heightFactor: 1.0,),
+              VerticalSeparator(16.0),
+              _buildDayProgress(textColor),
+              SizedBox(height: 24.0,),
+              _buildDayDetail(textColor),
+              _buildRemark(model.remark, textColor),
+            ],
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildDayText(Color textColor) {
+    if (model.type == TimeEventType.countDownDay.index) {
+      final int totalDay = (model.endTime - model.startTime + 1) ~/ DAY_TIME_MILLIS;
+      final int passDay = (TimeUtils.getTodayStartTime().millisecondsSinceEpoch - model.startTime) ~/ DAY_TIME_MILLIS;
+      final int remainDay = max(totalDay - passDay, 0);
+      return DayText(
+        day: remainDay,
+        textColor: textColor,
+        isLarge: true,
+        heroTag: heroTag,
+      );
+    } else {
+      int day = (DateTime.now().millisecondsSinceEpoch - model.startTime) ~/ DAY_TIME_MILLIS;
+      return DayText(
+        day: day,
+        textColor: textColor,
+        isLarge: true,
+        heroTag: heroTag,
+      );
+    }
+  }
+
+  Widget _buildDayTextLabel(Color textColor) {
+    if (model.type == TimeEventType.countDownDay.index) {
+      return RemainingDayLabel(textColor: textColor,);
+    } else {
+      return PassDayLabel(textColor: textColor,);
+    }
+  }
+
+  Widget _buildDayProgress(Color textColor) {
+    if (model.type == TimeEventType.countDownDay.index) {
+      final int totalDay = (model.endTime - model.startTime + 1) ~/ DAY_TIME_MILLIS;
+      final int passDay = (TimeUtils.getTodayStartTime().millisecondsSinceEpoch - model.startTime) ~/ DAY_TIME_MILLIS;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TimeEventPassProgress(width: 120.0, height: 8.0, totalDay: totalDay, passDay: passDay,),
+          TimeEventPassText(totalDay: totalDay, passDay: passDay, textColor: textColor,),
+        ],
+      );
+    } else {
+      return Center(
+        heightFactor: 1.0,
+        child: Text(
+          '起始日:${TimeUtils.millis2String(model.startTime, 'yyyy年MM月dd日')}',
+          style: TimeTheme.editItemContentStyle.apply(color: textColor),
+        ),
+      );
+    }
+  }
+
+  Widget _buildDayDetail(Color textColor) {
+    if (model.type == TimeEventType.cumulativeDay.index) return Container();
+    TextStyle style = TimeTheme.smallTextStyle.apply(color: textColor.withOpacity(0.5));
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0,),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '起始日:${TimeUtils.millis2String(model.startTime, FORMAT_YYYY_MM_DD)}',
+            style: style,
+          ),
+          Text(
+            '目标日:${TimeUtils.millis2String(model.endTime, FORMAT_YYYY_MM_DD)}',
+            style: style,
+          ),
+        ],
+      ),
     );
   }
 
@@ -86,14 +172,16 @@ class CountDownDetailPage extends StatelessWidget {
 
             /// 事件的类型标签
             TimeEventTypeLabel.normal(
-              label: COUNT_DOWN_DAY,
+              label: (model.type == TimeEventType.countDownDay.index)
+                  ? COUNT_DOWN_DAY
+                  : CUMULATIVE_DAY,
               heroTag: heroTag,
             ),
 
             /// 编辑按钮
             IconButton(
               icon: Icon(
-                Icons.low_priority,
+                Icons.panorama_wide_angle,
                 color: textColor,
               ),
               onPressed: () {},
@@ -122,7 +210,7 @@ class CountDownDetailPage extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: 400,
+      height: 200,
       padding: const EdgeInsets.all(8.0),
       margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       decoration: BoxDecoration(
@@ -159,7 +247,7 @@ class CountDownDetailPage extends StatelessWidget {
             height: 42.4,
             width: 42.4,
             child: Center(
-              child: Icon(Icons.share, color: textColor,),
+              child: Icon(Icons.scatter_plot, color: textColor,),
             ),
           ),
         ),
