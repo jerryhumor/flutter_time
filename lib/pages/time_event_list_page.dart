@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_time/bloc/bloc_provider.dart';
 import 'package:flutter_time/bloc/global_bloc.dart';
 import 'package:flutter_time/db/event_db.dart';
@@ -12,15 +13,16 @@ import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/ui/animation/item_gesture_wrapper.dart';
 import 'package:flutter_time/router/navigator_utils.dart';
+import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
 const _kTimeEventItemMargin = EdgeInsets.symmetric(horizontal: 16.0);
 const _kListPadding = EdgeInsets.symmetric(vertical: 24.0);
 const _kListDivider = SizedBox(height: 12.0,);
+const _kFakeItem = SizedBox(height: 140, width: double.infinity,);
 const _kAddAnimationDuration = Duration(milliseconds: 300);
 
 /// 时间事件列表界面
-/// TODO(kengou): 没有数据时的兜底页面
 class TimeEventListPage extends StatefulWidget {
 
   TimeEventListPage({Key key,}): super(key: key);
@@ -41,10 +43,10 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 添加事件
   /// [eventWrap] 时间事件包装对象
-  Future<void> _addModel(TimeEventModel model) async {
+  Future<void> _addModel(BuildContext context, TimeEventModel model) async {
     /// 数据插入列表
     final res = await eventListModel.insertEvent(model);
-    /// todo 插入失败需要提示
+    _showInsertRes(res, context);
     if (res <= 0) return;
     /// 刷新页面 并且开始播放动画
     setState(() {
@@ -65,6 +67,19 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
         animationController.forward(from: 0.0);
       }
     });
+  }
+
+  void _showInsertRes(int res, BuildContext context) {
+
+    bool success = res > 0;
+    final color = success ? Color(eventListModel.models[0].color) : colorRed1;
+    final text = success ? '添加成功' : '添加失败';
+
+    Scaffold.of(context).showSnackBar(SnackBar(
+      backgroundColor: color,
+      content: Text(text),
+    ));
+    HapticFeedback.lightImpact();
   }
 
   /// 跳转到添加时间事件的页面
@@ -108,13 +123,15 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
       appBar: AppBar(
         title: Text(APP_NAME),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add,),
-            onPressed: () async {
-              final model = await _navToAddEventPage();
-              if (model == null) return;
-              _addModel(model);
-            },
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.add,),
+              onPressed: () async {
+                final model = await _navToAddEventPage();
+                if (model == null) return;
+                _addModel(context ,model);
+              },
+            ),
           ),
         ],
       ),
@@ -271,10 +288,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
       sizeFactor: animationController,
       child: SlideTransition(
         position: slideAnimation,
-        child: SizedBox(
-          height: 140,
-          width: double.infinity,
-        ),
+        child: _kFakeItem,
       ),
     );
   }
