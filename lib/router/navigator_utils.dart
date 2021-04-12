@@ -12,7 +12,7 @@ import 'package:flutter_time/ui/common_ui.dart';
 class NavigatorUtils {
 
   static Future<dynamic> navToDetail(BuildContext context, TimeEventModel model, Object heroTag) async {
-    Navigator.of(context).push(NoAnimationMaterialPageRoute(
+    Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => CountDownDetailPage(
         model: model,
         heroTag: heroTag,

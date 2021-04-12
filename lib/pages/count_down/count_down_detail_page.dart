@@ -210,7 +210,7 @@ class CountDownDetailPage extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: 200,
+      height: 240,
       padding: const EdgeInsets.all(8.0),
       margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       decoration: BoxDecoration(
