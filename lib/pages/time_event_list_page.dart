@@ -155,6 +155,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 创建progress
   Widget _buildProgress() {
+    print('build progress');
     return Center(
       child: CircularProgressIndicator(),
     );
@@ -162,7 +163,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 创建空的数据
   Widget _buildEmpty() {
-
+    print('build empty');
     final ThemeData theme = Theme.of(context);
     final color = theme.colorScheme.secondaryVariant;
     final style = TimeTheme.normalTextStyle.apply(color: color, letterSpacingFactor: 2.0);
@@ -193,6 +194,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 创建事件列表
   Widget _buildEventList() {
+    print('build event list');
     return ListView.separated(
       physics: BouncingScrollPhysics(),
       padding: _kListPadding,
@@ -216,6 +218,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 创建添加动画层
   Widget _buildAddAnimationLayer() {
+    print('build add animation layer');
     final slideAnimation = animationController.drive(Tween<Offset>(
       begin: Offset(-1, 0),
       end: Offset.zero,
@@ -244,7 +247,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   ///  创建带有动画的列表 用于在列表刚被添加的时候展示动画
   Widget _buildInitAnimationList() {
-
+    print('build init animation list');
     /// 获取前6条数据作为需要添加到列表的数据
     List<TimeEventModel> models = eventListModel.models.getRange(
       0,
