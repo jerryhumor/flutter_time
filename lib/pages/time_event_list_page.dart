@@ -75,7 +75,9 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     final color = success ? Color(eventListModel.models[0].color) : colorRed1;
     final text = success ? '添加成功' : '添加失败';
 
-    Scaffold.of(context).showSnackBar(SnackBar(
+    ScaffoldState state = Scaffold.of(context);
+    state.removeCurrentSnackBar();
+    state.showSnackBar(SnackBar(
       backgroundColor: color,
       content: Text(text),
     ));
