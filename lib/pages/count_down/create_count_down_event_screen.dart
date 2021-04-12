@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_time/constant/time_event_constant.dart';
 import 'package:flutter_time/model/base/models.dart';
-import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
-import 'package:flutter_time/ui/animation/animation_column.dart';
 import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
@@ -252,6 +250,7 @@ class ItemPreview extends StatelessWidget {
 
     final Color previewColor = Theme.of(context).colorScheme.primary.withOpacity(0.7);
     final TextStyle previewStyle = TimeTheme.editItemContentStyle.apply(color: previewColor,);
+    final bool canSave = model.title != null && model.title.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -271,9 +270,9 @@ class ItemPreview extends StatelessWidget {
                   color: Colors.white,
                 ),
                 contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 18.0),
-                backgroundColor: colorBlue2,
+                backgroundColor: canSave ? colorBlue2 : Color(0xFFDEDEDE),
                 borderRadius: BorderRadius.circular(18.0),
-                onTap: onTap,
+                onTap: canSave ? onTap : null,
               ),
             ],
           ),
