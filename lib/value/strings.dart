@@ -34,3 +34,24 @@ const String SETTING = '设置';
 
 const String CANCEL = '取消';
 const String SAVE = '保存';
+
+const String THANKS_TITLE = '特别感谢';
+const String THANKS_CONTENT_1 = '''Time
+是一个
+基于「日期」的管理工具
+
+
+在这里
+你可以管理属于你的
+「倒计日」或「累计日」
+记录每一个对你来说有特殊意义的Day''';
+
+const String THANKS_CONTENT_2 = '''应用从0到1的过程中
+
+感谢哪些设计上、功能上给予建议的朋友,
+是你们让Time变得越来越完善
+
+感谢哪些参与测试的朋友,
+是你们让 Time 变得越来越稳健;
+
+也感谢您的支持''';
