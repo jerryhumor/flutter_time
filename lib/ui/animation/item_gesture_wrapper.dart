@@ -45,10 +45,15 @@ class ItemGestureWrapper extends StatefulWidget {
   _ItemGestureWrapperState createState() => _ItemGestureWrapperState();
 }
 
-class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTickerProviderStateMixin {
+class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProviderStateMixin {
 
-  /// 动画控制器
-  AnimationController animationController;
+  /// item控制器
+  AnimationController itemController;
+  /// 左边icon控制器
+  AnimationController leftController;
+  /// 右边icon控制器
+  AnimationController rightController;
+
   /// 动画 值为-1~+1 表示item的位移程度
   Animation<double> animation;
 
@@ -71,20 +76,32 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTick
   void onDragStart(DragStartDetails details) {}
 
   void onDragDown(DragDownDetails details) {
-    _dragExtent = animationController.value * context.size.width;
+    itemController.stop();
   }
 
   void onDragUpdate(DragUpdateDetails details) {
-    // 更新偏移量
-    _dragExtent += details.delta.dx;
 
+    if (itemController.isAnimating) return;
+
+    /// 获取偏移量
+    final double dx = details.delta.dx;
     final double width = context.size.width;
-    animationController.value = _dragExtent / width;
+
+    if (itemController.value > 0.5 && dx > 0) {
+      itemController.animateTo(0.9, duration: Duration(milliseconds: 500), curve: Curves.easeInExpo);
+      return;
+    }
+
+    /// 计算需要偏移的量 可以通过这个函数实现阻尼
+    final double offset = DragOffsetHelper.calculateOffset(itemController.value, dx, width);
+
+    /// 更新偏移量
+    itemController.value += offset;
   }
 
   void onDragEnd(DragEndDetails details) {
     print('drag end, velocity: $details');
-    final double value = animationController.value;
+    final double value = itemController.value;
     /// 判断是否需要停在某个位置
     if (value < _kRightIconScaleEndThreshold) {
       itemOffsetRightHoldOn();
@@ -95,57 +112,68 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTick
     }
   }
 
+  void onTap() {
+    if (itemController.value != 0.0) return;
+    widget.onTap();
+  }
+
   /// item位置复原 回到中间
   void itemOffsetReset() {
-    animationController.animateTo(0.0);
+    itemController.animateTo(0.0);
   }
 
   /// item停在能展示左边图标的位置
   void itemOffsetLeftHoldOn() {
-    animationController.animateTo(_kLeftIconScaleEndThreshold);
+    itemController.animateTo(_kLeftIconScaleEndThreshold);
   }
 
   /// item停在能展示右边图标的位置
   void itemOffsetRightHoldOn() {
     print('right icon hold on');
-    animationController.animateTo(_kRightIconScaleEndThreshold);
+    itemController.animateTo(_kRightIconScaleEndThreshold);
   }
 
   @override
   void initState() {
     super.initState();
 
-    animationController = AnimationController(
+    itemController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
       lowerBound: -1.0,
       upperBound: 1.0,
       value: 0.0,
     );
+    leftController = AnimationController(
+      vsync: this,
+    );
+    rightController = AnimationController(
+      vsync: this,
+    );
 
     /// 滑动动画
-    slideAnimation = animationController.drive(ItemOffsetTween());
+    slideAnimation = itemController.drive(ItemOffsetTween());
     /// 缩放动画
-    leftScaleAnimation = animationController.drive(LeftActionScaleTween(
+    leftScaleAnimation = itemController.drive(LeftActionScaleTween(
       begin: _kIconScaleStartSize,
       end: _kIconScaleEndSize,
       start: _kLeftIconScaleStartThreshold,
       finish: _kLeftIconScaleEndThreshold,
     ));
-    rightScaleAnimation = animationController.drive(RightActionScaleTween(
+    rightScaleAnimation = itemController.drive(RightActionScaleTween(
       begin: _kIconScaleStartSize,
       end: _kIconScaleEndSize,
       start: _kRightIconScaleStartThreshold,
       finish: _kRightIconScaleEndThreshold,
     ));
     /// 平移动画
-    leftMoveAnimation = animationController.drive(ItemOffsetTween());
-    rightMoveAnimation = animationController.drive(ItemOffsetTween());
+    leftMoveAnimation = itemController.drive(ItemOffsetTween());
+    rightMoveAnimation = itemController.drive(ItemOffsetTween());
   }
 
   @override
   void dispose() {
-    animationController.dispose();
+    itemController.dispose();
     super.dispose();
   }
 
@@ -201,7 +229,7 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTick
       onHorizontalDragUpdate: onDragUpdate,
       onHorizontalDragEnd: onDragEnd,
       onHorizontalDragCancel: onDragCancel,
-      onTap: widget.onTap,
+      onTap: onTap,
       child: child,
     );
   }
@@ -303,4 +331,20 @@ class RightActionScaleTween extends Animatable<double> {
       return end;
     return begin + (end - begin) * ((start - t) / (start - finish));
   }
+}
+
+/// [-1.0, -0.5) 0.25
+/// [-0.5, 0.9)  1
+/// [0.9, 1.0]   0.25
+
+class DragOffsetHelper {
+
+  static double calculateOffset(double movedPercent, double dx, double width) {
+    if (movedPercent < -1.0) return 0;
+    if (movedPercent >= -1.0 && movedPercent < -0.5) return dx * 0.25 / width;
+    if (movedPercent >= -0.5 && movedPercent < 0.9) return dx / width;
+    if (movedPercent >= 0.9 && movedPercent <= 1.0) return dx * 0.25 / width;
+    return 0;
+  }
+
 }
