@@ -12,6 +12,7 @@ import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/ui/animation/item_gesture_wrapper.dart';
 import 'package:flutter_time/router/navigator_utils.dart';
+import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
 const _kTimeEventItemMargin = EdgeInsets.symmetric(horizontal: 16.0);
@@ -186,6 +187,11 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
             index: index,
             model: model,
             margin: _kTimeEventItemMargin,
+          ),
+          leftAction: ActionIcon(
+            bgColor: colorRed1,
+            icon: const Icon(Icons.delete_outline, color: Colors.white),
+            label: '删除',
           ),
           onTap: () => NavigatorUtils.navToDetail(context, model, index),
         );
