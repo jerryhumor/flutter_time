@@ -193,6 +193,9 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
             icon: const Icon(Icons.archive, color: Colors.white,),
             label: '归档',
           ),
+          onLeftAction: () {
+            print('on left');
+          },
           rightAction: ActionIcon(
             bgColor: colorRed1,
             icon: const Icon(Icons.delete_outline, color: Colors.white),

@@ -86,10 +86,19 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
 
   void onDragEnd(DragEndDetails details) {
     final double value = itemController.value;
+
     /// 判断是否需要停在某个位置
-    if (value < helper.rightIconScaleThreshold) {
+    if (value < -0.5){
+      itemOffsetReset();
+      if (widget.rightAction != null && widget.onRightAction != null)
+        itemController.addListener(triggerOnRight);
+    } else if (value > 0.5) {
+      itemOffsetReset();
+      if (widget.leftAction != null && widget.onLeftAction != null)
+        itemController.addListener(triggerOnLeft);
+    } else if (value < helper.rightIconScaleThreshold && widget.rightAction != null) {
       itemShowRightIcon();
-    } else if (value > helper.leftIconScaleThreshold) {
+    } else if (value > helper.leftIconScaleThreshold && widget.leftAction != null) {
       itemShowLeftIcon();
     } else {
       itemOffsetReset();
@@ -175,6 +184,22 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
       duration: _kIconScaleDuration,
       curve: Curves.decelerate,
     );
+  }
+
+  /// 动画执行完毕之后 触发左边action
+  void triggerOnLeft() {
+    if (!isDragging && itemController.value == 0.0) {
+      itemController.removeListener(triggerOnLeft);
+      widget.onLeftAction();
+    }
+  }
+
+  /// 动画执行完毕之后 触发右边action
+  void triggerOnRight() {
+    if (!isDragging && itemController.value == 0.0) {
+      itemController.removeListener(triggerOnRight);
+      widget.onRightAction();
+    }
   }
 
   @override
@@ -289,7 +314,6 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
                   widget.rightAction.preferredSize.width,
                   rightIconSlideController.value,
                 );
-                print('right : $value');
                 return Positioned(
                   right: value,
                   child: ScaleTransition(
@@ -455,7 +479,6 @@ class DragOffsetHelper {
       double movePercent,
       double iconWidth,
       double animationValue,) {
-    print('calculate: $movePercent, $itemWidth, $iconWidth, $rightIconHoldThreshold, $animationValue');
     /// 按照阻尼 计算应该的偏移量
     if (movePercent > -1.0 && movePercent < -0.5) {
       return (- movePercent * itemWidth - iconWidth - rightIconMinValue) * animationValue + rightIconMinValue;
