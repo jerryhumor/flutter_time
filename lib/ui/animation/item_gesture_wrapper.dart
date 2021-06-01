@@ -90,10 +90,9 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
       itemOffsetReset();
       if (widget.rightAction != null && widget.onRightAction != null)
         itemController.addListener(triggerOnRight);
-    } else if (value > 0.5) {
-      itemOffsetReset();
+    } else if (value >= 0.9) {
       if (widget.leftAction != null && widget.onLeftAction != null)
-        itemController.addListener(triggerOnLeft);
+        widget.onLeftAction();
     } else if (value < helper.rightIconScaleThreshold && widget.rightAction != null) {
       itemShowRightIcon();
     } else if (value > helper.leftIconScaleThreshold && widget.leftAction != null) {
@@ -182,14 +181,6 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
       duration: _kIconScaleDuration,
       curve: Curves.decelerate,
     );
-  }
-
-  /// 动画执行完毕之后 触发左边action
-  void triggerOnLeft() {
-    if (!isDragging && itemController.value == 0.0) {
-      itemController.removeListener(triggerOnLeft);
-      widget.onLeftAction();
-    }
   }
 
   /// 动画执行完毕之后 触发右边action
