@@ -34,9 +34,7 @@ class TimeEventListPage extends StatefulWidget {
 
 class _TimeEventListPageState extends State<TimeEventListPage> with SingleTickerProviderStateMixin {
 
-  GlobalKey<AnimatedListState> listKey;
   EventListModel eventListModel;
-  Random random;
 
   int deleteIndex;
   bool isDeleteAnimation = false;
@@ -101,8 +99,6 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
   @override
   void initState() {
     super.initState();
-    random = Random();
-    listKey = GlobalKey();
     eventListModel = BlocProvider.of<GlobalBloc>(context).eventListModel;
     animationController = AnimationController(vsync: this, duration: _kAddAnimationDuration);
     animationController.addStatusListener((status) {
@@ -426,22 +422,4 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
       child: content,
     );
   }
-}
-
-/// 事件的包装类
-class EventWrap {
-  /// 来源 是添加还是初始数据
-  TimeEventOrigin origin;
-  TimeEventModel model;
-
-  EventWrap(this.origin, this.model);
-
-}
-
-/// 用于决定返回哪种动画
-enum TimeEventOrigin {
-  /// 初始化的数据
-  init,
-  /// 添加的数据
-  add,
 }
