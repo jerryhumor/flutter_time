@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_time/bloc/bloc_provider.dart';
 import 'package:flutter_time/bloc/global_bloc.dart';
-import 'package:flutter_time/db/event_db.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/model/list/event_list_page_state.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
