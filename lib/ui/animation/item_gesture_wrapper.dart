@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
-import 'package:flutter_time/ui/animation/customize_tween.dart';
-import 'package:flutter_time/ui/common_ui.dart';
-import 'package:flutter_time/value/colors.dart';
 
 const _kIconScaledSize = 0.3;
 const _kIconOriginSize = 1.0;
@@ -36,26 +33,19 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
   AnimationController iconScaleController;
   /// 右边icon控制器
   AnimationController rightIconSlideController;
-
-  /// 动画 值为-1~+1 表示item的位移程度
-  Animation<double> animation;
-
   /// 滑动
   Animation<Offset> slideAnimation;
-  /// 左边按钮的滑动动画
-  Animation<double> leftScaleAnimation;
 
-  // 手指滑动的累计偏移量
-  double _dragExtent = 0.0;
-  double _lastDx = 0.0;
+  /// 记录上一次滑动的值
+  double lastDx = 0.0;
 
   bool isDragging = false;
   bool dragMode = false;
   DragOffsetHelper helper;
 
   void onDragCancel() {
-    print('drag cancel');
     itemOffsetReset();
+    isDragging = false;
   }
 
   void onDragStart(DragStartDetails details) {
@@ -76,7 +66,7 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
 
     /// 获取偏移量
     final double dx = details.delta.dx;
-    _lastDx = dx;
+    lastDx = dx;
 
     if (itemController.value > 0.5 && dx > 0) {
       itemSlideToRight();
@@ -91,12 +81,11 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
   }
 
   void onDragEnd(DragEndDetails details) {
-    print('drag end, velocity: $details');
     final double value = itemController.value;
     /// 判断是否需要停在某个位置
-    if (value < helper.rightIconScaleThreshold && _lastDx < 0) {
+    if (value < helper.rightIconScaleThreshold && lastDx < 0) {
       itemOffsetRightHoldOn();
-    } else if (value > helper.leftIconScaleThreshold && _lastDx > 0) {
+    } else if (value > helper.leftIconScaleThreshold && lastDx > 0) {
       itemOffsetLeftHoldOn();
     } else {
       itemOffsetReset();
@@ -412,7 +401,7 @@ class DragOffsetHelper {
       leftIconScaleThreshold = leftIconHoldThreshold / 2;
     }
     if (wrapper.rightAction != null) {
-      rightIconHoldThreshold = wrapper.rightAction.preferredSize.width / itemWidth;
+      rightIconHoldThreshold = - wrapper.rightAction.preferredSize.width / itemWidth;
       rightIconScaleThreshold = rightIconHoldThreshold / 2;
       rightIconMinValue = (rightIconHoldThreshold + 0.5) * 0.25 * itemWidth;
     }
@@ -444,7 +433,7 @@ class DragOffsetHelper {
     return movePercent * itemWidth - iconWidth;
   }
 
-  /// 计算右边按钮
+  /// 计算右边按钮的距离
   /// (-1.0, threshold] 0.25
   /// (threshold, 0.0) 1.0
   double calculateRightActionOffset(
