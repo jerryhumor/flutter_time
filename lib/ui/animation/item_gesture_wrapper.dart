@@ -40,9 +40,6 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
   /// 滑动
   Animation<Offset> slideAnimation;
 
-  /// 记录上一次滑动的值
-  double lastDx = 0.0;
-
   bool isDragging = false;
   bool dragMode = false;
   DragOffsetHelper helper;
@@ -70,7 +67,6 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
 
     /// 获取偏移量
     final double dx = details.delta.dx;
-    lastDx = dx;
     /// 获取当前的值
     final double value = itemController.value;
 
@@ -259,6 +255,8 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
 
   @override
   void dispose() {
+    iconScaleController.dispose();
+    rightIconSlideController.dispose();
     itemController.dispose();
     super.dispose();
   }
