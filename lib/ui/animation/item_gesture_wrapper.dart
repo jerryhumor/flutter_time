@@ -13,12 +13,16 @@ class ItemGestureWrapper extends StatefulWidget {
   final VoidCallback onTap;
   final PreferredSizeWidget leftAction;
   final PreferredSizeWidget rightAction;
+  final VoidCallback onLeftAction;
+  final VoidCallback onRightAction;
 
   ItemGestureWrapper({
     this.child,
     this.onTap,
     this.leftAction,
+    this.onLeftAction,
     this.rightAction,
+    this.onRightAction,
   });
 
   @override
@@ -83,10 +87,10 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
   void onDragEnd(DragEndDetails details) {
     final double value = itemController.value;
     /// 判断是否需要停在某个位置
-    if (value < helper.rightIconScaleThreshold && lastDx < 0) {
-      itemOffsetRightHoldOn();
-    } else if (value > helper.leftIconScaleThreshold && lastDx > 0) {
-      itemOffsetLeftHoldOn();
+    if (value < helper.rightIconScaleThreshold) {
+      itemShowRightIcon();
+    } else if (value > helper.leftIconScaleThreshold) {
+      itemShowLeftIcon();
     } else {
       itemOffsetReset();
     }
@@ -118,20 +122,58 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
   }
 
   /// item停在能展示左边图标的位置
-  void itemOffsetLeftHoldOn() {
+  void itemShowLeftIcon() {
     itemController.animateTo(
         helper.leftIconHoldThreshold,
-        duration: Duration(milliseconds: 500),
+        duration: _kItemSlideDuration,
         curve: Curves.decelerate,
     );
   }
 
   /// item停在能展示右边图标的位置
-  void itemOffsetRightHoldOn() {
+  void itemShowRightIcon() {
     itemController.animateTo(
         helper.rightIconHoldThreshold,
-        duration: Duration(milliseconds: 500),
+        duration: _kItemSlideDuration,
         curve: Curves.decelerate,
+    );
+  }
+  
+  /// 右边icon靠近item动画
+  void rightIconCloseItem() {
+    HapticFeedback.lightImpact();
+    rightIconSlideController.animateTo(
+      1.0,
+      duration: _kIconScaleDuration,
+      curve: Curves.decelerate,
+    );
+  }
+  
+  /// 右边icon远离item动画
+  void rightIconLeaveItem() {
+    HapticFeedback.lightImpact();
+    rightIconSlideController.animateTo(
+      0.0,
+      duration: _kIconScaleDuration,
+      curve: Curves.decelerate,
+    );
+  }
+
+  /// icon变大动画
+  void iconGetBigger() {
+    iconScaleController.animateTo(
+      _kIconOriginSize,
+      duration: _kIconScaleDuration,
+      curve: Curves.decelerate,
+    );
+  }
+
+  /// icon变小动画
+  void iconGetSmaller() {
+    iconScaleController.animateTo(
+      _kIconScaledSize,
+      duration: _kIconScaleDuration,
+      curve: Curves.decelerate,
     );
   }
 
@@ -142,7 +184,6 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
     helper = DragOffsetHelper();
     itemController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
       lowerBound: -1.0,
       upperBound: 1.0,
       value: 0.0,
@@ -165,48 +206,22 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
 
       if (widget.leftAction != null && itemController.value > 0 && !iconScaleController.isAnimating) {
         if (itemController.value > helper.leftIconScaleThreshold && iconScaleController.value < _kIconOriginSize)
-          iconScaleController.animateTo(
-              _kIconOriginSize,
-              duration: _kIconScaleDuration,
-              curve: Curves.decelerate,
-          );
-        else if (itemController.value < helper.leftIconScaleThreshold && iconScaleController.value > _kIconScaledSize) {
-          iconScaleController.animateTo(
-            _kIconScaledSize,
-            duration: _kIconScaleDuration,
-            curve: Curves.decelerate,
-          );
-        }
+          iconGetBigger();
+        else if (itemController.value < helper.leftIconScaleThreshold && iconScaleController.value > _kIconScaledSize)
+          iconGetSmaller();
       } else if (widget.rightAction != null && itemController.value < 0 && !iconScaleController.isAnimating) {
         if (itemController.value < helper.rightIconScaleThreshold && iconScaleController.value < _kIconOriginSize)
-          iconScaleController.animateTo(
-            _kIconOriginSize,
-            duration: _kIconScaleDuration,
-            curve: Curves.decelerate,
-          );
-        else if (itemController.value > helper.rightIconScaleThreshold && iconScaleController.value > _kIconScaledSize) {
-          iconScaleController.animateTo(
-            _kIconScaledSize,
-            duration: _kIconScaleDuration,
-            curve: Curves.decelerate,
-          );
-        }
+          iconGetBigger();
+        else if (itemController.value > helper.rightIconScaleThreshold && iconScaleController.value > _kIconScaledSize)
+          iconGetSmaller();
       }
 
       if (widget.rightAction != null && value < 0 && !rightIconSlideController.isAnimating) {
         final double rightValue = rightIconSlideController.value;
         if (value <= -0.5 && rightValue < 1) {
-          rightIconSlideController.animateTo(
-            1.0,
-            duration: Duration(milliseconds: 200),
-            curve: Curves.decelerate,
-          );
+          rightIconCloseItem();
         } else if (value > -0.5 && rightValue > 0) {
-          rightIconSlideController.animateTo(
-            0.0,
-            duration: Duration(milliseconds: 200),
-            curve: Curves.decelerate,
-          );
+          rightIconLeaveItem();
         }
       }
 
