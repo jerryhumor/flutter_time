@@ -71,14 +71,16 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
     /// 获取偏移量
     final double dx = details.delta.dx;
     lastDx = dx;
+    /// 获取当前的值
+    final double value = itemController.value;
 
-    if (itemController.value > 0.5 && dx > 0) {
+    if (value > 0.5 && value < 0.9 && dx > 0) {
       itemSlideToRight();
       return;
     }
 
     /// 计算需要偏移的量 可以通过这个函数实现阻尼
-    final double itemOffset = helper.calculateItemOffset(itemController.value, dx);
+    final double itemOffset = helper.calculateItemOffset(value, dx);
 
     /// 更新偏移量
     itemController.value += itemOffset;
