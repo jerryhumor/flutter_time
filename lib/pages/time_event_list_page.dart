@@ -188,7 +188,12 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
             model: model,
             margin: _kTimeEventItemMargin,
           ),
-          leftAction: ActionIcon(
+          leftAction:ActionIcon(
+            bgColor: colorBlue1,
+            icon: const Icon(Icons.archive, color: Colors.white,),
+            label: '归档',
+          ),
+          rightAction: ActionIcon(
             bgColor: colorRed1,
             icon: const Icon(Icons.delete_outline, color: Colors.white),
             label: '删除',
