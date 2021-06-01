@@ -106,15 +106,40 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     eventListModel = BlocProvider.of<GlobalBloc>(context).eventListModel;
     animationController = AnimationController(vsync: this, duration: _kAddAnimationDuration);
     animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) 
-        setState(() {
-          isAddAnimation = false;
-          isInitAnimation = false;
-          deleteIndex = null;
-          isDeleteAnimation = false;
-          archiveIndex = null;
-          isArchiveAnimation = false;
-        });
+      if (status == AnimationStatus.completed)
+
+        if (isDeleteAnimation) {
+          eventListModel.deleteEvent(eventListModel.models[deleteIndex]).then((value) {
+            setState(() {
+              isAddAnimation = false;
+              isInitAnimation = false;
+              deleteIndex = null;
+              isDeleteAnimation = false;
+              archiveIndex = null;
+              isArchiveAnimation = false;
+            });
+          });
+        } else if (isArchiveAnimation) {
+          eventListModel.archiveEvent(eventListModel.models[archiveIndex]).then((value) {
+            setState(() {
+              isAddAnimation = false;
+              isInitAnimation = false;
+              deleteIndex = null;
+              isDeleteAnimation = false;
+              archiveIndex = null;
+              isArchiveAnimation = false;
+            });
+          });
+        } else {
+          setState(() {
+            isAddAnimation = false;
+            isInitAnimation = false;
+            deleteIndex = null;
+            isDeleteAnimation = false;
+            archiveIndex = null;
+            isArchiveAnimation = false;
+          });
+        }
     });
   }
 
