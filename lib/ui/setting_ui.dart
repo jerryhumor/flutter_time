@@ -30,7 +30,7 @@ class SettingGroup extends StatelessWidget {
     final List<Widget> children = [];
     children.add(_buildGroupTitle(groupTitle, groupTitleTextStyle));
     for (SettingItem item in settingItems) {
-      children.add(_buildGroupItem(item.title, itemTitleTextStyle, itemBackgroundColor, item.callback));
+      children.add(_buildGroupItem(item.title, item.content, itemTitleTextStyle, groupTitleTextStyle, itemBackgroundColor, item.callback));
     }
 
     return Column(
@@ -53,7 +53,12 @@ class SettingGroup extends StatelessWidget {
     );
   }
 
-  Widget _buildGroupItem(String title, TextStyle textStyle, Color backgroundColor, ItemTapCallback callback) {
+  Widget _buildGroupItem(String title, String content, TextStyle titleStyle, TextStyle contentStyle, Color backgroundColor, ItemTapCallback callback) {
+
+    List<Widget> children = [Text(title, style: titleStyle,),];
+    if (content != null && content.isNotEmpty)
+      children.add(Text(content, style: contentStyle,));
+
     return Row(
       children: [
         Expanded(
@@ -65,7 +70,10 @@ class SettingGroup extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(title, style: textStyle,),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: children,
+                )
               ),
             ),
           ),
@@ -73,13 +81,13 @@ class SettingGroup extends StatelessWidget {
       ],
     );
   }
-
 }
 
 class SettingItem {
   
   final String title;
+  final String content;
   final ItemTapCallback callback;
 
-  SettingItem({this.title, this.callback,});
+  SettingItem({this.title, this.content, this.callback,});
 }

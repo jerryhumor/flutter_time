@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_time/pages/count_down/count_down_detail_page.dart';
 import 'package:flutter_time/pages/count_down/create_count_down_event_screen.dart';
 import 'package:flutter_time/pages/cumulative/create_cumulative_event_screen.dart';
+import 'package:flutter_time/pages/thanks/thanks_page.dart';
 import 'package:flutter_time/pages/unknown/unknown_page.dart';
 
 RouteFactory routerFactory = (RouteSettings settings) {
@@ -30,6 +31,10 @@ Widget Function(BuildContext context, RouteSettings settings) buildPage = (conte
     }
     case 'create_cumulative_event_page': {
       page = CreateCumulativeEventScreen();
+      break;
+    }
+    case 'thanks': {
+      page = ThanksPage();
       break;
     }
   }

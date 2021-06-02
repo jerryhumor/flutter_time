@@ -54,6 +54,38 @@ class SettingPage extends StatelessWidget {
               ),
             ],
           ),
+          SettingGroup(
+            groupTitle: '其他',
+            settingItems: [
+              SettingItem(
+                title: '分享 Time',
+              ),
+              SettingItem(
+                title: '赠送 Time',
+              ),
+              SettingItem(
+                title: 'App Store 评论',
+              ),
+            ],
+          ),
+          SettingGroup(
+            groupTitle: '备份',
+            settingItems: [
+              SettingItem(
+                title: 'iCloud 自动备份',
+                content: '1秒前',
+              ),
+            ],
+          ),
+          SettingGroup(
+            groupTitle: 'One more thing',
+            settingItems: [
+              SettingItem(
+                title: '特别感谢',
+                callback: (str) => Navigator.pushNamed(context, 'thanks'),
+              ),
+            ],
+          ),
         ],
       ),
     );
