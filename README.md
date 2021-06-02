@@ -19,12 +19,12 @@ Flutter项目，仿写iOS应用时间卡（旧版，新版本已经完全不一�
 
 #### 添加事件
 
-<video src="preview/add.mp4"></video>
+![add](preview/add.gif)
 
 #### 删除和归档
 
-<video src="preview/archive.mp4"></video>
+![archive](preview/archive.gif)
 
 #### 详情
 
-<video src="preview/detail.mp4"></video>
+![detail](preview/detail.gif)
