@@ -1,16 +1,30 @@
-# flutter_time
+# 时间卡
 
-A new Flutter project.
+Flutter项目，仿写iOS应用时间卡（旧版，新版本已经完全不一样了）
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+## 目标
 
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
+- [ ] 删除item添加弹窗提醒
+- [ ] item左右两边按钮可以点击触发（当前仅滑动触发）
+- [ ] 已归档页面
+- [ ] 仿写日历控件
+- [ ] 编辑详情
+- [ ] 分享
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+
+
+## 界面预览
+
+#### 添加事件
+
+<video src="preview/add.mp4"></video>
+
+#### 删除和归档
+
+<video src="preview/archive.mp4"></video>
+
+#### 详情
+
+<video src="preview/detail.mp4"></video>
