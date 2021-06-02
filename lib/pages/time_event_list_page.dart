@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_time/bloc/bloc_provider.dart';
 import 'package:flutter_time/bloc/global_bloc.dart';
 import 'package:flutter_time/model/base/models.dart';
@@ -17,12 +18,12 @@ import 'package:flutter_time/value/strings.dart';
 const _kTimeEventItemMargin = EdgeInsets.symmetric(horizontal: 16.0);
 const _kListPadding = EdgeInsets.symmetric(vertical: 24.0);
 const _kListDivider = SizedBox(height: 12.0,);
+const _kFakeItem = SizedBox(height: 140, width: double.infinity,);
 const _kAddAnimationDuration = Duration(milliseconds: 300);
 
 typedef AnimationWrapper = Widget Function(Widget widget);
 
 /// 时间事件列表界面
-/// TODO(kengou): 没有数据时的兜底页面
 class TimeEventListPage extends StatefulWidget {
 
   TimeEventListPage({Key key,}): super(key: key);
@@ -41,23 +42,33 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
   bool isArchiveAnimation = false;
   bool isAddAnimation = false;
   bool isInitAnimation = false;
+
   AnimationController animationController;
+  CurvedAnimation curvedAnimation;
 
   /// 添加事件
   /// [eventWrap] 时间事件包装对象
-  Future<void> _addModel(TimeEventModel model) async {
+  Future<void> addEvent(BuildContext context, TimeEventModel model) async {
     /// 数据插入列表
     final res = await eventListModel.insertEvent(model);
-    /// todo 插入失败需要提示
+    _showInsertRes(
+      context: context,
+      color: Color(model.color), 
+      text: res > 0 ? '添加成功' : '添加失败',);
     if (res <= 0) return;
     /// 刷新页面 并且开始播放动画
     setState(() {
       isAddAnimation = true;
+      animationController.forward(from: 0.0);
     });
-    animationController.forward(from: 0.0);
   }
 
-  void archiveEvent(int index) {
+  void archiveEvent(BuildContext context, int index) {
+    _showInsertRes(
+      context: context,
+      color: Color(eventListModel.models[index].color),
+      text: '归档成功',);
+
     setState(() {
       archiveIndex = index;
       isArchiveAnimation = true;
@@ -65,7 +76,12 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     });
   }
 
-  void deleteEvent(int index) {
+  void deleteEvent(BuildContext context, int index) {
+    _showInsertRes(
+      context: context,
+      color: Color(eventListModel.models[index].color),
+      text: '删除成功',);
+
     setState(() {
       deleteIndex = index;
       isAddAnimation = false;
@@ -74,7 +90,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
       animationController.forward(from: 0.0);
     });
   }
-  
+
   /// 获取事件
   void _initData() async {
     await eventListModel.fetchEvents();
@@ -89,6 +105,17 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     });
   }
 
+  /// 提示
+  void _showInsertRes({@required BuildContext context, Color color = colorRed1, String text = '',}) {
+    ScaffoldState state = Scaffold.of(context);
+    state.removeCurrentSnackBar();
+    state.showSnackBar(SnackBar(
+      backgroundColor: color,
+      content: Text(text),
+    ));
+    HapticFeedback.lightImpact();
+  }
+
   /// 跳转到添加时间事件的页面
   /// 返回时间事件的包装类
   Future<TimeEventModel> _navToAddEventPage() async {
@@ -100,7 +127,8 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     super.initState();
     eventListModel = BlocProvider.of<GlobalBloc>(context).eventListModel;
     animationController = AnimationController(vsync: this, duration: _kAddAnimationDuration);
-    animationController.addStatusListener((status) {
+    curvedAnimation = CurvedAnimation(parent: animationController, curve: Curves.decelerate,);
+    curvedAnimation.addStatusListener((status) {
       if (status == AnimationStatus.completed)
 
         if (isDeleteAnimation) {
@@ -160,36 +188,40 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
       appBar: AppBar(
         title: Text(APP_NAME),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add,),
-            onPressed: () async {
-              final model = await _navToAddEventPage();
-              if (model == null) return;
-              _addModel(model);
-            },
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.add,),
+              onPressed: () async {
+                final model = await _navToAddEventPage();
+                if (model == null) return;
+                addEvent(context ,model);
+              },
+            ),
           ),
         ],
       ),
-      body: _buildBody(),
+      body: Builder(
+        builder: (context) => _buildBody(context),
+      ),
     );
   }
 
   /// 根据当前的状态和数据创建空页面或者列表
-  Widget _buildBody() {
+  Widget _buildBody(BuildContext context) {
     /// 未初始化 则显示loading
     if (!eventListModel.initialized) return _buildProgress();
     /// 数据为空 显示空页面
     if (eventListModel.eventLength <= 0) return _buildEmpty();
     /// 展示删除动画
-    if (isDeleteAnimation && deleteIndex != null) return _buildDeleteAnimationList(deleteIndex);
+    if (isDeleteAnimation && deleteIndex != null) return _buildDeleteAnimationList(context, deleteIndex);
     /// 展示完成动画
-    if (isArchiveAnimation && archiveIndex != null) return _buildArchiveAnimationList(archiveIndex);
+    if (isArchiveAnimation && archiveIndex != null) return _buildArchiveAnimationList(context, archiveIndex);
     /// 展示添加动画
-    if (isAddAnimation) return _buildAddAnimationList();
+    if (isAddAnimation) return _buildAddAnimationList(context);
     /// 展示初始动画
     if (isInitAnimation) return _buildInitAnimationList();
     /// 显示正常的列表
-    return _buildEventList();
+    return _buildEventList(context: context,);
   }
 
   /// 创建progress
@@ -232,6 +264,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 创建事件列表
   Widget _buildEventList({
+    BuildContext context,
     int animationIndex,
     AnimationWrapper itemWrapper,
     AnimationWrapper dividerWrapper,
@@ -252,13 +285,13 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
             icon: const Icon(Icons.archive, color: Colors.white,),
             label: '归档',
           ),
-          onLeftAction: () => archiveEvent(index),
+          onLeftAction: () => archiveEvent(context, index),
           rightAction: ActionIcon(
             bgColor: colorRed1,
             icon: const Icon(Icons.delete_outline, color: Colors.white),
             label: '删除',
           ),
-          onRightAction: () => deleteEvent(index),
+          onRightAction: () => deleteEvent(context, index),
           onTap: () => NavigatorUtils.navToDetail(context, model, index),
         );
         if (animationIndex != null && index == animationIndex)
@@ -278,7 +311,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 创建添加动画层
   Widget _buildAddAnimationLayer() {
-    final slideAnimation = animationController.drive(Tween<Offset>(
+    final slideAnimation = curvedAnimation.drive(Tween<Offset>(
       begin: Offset(-1, 0),
       end: Offset.zero,
     ),);
@@ -294,7 +327,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     );
   }
 
-  Widget _buildDeleteAnimationList(int index) {
+  Widget _buildDeleteAnimationList(BuildContext context, int index) {
     return _buildEventList(
       animationIndex: index,
       itemWrapper: _wrapDeleteAnimation,
@@ -302,7 +335,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     );
   }
 
-  Widget _buildArchiveAnimationList(int index) {
+  Widget _buildArchiveAnimationList(BuildContext context, int index) {
     return _buildEventList(
       animationIndex: index,
       itemWrapper: _wrapArchiveAnimation,
@@ -311,11 +344,12 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
   }
 
   /// 创建带有动画的列表 用于在事件被添加到列表的时候展示动画
-  Widget _buildAddAnimationList() {
+  Widget _buildAddAnimationList(BuildContext context) {
     return Stack(
       children: [
         _buildAddAnimationLayer(),
         _buildEventList(
+          context: context,
           animationIndex: 0,
           itemWrapper: _wrapAddAnimation,
           dividerWrapper: _wrapDivider,
@@ -361,7 +395,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   Widget _wrapArchiveAnimation(Widget content) {
     return AnimatedBuilder(
-      animation: animationController,
+      animation: curvedAnimation,
       child: content,
       builder: (context, child) {
         return Opacity(
@@ -369,7 +403,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
           child: ClipRect(
             child: Align(
               alignment: Alignment.center,
-              heightFactor: 1 - animationController.value,
+              heightFactor: 1 - curvedAnimation.value,
               child: child,
             ),
           ),
@@ -380,15 +414,15 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   Widget _wrapDeleteAnimation(Widget content) {
     return AnimatedBuilder(
-      animation: animationController,
+      animation: curvedAnimation,
       child: content,
       builder: (context, child) {
         return Opacity(
-          opacity: 1 - animationController.value,
+          opacity: 1 - curvedAnimation.value,
           child: ClipRect(
             child: Align(
               alignment: Alignment.center,
-              heightFactor: 1 - animationController.value,
+              heightFactor: 1 - curvedAnimation.value,
               child: child,
             ),
           ),
@@ -398,26 +432,23 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
   }
 
   Widget _wrapAddAnimation(Widget content) {
-    final slideAnimation = animationController.drive(Tween<Offset>(
+    final slideAnimation = curvedAnimation.drive(Tween<Offset>(
       begin: Offset(-1, 0),
       end: Offset.zero,
     ),);
 
     return SizeTransition(
-      sizeFactor: animationController,
+      sizeFactor: curvedAnimation,
       child: SlideTransition(
         position: slideAnimation,
-        child: SizedBox(
-          height: 140,
-          width: double.infinity,
-        ),
+        child: _kFakeItem,
       ),
     );
   }
 
   Widget _wrapDivider(Widget content) {
     return SizeTransition(
-      sizeFactor: animationController,
+      sizeFactor: curvedAnimation,
       child: content,
     );
   }

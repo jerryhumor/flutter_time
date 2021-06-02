@@ -204,13 +204,13 @@ class CountDownDetailPage extends StatelessWidget {
 
     final TextStyle labelStyle = TimeTheme.smallTextStyle.apply(color: textColor.withOpacity(0.5));
     final TextStyle textStyle = TimeTheme.smallTextStyle.apply(
-      color: (remark == null) ? textColor.withOpacity(0.5) : textColor,
+      color: (remark == null || remark.isEmpty) ? textColor.withOpacity(0.5) : textColor,
     );
 
 
     return Container(
       width: double.infinity,
-      height: 200,
+      height: 240,
       padding: const EdgeInsets.all(8.0),
       margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       decoration: BoxDecoration(
@@ -223,7 +223,7 @@ class CountDownDetailPage extends StatelessWidget {
           Text('备注:', style: labelStyle,),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(remark ?? '无', style: textStyle,),
+            child: Text((remark == null || remark.isEmpty) ? '无' : remark, style: textStyle,),
           ),
         ],
       ),
