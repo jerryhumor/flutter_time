@@ -36,15 +36,15 @@ class EventDB {
     db.execute(
       ''' 
       CREATE TABLE IF NOT EXISTS $EVENT_TABLE_NAME (
-      'id' INT PRIMARY KEY,
-      'archived' INT NOT NULL DEFAULT 0,
-      'deleted' INT NOT NULL DEFAULT 0,
-      'color' INT NOT NULL,
+      'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+      'archived' INTEGER NOT NULL DEFAULT 0,
+      'deleted' INTEGER NOT NULL DEFAULT 0,
+      'color' INTEGER NOT NULL,
       'title' VARCHAR(255) NOT NULL,
       'remark' VARCHAR(255) NOT NULL,
-      'startTime' INT NOT NULL,
-      'endTime' INT NOT NULL DEFAULT -1,
-      'type' INT NOT NULL
+      'startTime' INTEGER NOT NULL,
+      'endTime' INTEGER NOT NULL DEFAULT -1,
+      'type' INTEGER NOT NULL
       );
       '''
     );
@@ -53,7 +53,7 @@ class EventDB {
   /// 获取事件
   Future<List<TimeEventModel>> fetchEvents() async {
     final List<Map<String, dynamic>> cursor = await _database.rawQuery(
-        'SELECT * FROM $EVENT_TABLE_NAME WHERE archived = 0 AND deleted = 0');
+        'SELECT * FROM $EVENT_TABLE_NAME WHERE archived = 0 AND deleted = 0 ORDER BY id DESC');
     final List<TimeEventModel> events = [];
     
     if (cursor == null || cursor.isEmpty) return events;
@@ -72,7 +72,7 @@ class EventDB {
 
   /// 修改事件
   Future<int> updateEvent(TimeEventModel model) async {
-    _database.update(
+    return await _database.update(
       EVENT_TABLE_NAME,
       model.toUpdateMap(),
       where: 'id = ?',

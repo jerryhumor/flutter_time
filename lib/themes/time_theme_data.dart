@@ -15,12 +15,14 @@ class TimeTheme {
     systemNavigationBarIconBrightness: Brightness.dark,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
+    statusBarColor: Colors.transparent,
   );
   static final SystemUiOverlayStyle darkSystemStyle = SystemUiOverlayStyle(
     systemNavigationBarColor: Color(0xFF3B3B3B),
     systemNavigationBarIconBrightness: Brightness.light,
     statusBarIconBrightness: Brightness.light,
     statusBarBrightness: Brightness.dark,
+    statusBarColor: Colors.transparent,
   );
 
   static ThemeData lightThemeData = themeData(lightColorScheme, _lightFocusColor);

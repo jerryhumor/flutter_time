@@ -21,6 +21,20 @@ class EventListModel {
     return res;
   }
 
+  Future<int> deleteEvent(TimeEventModel model) async {
+    model.deleted = true;
+    final int res = await db.updateEvent(model);
+    if (res > 0) await fetchEvents();
+    return res;
+  }
+
+  Future<int> archiveEvent(TimeEventModel model) async {
+    model.archived = true;
+    final int res = await db.updateEvent(model);
+    if (res > 0) await fetchEvents();
+    return res;
+  }
+
   int get eventLength => models.length;
 
   Future<void> close() async {

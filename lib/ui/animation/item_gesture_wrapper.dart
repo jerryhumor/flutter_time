@@ -1,199 +1,331 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
-import 'package:flutter_time/ui/animation/customize_tween.dart';
-import 'package:flutter_time/ui/common_ui.dart';
-import 'package:flutter_time/value/colors.dart';
 
-/// 在这个时刻开始缩放
-const _kRightIconScaleStartThreshold = -0.1;
-/// 在这个时刻缩放结束
-const _kRightIconScaleEndThreshold = -0.2;
-/// 在这个时刻开始缩放
-const _kLeftIconScaleStartThreshold = 0.1;
-/// 在这个时刻缩放结束
-const _kLeftIconScaleEndThreshold = 0.2;
-/// 这个时刻开始滑动缓慢
-const _kIconSlowStart = 0.3;
-/// 别人划1像素 他只能划0.2像素
-const _kIconSlideDamp = 0.2;
-/// 这个时刻滑动开始变快
-const _kIconFastStart = 0.6;
-/// 别人划1像素 他可以划3像素
-const _kIconSlideLubricant = 3.0;
-/// 最多只能滑到这里
-const _kSlideThreshold = 0.8;
-
-/// 缩放的范围 从 startSize - endSize
-const _kIconScaleStartSize = 0.3;
-const _kIconScaleEndSize = 1.0;
+const _kIconScaledSize = 0.3;
+const _kIconOriginSize = 1.0;
+const _kIconScaleDuration = const Duration(milliseconds: 200);
+const _kItemSlideDuration = const Duration(milliseconds: 500);
 
 class ItemGestureWrapper extends StatefulWidget {
 
   final Widget child;
   final VoidCallback onTap;
-  final Widget leftAction;
-  final Widget rightAction;
+  final PreferredSizeWidget leftAction;
+  final PreferredSizeWidget rightAction;
+  final VoidCallback onLeftAction;
+  final VoidCallback onRightAction;
 
   ItemGestureWrapper({
     this.child,
     this.onTap,
     this.leftAction,
+    this.onLeftAction,
     this.rightAction,
+    this.onRightAction,
   });
 
   @override
   _ItemGestureWrapperState createState() => _ItemGestureWrapperState();
 }
 
-class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTickerProviderStateMixin {
+class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProviderStateMixin {
 
-  /// 动画控制器
-  AnimationController animationController;
-  /// 动画 值为-1~+1 表示item的位移程度
-  Animation<double> animation;
-
+  /// item控制器
+  AnimationController itemController;
+  /// 左边icon控制器
+  AnimationController iconScaleController;
+  /// 右边icon控制器
+  AnimationController rightIconSlideController;
   /// 滑动
   Animation<Offset> slideAnimation;
-  
-  Animation<double> leftScaleAnimation;
-  Animation<double> rightScaleAnimation;
-  Animation<Offset> leftMoveAnimation;
-  Animation<Offset> rightMoveAnimation;
 
-  // 手指滑动的累计偏移量
-  double _dragExtent = 0.0;
+  bool isDragging = false;
+  bool dragMode = false;
+  DragOffsetHelper helper;
 
   void onDragCancel() {
-    print('drag cancel');
     itemOffsetReset();
+    isDragging = false;
   }
 
-  void onDragStart(DragStartDetails details) {}
+  void onDragStart(DragStartDetails details) {
+    helper.updateSize(context, widget);
+    setState(() {
+      isDragging = true;
+      dragMode = true;
+    });
+  }
 
   void onDragDown(DragDownDetails details) {
-    _dragExtent = animationController.value * context.size.width;
+    itemController.stop();
   }
 
   void onDragUpdate(DragUpdateDetails details) {
-    // 更新偏移量
-    _dragExtent += details.delta.dx;
 
-    final double width = context.size.width;
-    animationController.value = _dragExtent / width;
+    if (itemController.isAnimating) return;
+
+    /// 获取偏移量
+    final double dx = details.delta.dx;
+    /// 获取当前的值
+    final double value = itemController.value;
+
+    if (value > 0.5 && value < 0.9 && dx > 0) {
+      itemSlideToRight();
+      return;
+    }
+
+    /// 计算需要偏移的量 可以通过这个函数实现阻尼
+    final double itemOffset = helper.calculateItemOffset(value, dx);
+
+    /// 更新偏移量
+    itemController.value += itemOffset;
   }
 
   void onDragEnd(DragEndDetails details) {
-    print('drag end, velocity: $details');
-    final double value = animationController.value;
+    final double value = itemController.value;
+
     /// 判断是否需要停在某个位置
-    if (value < _kRightIconScaleEndThreshold) {
-      itemOffsetRightHoldOn();
-    } else if (value > _kLeftIconScaleEndThreshold) {
-      itemOffsetLeftHoldOn();
+    if (value < -0.5){
+      itemOffsetReset();
+      if (widget.rightAction != null && widget.onRightAction != null)
+        itemController.addListener(triggerOnRight);
+    } else if (value >= 0.9) {
+      if (widget.leftAction != null && widget.onLeftAction != null)
+        widget.onLeftAction();
+    } else if (value < helper.rightIconScaleThreshold && widget.rightAction != null) {
+      itemShowRightIcon();
+    } else if (value > helper.leftIconScaleThreshold && widget.leftAction != null) {
+      itemShowLeftIcon();
     } else {
       itemOffsetReset();
     }
+
+    isDragging = false;
+  }
+
+  void onTap() {
+    if (itemController.value != 0.0) return;
+    widget.onTap();
+  }
+
+  void itemSlideToRight() {
+    HapticFeedback.lightImpact();
+    itemController.animateTo(
+      0.9,
+      duration: _kItemSlideDuration,
+      curve: Curves.decelerate,
+    );
   }
 
   /// item位置复原 回到中间
   void itemOffsetReset() {
-    animationController.animateTo(0.0);
+    itemController.animateTo(
+      0.0,
+      duration: _kItemSlideDuration,
+      curve: Curves.decelerate,
+    );
   }
 
   /// item停在能展示左边图标的位置
-  void itemOffsetLeftHoldOn() {
-    animationController.animateTo(_kLeftIconScaleEndThreshold);
+  void itemShowLeftIcon() {
+    itemController.animateTo(
+        helper.leftIconHoldThreshold,
+        duration: _kItemSlideDuration,
+        curve: Curves.decelerate,
+    );
   }
 
   /// item停在能展示右边图标的位置
-  void itemOffsetRightHoldOn() {
-    print('right icon hold on');
-    animationController.animateTo(_kRightIconScaleEndThreshold);
+  void itemShowRightIcon() {
+    itemController.animateTo(
+        helper.rightIconHoldThreshold,
+        duration: _kItemSlideDuration,
+        curve: Curves.decelerate,
+    );
+  }
+  
+  /// 右边icon靠近item动画
+  void rightIconCloseItem() {
+    HapticFeedback.lightImpact();
+    rightIconSlideController.animateTo(
+      1.0,
+      duration: _kIconScaleDuration,
+      curve: Curves.decelerate,
+    );
+  }
+  
+  /// 右边icon远离item动画
+  void rightIconLeaveItem() {
+    HapticFeedback.lightImpact();
+    rightIconSlideController.animateTo(
+      0.0,
+      duration: _kIconScaleDuration,
+      curve: Curves.decelerate,
+    );
+  }
+
+  /// icon变大动画
+  void iconGetBigger() {
+    iconScaleController.animateTo(
+      _kIconOriginSize,
+      duration: _kIconScaleDuration,
+      curve: Curves.decelerate,
+    );
+  }
+
+  /// icon变小动画
+  void iconGetSmaller() {
+    iconScaleController.animateTo(
+      _kIconScaledSize,
+      duration: _kIconScaleDuration,
+      curve: Curves.decelerate,
+    );
+  }
+
+  /// 动画执行完毕之后 触发右边action
+  void triggerOnRight() {
+    if (!isDragging && itemController.value == 0.0) {
+      itemController.removeListener(triggerOnRight);
+      widget.onRightAction();
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
-    animationController = AnimationController(
+    helper = DragOffsetHelper();
+    itemController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
       lowerBound: -1.0,
       upperBound: 1.0,
       value: 0.0,
     );
+    iconScaleController = AnimationController(
+      vsync: this,
+      value: _kIconScaledSize,
+    );
+    rightIconSlideController = AnimationController(
+      vsync: this,
+      value: 0.0,
+    );
 
     /// 滑动动画
-    slideAnimation = animationController.drive(ItemOffsetTween());
-    /// 缩放动画
-    leftScaleAnimation = animationController.drive(LeftActionScaleTween(
-      begin: _kIconScaleStartSize,
-      end: _kIconScaleEndSize,
-      start: _kLeftIconScaleStartThreshold,
-      finish: _kLeftIconScaleEndThreshold,
-    ));
-    rightScaleAnimation = animationController.drive(RightActionScaleTween(
-      begin: _kIconScaleStartSize,
-      end: _kIconScaleEndSize,
-      start: _kRightIconScaleStartThreshold,
-      finish: _kRightIconScaleEndThreshold,
-    ));
-    /// 平移动画
-    leftMoveAnimation = animationController.drive(ItemOffsetTween());
-    rightMoveAnimation = animationController.drive(ItemOffsetTween());
+    slideAnimation = itemController.drive(ItemOffsetTween());
+
+    itemController.addListener(() {
+
+      final double value = itemController.value;
+
+      if (widget.leftAction != null && itemController.value > 0 && !iconScaleController.isAnimating) {
+        if (itemController.value > helper.leftIconScaleThreshold && iconScaleController.value < _kIconOriginSize)
+          iconGetBigger();
+        else if (itemController.value < helper.leftIconScaleThreshold && iconScaleController.value > _kIconScaledSize)
+          iconGetSmaller();
+      } else if (widget.rightAction != null && itemController.value < 0 && !iconScaleController.isAnimating) {
+        if (itemController.value < helper.rightIconScaleThreshold && iconScaleController.value < _kIconOriginSize)
+          iconGetBigger();
+        else if (itemController.value > helper.rightIconScaleThreshold && iconScaleController.value > _kIconScaledSize)
+          iconGetSmaller();
+      }
+
+      if (widget.rightAction != null && value < 0 && !rightIconSlideController.isAnimating) {
+        final double rightValue = rightIconSlideController.value;
+        if (value <= -0.5 && rightValue < 1) {
+          rightIconCloseItem();
+        } else if (value > -0.5 && rightValue > 0) {
+          rightIconLeaveItem();
+        }
+      }
+
+      if (!isDragging && value == 0.0) setState(() { dragMode = false; });
+      
+    });
   }
 
   @override
   void dispose() {
-    animationController.dispose();
+    iconScaleController.dispose();
+    rightIconSlideController.dispose();
+    itemController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    /// 内容
-    final Widget content = SlideTransition(
-      position: slideAnimation,
-      child: widget.child,
-    );
+    Widget child;
+    if (!dragMode) {
+      child = widget.child;
+    } else {
+      final List<Widget> children = [];
 
-    final Widget leftAction = SlideTransition(
-      position: leftMoveAnimation,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          ScaleTransition(
-            scale: leftScaleAnimation,
-            child: widget.leftAction,
-          ),
-        ],
-      ),
-    );
+      /// 内容
+      final Widget content = SlideTransition(
+        position: slideAnimation,
+        child: widget.child,
+      );
 
-    final Widget rightAction = SlideTransition(
-      position: rightMoveAnimation,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ScaleTransition(
-            scale: rightScaleAnimation,
-            child: widget.rightAction,
-          ),
-        ],
-      ),
-    );
+      /// 左侧操作按钮
+      if (widget.leftAction != null) {
+        Widget left = AnimatedBuilder(
+          animation: itemController,
+          child: widget.leftAction,
+          builder: (context, child) {
+            if (itemController.value < 0) return const SizedBox();
+            return Positioned(
+              left: helper.calculateLeftActionOffset(
+                itemController.value,
+                widget.leftAction.preferredSize.width,
+              ),
+              child: ScaleTransition(
+                scale: iconScaleController,
+                child: child,
+              ),
+            );
+          },
+        );
+        children.add(left);
+      }
 
-    final Widget child = Stack(
-      alignment: Alignment.center,
-      children: [
-        leftAction,
-        rightAction,
-        content,
-      ],
-    );
+      /// 右侧操作按钮
+      if (widget.rightAction != null) {
+        Widget right = AnimatedBuilder(
+          animation: itemController,
+          child: widget.rightAction,
+          builder: (context, child) {
+            if (itemController.value > 0) return const SizedBox();
+            return AnimatedBuilder(
+              animation: rightIconSlideController,
+              child: child,
+              builder: (context, child) {
+                final double value = helper.calculateRightActionOffset(
+                  itemController.value,
+                  widget.rightAction.preferredSize.width,
+                  rightIconSlideController.value,
+                );
+                return Positioned(
+                  right: value,
+                  child: ScaleTransition(
+                    scale: iconScaleController,
+                    child: child,
+                  ),
+                );
+              },
+            );
+          },
+        );
+        children.add(right);
+      }
+
+      children.add(content);
+
+      child = Stack(
+        alignment: Alignment.center,
+        children: children,
+      );
+    }
 
     return GestureDetector(
       onHorizontalDragStart: onDragStart,
@@ -201,31 +333,32 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with SingleTick
       onHorizontalDragUpdate: onDragUpdate,
       onHorizontalDragEnd: onDragEnd,
       onHorizontalDragCancel: onDragCancel,
-      onTap: widget.onTap,
+      onTap: onTap,
       child: child,
     );
   }
+
+  @override
+  void didUpdateWidget(ItemGestureWrapper oldWidget) {
+    helper.resetSize();
+    super.didUpdateWidget(oldWidget);
+  }
 }
 
-const _kIconSize = 48.0;
+const _kIconPaddingVertical = 4.0;
+const _kIconPaddingHorizontal = 10.0;
+const _kIconWidth = 48.0;
+const _kIconPadding = EdgeInsets.symmetric(vertical: _kIconPaddingVertical, horizontal: _kIconPaddingHorizontal);
+const _kIconSize = Size(_kIconWidth + 2 * _kIconPaddingHorizontal, _kIconWidth);
 
-class ActionIcon extends StatelessWidget {
+class ActionIcon extends StatelessWidget implements PreferredSizeWidget {
 
+  final Size preferredSize;
   final Color bgColor;
   final Icon icon;
   final String label;
 
-  ActionIcon({this.bgColor, this.icon, this.label,});
-  
-  const ActionIcon.delete(): 
-        bgColor = colorRed1, 
-        icon = const Icon(Icons.delete_outline, color: Colors.white,), 
-        label = '删除';
-
-  const ActionIcon.archive():
-        bgColor = colorBlue1,
-        icon = const Icon(Icons.archive, color: Colors.white,),
-        label = '归档';
+  ActionIcon({this.bgColor, this.icon, this.label, this.preferredSize = _kIconSize,});
 
   @override
   Widget build(BuildContext context) {
@@ -233,18 +366,20 @@ class ActionIcon extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Container(
-          width: _kIconSize,
-          height: _kIconSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: bgColor,
-          ),
-          child: Center(
-            child: icon,
+        Padding(
+          padding: _kIconPadding,
+          child: Container(
+            width: preferredSize.height,
+            height: preferredSize.height,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: bgColor,
+            ),
+            child: Center(
+              child: icon,
+            ),
           ),
         ),
-        SizedBox(height: 4.0,),
         Text(label, style: TimeTheme.smallTextStyle.apply(color: bgColor),),
       ],
     );
@@ -267,40 +402,85 @@ class ItemOffsetTween extends Animatable<Offset> {
   }
 }
 
-class LeftActionScaleTween extends Animatable<double> {
 
-  /// 什么时候开始变
-  final double start, finish;
-  /// 变成什么样子
-  final double begin, end;
+/// 滑动助手 计算偏移量 实现阻尼等效果
+class DragOffsetHelper {
 
-  LeftActionScaleTween({this.begin, this.end, this.start, this.finish,});
+  /// 控件的一些尺寸信息
+  /// 尺寸更新标志
+  bool sizeUpdated = false;
+  /// item的宽度
+  double itemWidth = 0.0;
+  /// 左边icon的缩放阈值
+  double leftIconScaleThreshold = 1.0;
+  /// 左边icon的停驻阈值
+  double leftIconHoldThreshold = 1.0;
+  /// 右边icon的缩放阈值
+  double rightIconScaleThreshold = -1.0;
+  /// 右边icon的停驻阈值
+  double rightIconHoldThreshold = -1.0;
+  /// 右边icon在移动时 最小距离
+  double rightIconMinValue;
+  
+  void updateSize(BuildContext context, ItemGestureWrapper wrapper) {
+    if (sizeUpdated) return;
+    itemWidth = context.size.width;
 
-  @override
-  double transform(double t) {
-    if (t <= start)
-      return begin;
-    if (t >= finish)
-      return end;
-    return begin + (end - begin) * ((t - start) / (finish - start));
+    if (wrapper.leftAction != null) {
+      leftIconHoldThreshold = wrapper.leftAction.preferredSize.width / itemWidth;
+      leftIconScaleThreshold = leftIconHoldThreshold / 2;
+    }
+    if (wrapper.rightAction != null) {
+      rightIconHoldThreshold = - wrapper.rightAction.preferredSize.width / itemWidth;
+      rightIconScaleThreshold = rightIconHoldThreshold / 2;
+      rightIconMinValue = (rightIconHoldThreshold + 0.5) * 0.25 * itemWidth;
+    }
+    sizeUpdated = true;
   }
-}
 
-class RightActionScaleTween extends Animatable<double> {
-
-  /// 什么时候开始变
-  final double start, finish;
-  /// 变成什么样子
-  final double begin, end;
-
-  RightActionScaleTween({this.begin, this.end, this.start, this.finish,});
-
-  @override
-  double transform(double t) {
-    if (t >= start)
-      return begin;
-    if (t <= finish)
-      return end;
-    return begin + (end - begin) * ((start - t) / (start - finish));
+  void resetSize() {
+    sizeUpdated = false;
+    itemWidth = 0.0;
+    leftIconScaleThreshold = 1.0;
+    leftIconHoldThreshold = 1.0;
+    rightIconScaleThreshold = -1.0;
+    rightIconHoldThreshold = -1.0;
+    rightIconMinValue = null;
   }
+
+  /// [-1.0, -0.5) 0.25
+  /// [-0.5, 0.9)  1
+  /// [0.9, 1.0]   0.25
+  double calculateItemOffset(double movedPercent, double dx) {
+    if (movedPercent < -1.0) return 0;
+    if (movedPercent >= -1.0 && movedPercent < -0.5) return dx * 0.25 / itemWidth;
+    if (movedPercent >= -0.5 && movedPercent < 0.9) return dx / itemWidth;
+    if (movedPercent >= 0.9 && movedPercent <= 1.0) return dx * 0.25 / itemWidth;
+    return 0;
+  }
+
+  double calculateLeftActionOffset(double movePercent, double iconWidth) {
+    return movePercent * itemWidth - iconWidth;
+  }
+
+  /// 计算右边按钮的距离
+  /// (-1.0, threshold] 0.25
+  /// (threshold, 0.0) 1.0
+  double calculateRightActionOffset(
+      double movePercent,
+      double iconWidth,
+      double animationValue,) {
+    /// 按照阻尼 计算应该的偏移量
+    if (movePercent > -1.0 && movePercent < -0.5) {
+      return (- movePercent * itemWidth - iconWidth - rightIconMinValue) * animationValue + rightIconMinValue;
+    }
+    if (movePercent >= -0.5 && movePercent <= rightIconHoldThreshold) {
+      return (rightIconHoldThreshold - movePercent) * (0.25 + (0.75 * animationValue)) * itemWidth;
+    }
+    if (movePercent > rightIconHoldThreshold && movePercent < 0.0) {
+      return - movePercent * itemWidth - iconWidth;
+    }
+    return null;
+  }
+
 }
