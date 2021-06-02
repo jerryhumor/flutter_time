@@ -19,12 +19,12 @@ Flutter项目，仿写iOS应用时间卡（旧版，新版本已经完全不一�
 
 #### 添加事件
 
-![add](preview/add.gif)
+![add](https://github.com/jerryhumor/flutter_time/blob/master/preview/add.gif)
 
 #### 删除和归档
 
-![archive](preview/archive.gif)
+![archive](https://github.com/jerryhumor/flutter_time/blob/master/preview/archive.gif)
 
 #### 详情
 
-![detail](preview/detail.gif)
+![detail](https://github.com/jerryhumor/flutter_time/blob/master/preview/detail.gif)
