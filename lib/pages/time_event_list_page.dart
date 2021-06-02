@@ -42,7 +42,9 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
   bool isArchiveAnimation = false;
   bool isAddAnimation = false;
   bool isInitAnimation = false;
+
   AnimationController animationController;
+  CurvedAnimation curvedAnimation;
 
   /// 添加事件
   /// [eventWrap] 时间事件包装对象
@@ -116,7 +118,8 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     super.initState();
     eventListModel = BlocProvider.of<GlobalBloc>(context).eventListModel;
     animationController = AnimationController(vsync: this, duration: _kAddAnimationDuration);
-    animationController.addStatusListener((status) {
+    curvedAnimation = CurvedAnimation(parent: animationController, curve: Curves.decelerate,);
+    curvedAnimation.addStatusListener((status) {
       if (status == AnimationStatus.completed)
 
         if (isDeleteAnimation) {
@@ -296,7 +299,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 创建添加动画层
   Widget _buildAddAnimationLayer() {
-    final slideAnimation = animationController.drive(Tween<Offset>(
+    final slideAnimation = curvedAnimation.drive(Tween<Offset>(
       begin: Offset(-1, 0),
       end: Offset.zero,
     ),);
@@ -379,7 +382,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   Widget _wrapArchiveAnimation(Widget content) {
     return AnimatedBuilder(
-      animation: animationController,
+      animation: curvedAnimation,
       child: content,
       builder: (context, child) {
         return Opacity(
@@ -387,7 +390,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
           child: ClipRect(
             child: Align(
               alignment: Alignment.center,
-              heightFactor: 1 - animationController.value,
+              heightFactor: 1 - curvedAnimation.value,
               child: child,
             ),
           ),
@@ -398,15 +401,15 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   Widget _wrapDeleteAnimation(Widget content) {
     return AnimatedBuilder(
-      animation: animationController,
+      animation: curvedAnimation,
       child: content,
       builder: (context, child) {
         return Opacity(
-          opacity: 1 - animationController.value,
+          opacity: 1 - curvedAnimation.value,
           child: ClipRect(
             child: Align(
               alignment: Alignment.center,
-              heightFactor: 1 - animationController.value,
+              heightFactor: 1 - curvedAnimation.value,
               child: child,
             ),
           ),
@@ -416,13 +419,13 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
   }
 
   Widget _wrapAddAnimation(Widget content) {
-    final slideAnimation = animationController.drive(Tween<Offset>(
+    final slideAnimation = curvedAnimation.drive(Tween<Offset>(
       begin: Offset(-1, 0),
       end: Offset.zero,
     ),);
 
     return SizeTransition(
-      sizeFactor: animationController,
+      sizeFactor: curvedAnimation,
       child: SlideTransition(
         position: slideAnimation,
         child: _kFakeItem,
@@ -432,7 +435,7 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   Widget _wrapDivider(Widget content) {
     return SizeTransition(
-      sizeFactor: animationController,
+      sizeFactor: curvedAnimation,
       child: content,
     );
   }
