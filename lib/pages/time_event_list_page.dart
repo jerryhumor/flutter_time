@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_time/bloc/bloc_provider.dart';
 import 'package:flutter_time/bloc/global_bloc.dart';
-import 'package:flutter_time/db/event_db.dart';
 import 'package:flutter_time/model/base/models.dart';
 import 'package:flutter_time/model/list/event_list_page_state.dart';
 import 'package:flutter_time/themes/time_theme_data.dart';
@@ -12,12 +11,15 @@ import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
 import 'package:flutter_time/ui/animation/item_gesture_wrapper.dart';
 import 'package:flutter_time/router/navigator_utils.dart';
+import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
 
 const _kTimeEventItemMargin = EdgeInsets.symmetric(horizontal: 16.0);
 const _kListPadding = EdgeInsets.symmetric(vertical: 24.0);
 const _kListDivider = SizedBox(height: 12.0,);
 const _kAddAnimationDuration = Duration(milliseconds: 300);
+
+typedef AnimationWrapper = Widget Function(Widget widget);
 
 /// 时间事件列表界面
 /// TODO(kengou): 没有数据时的兜底页面
@@ -31,10 +33,12 @@ class TimeEventListPage extends StatefulWidget {
 
 class _TimeEventListPageState extends State<TimeEventListPage> with SingleTickerProviderStateMixin {
 
-  GlobalKey<AnimatedListState> listKey;
   EventListModel eventListModel;
-  Random random;
-  
+
+  int deleteIndex;
+  bool isDeleteAnimation = false;
+  int archiveIndex;
+  bool isArchiveAnimation = false;
   bool isAddAnimation = false;
   bool isInitAnimation = false;
   AnimationController animationController;
@@ -51,6 +55,24 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
       isAddAnimation = true;
     });
     animationController.forward(from: 0.0);
+  }
+
+  void archiveEvent(int index) {
+    setState(() {
+      archiveIndex = index;
+      isArchiveAnimation = true;
+      animationController.forward(from: 0.0);
+    });
+  }
+
+  void deleteEvent(int index) {
+    setState(() {
+      deleteIndex = index;
+      isAddAnimation = false;
+      isInitAnimation = false;
+      isDeleteAnimation = true;
+      animationController.forward(from: 0.0);
+    });
   }
   
   /// 获取事件
@@ -76,13 +98,43 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
   @override
   void initState() {
     super.initState();
-    random = Random();
-    listKey = GlobalKey();
     eventListModel = BlocProvider.of<GlobalBloc>(context).eventListModel;
     animationController = AnimationController(vsync: this, duration: _kAddAnimationDuration);
     animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) 
-        setState(() { isAddAnimation = false; });
+      if (status == AnimationStatus.completed)
+
+        if (isDeleteAnimation) {
+          eventListModel.deleteEvent(eventListModel.models[deleteIndex]).then((value) {
+            setState(() {
+              isAddAnimation = false;
+              isInitAnimation = false;
+              deleteIndex = null;
+              isDeleteAnimation = false;
+              archiveIndex = null;
+              isArchiveAnimation = false;
+            });
+          });
+        } else if (isArchiveAnimation) {
+          eventListModel.archiveEvent(eventListModel.models[archiveIndex]).then((value) {
+            setState(() {
+              isAddAnimation = false;
+              isInitAnimation = false;
+              deleteIndex = null;
+              isDeleteAnimation = false;
+              archiveIndex = null;
+              isArchiveAnimation = false;
+            });
+          });
+        } else {
+          setState(() {
+            isAddAnimation = false;
+            isInitAnimation = false;
+            deleteIndex = null;
+            isDeleteAnimation = false;
+            archiveIndex = null;
+            isArchiveAnimation = false;
+          });
+        }
     });
   }
 
@@ -128,6 +180,10 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     if (!eventListModel.initialized) return _buildProgress();
     /// 数据为空 显示空页面
     if (eventListModel.eventLength <= 0) return _buildEmpty();
+    /// 展示删除动画
+    if (isDeleteAnimation && deleteIndex != null) return _buildDeleteAnimationList(deleteIndex);
+    /// 展示完成动画
+    if (isArchiveAnimation && archiveIndex != null) return _buildArchiveAnimationList(archiveIndex);
     /// 展示添加动画
     if (isAddAnimation) return _buildAddAnimationList();
     /// 展示初始动画
@@ -175,9 +231,13 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
   }
 
   /// 创建事件列表
-  Widget _buildEventList() {
+  Widget _buildEventList({
+    int animationIndex,
+    AnimationWrapper itemWrapper,
+    AnimationWrapper dividerWrapper,
+  }) {
     return ListView.separated(
-      physics: BouncingScrollPhysics(),
+      physics: animationIndex == null ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
       padding: _kListPadding,
       itemBuilder: (context, index) {
         final model = eventListModel.models[index];
@@ -187,12 +247,31 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
             model: model,
             margin: _kTimeEventItemMargin,
           ),
+          leftAction: ActionIcon(
+            bgColor: colorBlue1,
+            icon: const Icon(Icons.archive, color: Colors.white,),
+            label: '归档',
+          ),
+          onLeftAction: () => archiveEvent(index),
+          rightAction: ActionIcon(
+            bgColor: colorRed1,
+            icon: const Icon(Icons.delete_outline, color: Colors.white),
+            label: '删除',
+          ),
+          onRightAction: () => deleteEvent(index),
           onTap: () => NavigatorUtils.navToDetail(context, model, index),
         );
-        if (isAddAnimation && index == 0) content = _wrapAnimation(content);
+        if (animationIndex != null && index == animationIndex)
+          content = itemWrapper(content);
         return content;
       },
-      separatorBuilder: (context, index) => _kListDivider,
+      separatorBuilder: (context, index) {
+        Widget divider = _kListDivider;
+        if (animationIndex != null && index == animationIndex - 1) {
+          divider = dividerWrapper(divider);
+        }
+        return divider;
+      },
       itemCount: eventListModel.eventLength,
     );
   }
@@ -215,12 +294,32 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     );
   }
 
+  Widget _buildDeleteAnimationList(int index) {
+    return _buildEventList(
+      animationIndex: index,
+      itemWrapper: _wrapDeleteAnimation,
+      dividerWrapper: _wrapDivider,
+    );
+  }
+
+  Widget _buildArchiveAnimationList(int index) {
+    return _buildEventList(
+      animationIndex: index,
+      itemWrapper: _wrapArchiveAnimation,
+      dividerWrapper: _wrapDivider,
+    );
+  }
+
   /// 创建带有动画的列表 用于在事件被添加到列表的时候展示动画
   Widget _buildAddAnimationList() {
     return Stack(
       children: [
         _buildAddAnimationLayer(),
-        _buildEventList(),
+        _buildEventList(
+          animationIndex: 0,
+          itemWrapper: _wrapAddAnimation,
+          dividerWrapper: _wrapDivider,
+        ),
       ],
     );
   }
@@ -260,8 +359,45 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     );
   }
 
-  /// 给item包裹动画
-  Widget _wrapAnimation(Widget content) {
+  Widget _wrapArchiveAnimation(Widget content) {
+    return AnimatedBuilder(
+      animation: animationController,
+      child: content,
+      builder: (context, child) {
+        return Opacity(
+          opacity: 0,
+          child: ClipRect(
+            child: Align(
+              alignment: Alignment.center,
+              heightFactor: 1 - animationController.value,
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _wrapDeleteAnimation(Widget content) {
+    return AnimatedBuilder(
+      animation: animationController,
+      child: content,
+      builder: (context, child) {
+        return Opacity(
+          opacity: 1 - animationController.value,
+          child: ClipRect(
+            child: Align(
+              alignment: Alignment.center,
+              heightFactor: 1 - animationController.value,
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _wrapAddAnimation(Widget content) {
     final slideAnimation = animationController.drive(Tween<Offset>(
       begin: Offset(-1, 0),
       end: Offset.zero,
@@ -278,22 +414,11 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
       ),
     );
   }
-}
 
-/// 事件的包装类
-class EventWrap {
-  /// 来源 是添加还是初始数据
-  TimeEventOrigin origin;
-  TimeEventModel model;
-
-  EventWrap(this.origin, this.model);
-
-}
-
-/// 用于决定返回哪种动画
-enum TimeEventOrigin {
-  /// 初始化的数据
-  init,
-  /// 添加的数据
-  add,
+  Widget _wrapDivider(Widget content) {
+    return SizeTransition(
+      sizeFactor: animationController,
+      child: content,
+    );
+  }
 }
