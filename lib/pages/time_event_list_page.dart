@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -76,19 +77,55 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
     });
   }
 
-  void deleteEvent(BuildContext context, int index) {
-    _showInsertRes(
-      context: context,
-      color: Color(eventListModel.models[index].color),
-      text: '删除成功',);
+  Future<void> deleteEvent(BuildContext context, int index) async {
+    /// 展示确认弹窗
+    final confirmDelete = await showDeleteConfirmDialog(context);
+    /// 确认删除后 更新界面
+    if (confirmDelete) {
+      _showInsertRes(
+        context: context,
+        color: Color(eventListModel.models[index].color),
+        text: '删除成功',);
 
-    setState(() {
-      deleteIndex = index;
-      isAddAnimation = false;
-      isInitAnimation = false;
-      isDeleteAnimation = true;
-      animationController.forward(from: 0.0);
-    });
+      setState(() {
+        deleteIndex = index;
+        isAddAnimation = false;
+        isInitAnimation = false;
+        isDeleteAnimation = true;
+        animationController.forward(from: 0.0);
+      });
+    }
+  }
+
+  Future<bool> showDeleteConfirmDialog(BuildContext context) async {
+    final res = await showCupertinoModalPopup<bool>(
+      context: context,
+      builder: (context) {
+
+        final colors = Theme.of(context).colorScheme;
+        final titleTextStyle = TimeTheme.smallTextStyle.apply(color: colors.onSecondary);
+        final deleteTextStyle = TimeTheme.normalTextStyle.apply(color: colorRed1);
+        final cancelTextStyle = TimeTheme.normalTextStyle.apply(color: colorBlue1);
+
+        return Container(
+          alignment: Alignment.bottomCenter,
+          child: CupertinoActionSheet(
+            title: Text('您要删除此时间卡吗?', style: titleTextStyle,),
+            actions: [
+              CupertinoActionSheetAction(
+                child: Text('删除', style: deleteTextStyle,),
+                onPressed: () => Navigator.pop(context, true),
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              child: Text('取消', style: cancelTextStyle,),
+              onPressed: () => Navigator.pop(context, false),
+            ),
+          ),
+        );
+      },
+    );
+    return res ?? false;
   }
 
   /// 获取事件
@@ -107,11 +144,12 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 提示
   void _showInsertRes({@required BuildContext context, Color color = colorRed1, String text = '',}) {
+    final style = TimeTheme.smallTextStyle.apply(color: Colors.white,);
     ScaffoldState state = Scaffold.of(context);
     state.removeCurrentSnackBar();
     state.showSnackBar(SnackBar(
       backgroundColor: color,
-      content: Text(text),
+      content: Text(text, style: style,),
     ));
     HapticFeedback.lightImpact();
   }
