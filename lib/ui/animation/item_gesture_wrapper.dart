@@ -45,8 +45,10 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
   DragOffsetHelper helper;
 
   void onDragCancel() {
-    itemOffsetReset();
-    isDragging = false;
+    if (isDragging) {
+      itemOffsetReset();
+      isDragging = false;
+    }
   }
 
   void onDragStart(DragStartDetails details) {
@@ -62,7 +64,6 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
   }
 
   void onDragUpdate(DragUpdateDetails details) {
-
     if (itemController.isAnimating) return;
 
     /// 获取偏移量
@@ -83,16 +84,16 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
   }
 
   void onDragEnd(DragEndDetails details) {
+    print('on drag end');
     final double value = itemController.value;
 
     /// 判断是否需要停在某个位置
     if (value < -0.5){
-      itemOffsetReset();
       if (widget.rightAction != null && widget.onRightAction != null)
-        itemController.addListener(triggerOnRight);
+        triggerOnRight();
     } else if (value >= 0.9) {
       if (widget.leftAction != null && widget.onLeftAction != null)
-        widget.onLeftAction();
+        triggerOnLeft();
     } else if (value < helper.rightIconScaleThreshold && widget.rightAction != null) {
       itemShowRightIcon();
     } else if (value > helper.leftIconScaleThreshold && widget.leftAction != null) {
@@ -183,10 +184,31 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
     );
   }
 
+  void triggerOnLeft() {
+    if (itemController.isAnimating) return;
+    if (widget.leftAction == null || widget.onLeftAction != null) {
+      itemOffsetReset();
+    }
+    if (itemController.value >= 0.9) {
+      /// 直接触发外部的回调
+      itemController.removeListener(triggerOnLeft);
+      widget.onLeftAction();
+    } else {
+      /// 设置回调
+      itemController.addListener(triggerOnLeft);
+      /// 将item移动到底部后再回调 先完成动画后再回调
+      itemController.animateTo(
+        0.9,
+        duration: _kIconScaleDuration,
+        curve: Curves.linear,
+      );
+    }
+  }
+
   /// 动画执行完毕之后 触发右边action
   void triggerOnRight() {
-    if (!isDragging && itemController.value == 0.0) {
-      itemController.removeListener(triggerOnRight);
+    itemOffsetReset();
+    if (widget.rightAction != null && widget.onRightAction != null) {
       widget.onRightAction();
     }
   }
@@ -240,7 +262,7 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
       }
 
       if (!isDragging && value == 0.0) setState(() { dragMode = false; });
-      
+
     });
   }
 
@@ -281,7 +303,10 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
               ),
               child: ScaleTransition(
                 scale: iconScaleController,
-                child: child,
+                child: GestureDetector(
+                  child: child,
+                  onTap: triggerOnLeft,
+                ),
               ),
             );
           },
@@ -309,7 +334,10 @@ class _ItemGestureWrapperState extends State<ItemGestureWrapper> with TickerProv
                   right: value,
                   child: ScaleTransition(
                     scale: iconScaleController,
-                    child: child,
+                    child: GestureDetector(
+                      child: child,
+                      onTap: triggerOnRight,
+                    ),
                   ),
                 );
               },
