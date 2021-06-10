@@ -144,11 +144,12 @@ class _TimeEventListPageState extends State<TimeEventListPage> with SingleTicker
 
   /// 提示
   void _showInsertRes({@required BuildContext context, Color color = colorRed1, String text = '',}) {
+    final style = TimeTheme.smallTextStyle.apply(color: Colors.white,);
     ScaffoldState state = Scaffold.of(context);
     state.removeCurrentSnackBar();
     state.showSnackBar(SnackBar(
       backgroundColor: color,
-      content: Text(text),
+      content: Text(text, style: style,),
     ));
     HapticFeedback.lightImpact();
   }
