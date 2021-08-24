@@ -5,6 +5,7 @@ import 'package:flutter_time/themes/time_theme_data.dart';
 import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
+import 'package:flutter_time/ui/date_picker/date_pick.dart';
 import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
@@ -152,11 +153,12 @@ class _CreateCountDownEventScreenState extends State<CreateCountDownEventScreen>
   /// 起始时间最早2000年 最晚就是目标时间
   /// [timestamp] 上一个选定的起始时间
   void handleTapStartTime(int timestamp) async {
-    final selectedDate = await showDatePicker(
+    final selectedDate = await showTimeDatePicker(
       context: context,
+      title: '选择起始日',
       initialDate: DateTime.fromMillisecondsSinceEpoch(timestamp),
-      firstDate: DateTime(2000,),
-      lastDate: DateTime.fromMillisecondsSinceEpoch(modelNotifier.endTimeNotifier.value),
+      startDate: DateTime(2000,),
+      endDate: DateTime.fromMillisecondsSinceEpoch(modelNotifier.endTimeNotifier.value),
     );
     if (selectedDate != null) {
       onStartTimeChanged(selectedDate.millisecondsSinceEpoch);
@@ -164,11 +166,12 @@ class _CreateCountDownEventScreenState extends State<CreateCountDownEventScreen>
   }
 
   void handleTapTargetTime(int timestamp) async {
-    final selectedDate = await showDatePicker(
+    final selectedDate = await showTimeDatePicker(
       context: context,
+      title: '选择目标日',
       initialDate: DateTime.fromMillisecondsSinceEpoch(timestamp),
-      firstDate: DateTime.fromMillisecondsSinceEpoch(modelNotifier.startTimeNotifier.value),
-      lastDate: DateTime(2030),
+      startDate: DateTime.fromMillisecondsSinceEpoch(modelNotifier.startTimeNotifier.value),
+      endDate: DateTime(2030),
     );
     if (selectedDate != null) {
       onTargetTimeChanged(selectedDate.millisecondsSinceEpoch);
@@ -269,7 +272,10 @@ class ItemPreview extends StatelessWidget {
                 textStyle: TextStyle(
                   color: Colors.white,
                 ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 18.0),
+                constraints: BoxConstraints.tightFor(
+                  width: 66,
+                  height: 30,
+                ),
                 backgroundColor: canSave ? colorBlue2 : Color(0xFFDEDEDE),
                 borderRadius: BorderRadius.circular(18.0),
                 onTap: canSave ? onTap : null,
