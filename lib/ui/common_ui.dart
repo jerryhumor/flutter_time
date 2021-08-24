@@ -1035,7 +1035,10 @@ class EditDialogField extends StatelessWidget {
                 TextButton(
                   text: CANCEL,
                   textStyle: buttonTextStyle,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+                  constraints: BoxConstraints.tightFor(
+                    width: 60,
+                    height: 30,
+                  ),
                   backgroundColor: theme.colorScheme.secondaryVariant,
                   borderRadius: BorderRadius.circular(4.0),
                   onTap: onCancel,
@@ -1044,7 +1047,10 @@ class EditDialogField extends StatelessWidget {
                 TextButton(
                   text: SAVE,
                   textStyle: buttonTextStyle,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 12.0),
+                  constraints: BoxConstraints.tightFor(
+                    width: 60,
+                    height: 30,
+                  ),
                   backgroundColor: colorBlue2,
                   borderRadius: BorderRadius.circular(4.0),
                   onTap: onSave,
@@ -1092,16 +1098,16 @@ class TextButton extends StatelessWidget {
   final String text;
   final Color backgroundColor;
   final TextStyle textStyle;
-  final EdgeInsetsGeometry contentPadding;
+  final BoxConstraints constraints;
   final BorderRadius borderRadius;
   final VoidCallback onTap;
 
   TextButton({
     this.text,
     this.textStyle,
-    this.contentPadding,
+    this.constraints = const BoxConstraints(),
     this.backgroundColor,
-    this.borderRadius,
+    this.borderRadius = BorderRadius.zero,
     this.onTap,
   });
 
@@ -1109,13 +1115,13 @@ class TextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RawMaterialButton(
       onPressed: onTap,
-      constraints: BoxConstraints(minWidth: 0, minHeight: 0),
-      child: Container(
-        padding: contentPadding,
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          color: backgroundColor,
-        ),
+      constraints: constraints,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ColoredBox(
+        color: backgroundColor,
         child: Center(
           child: Text(text, style: textStyle,),
         ),

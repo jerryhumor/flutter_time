@@ -6,6 +6,8 @@ import 'package:flutter_time/pages/time_event_list_page.dart';
 import 'package:flutter_time/ui/animation/animation_column_2.dart';
 import 'package:flutter_time/ui/common_ui.dart';
 import 'package:flutter_time/ui/count_down/count_down_item.dart';
+import 'package:flutter_time/ui/date_picker/date_pick.dart';
+import 'package:flutter_time/ui/date_picker/date_picker_theme.dart';
 import 'package:flutter_time/util/time_utils.dart';
 import 'package:flutter_time/value/colors.dart';
 import 'package:flutter_time/value/strings.dart';
@@ -137,12 +139,14 @@ class _CreateCumulativeEventScreenState extends State<CreateCumulativeEventScree
     );
   }
 
+
   void handleTapStartTime(int timestamp) async {
-    final selectedDate = await showDatePicker(
+    final selectedDate = await showTimeDatePicker(
       context: context,
+      title: '选择起始日',
       initialDate: DateTime.fromMillisecondsSinceEpoch(timestamp),
-      firstDate: DateTime(2000,),
-      lastDate: TimeUtils.getTodayStartTime(),
+      startDate: DateTime(2000,),
+      endDate: TimeUtils.getTodayStartTime(),
     );
     if (selectedDate != null) {
       onStartTimeChanged(selectedDate.millisecondsSinceEpoch);
